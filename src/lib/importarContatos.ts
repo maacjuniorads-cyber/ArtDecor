@@ -1,9 +1,11 @@
 /**
  * Importar clientes da agenda do celular.
  *
- * Duas fontes:
+ * Fontes:
  * - Android (Chrome): a própria agenda, pelo seletor de contatos do navegador.
  * - Qualquer celular: um arquivo de contatos .vcf (vCard) exportado da agenda.
+ * - Qualquer celular: números e nomes digitados ou colados (ex.: copiados do WhatsApp).
+ * - Android, app instalado: "Compartilhar → ArtDecor" de outro app (contato ou texto com número).
  *
  * Só nome e telefone entram; o resto (endereço, veículo) é completado depois.
  */
@@ -138,6 +140,105 @@ export function lerVcf(texto: string): ContatoBruto[] {
     else if (atual && prop === 'TEL') atual.telefones.push(valor.replace(/^tel:/i, ''));
   }
   return contatos;
+}
+
+// ------------------------------------------------------------------ texto (colado ou compartilhado)
+
+/** Trechos que parecem telefone: "+55 53 99133-3075", "(53) 99133-3075", "53991333075"… */
+const TRECHO_TELEFONE = /\+?\(?\d[\d\s().-]{6,}\d/g;
+
+function limparNome(texto: string): string {
+  const nome = texto
+    .replace(/\b(tel|cel|celular|fone|telefone|whats|whatsapp|zap|n[uú]mero)\b\.?:?/gi, ' ')
+    .replace(/[\s\-–—:,;|•*·.]+$/g, '')
+    .replace(/^[\s\-–—:,;|•*·.]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  // Frase comprida não é nome (ex.: mensagem inteira colada junto).
+  return nome.length > 50 ? '' : nome;
+}
+
+/**
+ * Lê contatos de um texto, um por linha: "Maria Souza 53 99133-3075", só o número, ou só o nome.
+ * Nome numa linha e número na de baixo também vale. Se o texto for um vCard, lê como vCard.
+ * soComTelefone: ignora linhas que não têm número (para texto compartilhado de outro app).
+ */
+export function lerTexto(texto: string, { soComTelefone = false } = {}): ContatoBruto[] {
+  if (/BEGIN:VCARD/i.test(texto)) return lerVcf(texto);
+  const linhas = texto
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const contatos: ContatoBruto[] = [];
+  let nomeSolto: string | null = null;
+  const soltar = () => {
+    if (nomeSolto && !soComTelefone) contatos.push({ nome: nomeSolto, telefones: [] });
+    nomeSolto = null;
+  };
+
+  for (const linha of linhas) {
+    const telefones = [...linha.matchAll(TRECHO_TELEFONE)]
+      .map((m) => m[0].trim())
+      .filter((t) => {
+        const n = t.replace(/\D/g, '').length;
+        return n >= 8 && n <= 15;
+      });
+    let resto = linha;
+    for (const t of telefones) resto = resto.replace(t, ' ');
+    let nome = limparNome(resto);
+
+    if (telefones.length === 0) {
+      soltar();
+      nomeSolto = nome || null;
+      continue;
+    }
+    if (!nome && nomeSolto) {
+      nome = nomeSolto; // nome na linha de cima, número nesta
+      nomeSolto = null;
+    } else {
+      soltar();
+    }
+    if (nome) contatos.push({ nome, telefones });
+    else for (const t of telefones) contatos.push({ nome: '', telefones: [t] }); // vários números soltos: um contato cada
+  }
+  soltar();
+  return contatos;
+}
+
+// ------------------------------------------------------------------ compartilhado de outro app (Android)
+
+export interface Compartilhado {
+  arquivos: string[];
+  texto: string;
+}
+
+let leitura: Promise<Compartilhado | null> | null = null;
+
+/**
+ * O que chegou pelo "Compartilhar → ArtDecor" (o service worker guarda; aqui lê e apaga).
+ * Lê uma vez só, mesmo que a tela peça duas vezes.
+ */
+export function lerCompartilhado(): Promise<Compartilhado | null> {
+  leitura ??= (async () => {
+    try {
+      if (!('caches' in window)) return null;
+      const cache = await caches.open('artdecor-compartilhado');
+      const r = await cache.match('/compartilhado');
+      if (!r) return null;
+      await cache.delete('/compartilhado');
+      const dados = (await r.json()) as Partial<Compartilhado>;
+      return { arquivos: dados.arquivos ?? [], texto: dados.texto ?? '' };
+    } catch {
+      return null;
+    }
+  })();
+  return leitura;
+}
+
+/** Transforma o que foi compartilhado em contatos. */
+export function contatosCompartilhados(c: Compartilhado): ContatoBruto[] {
+  return [...c.arquivos.flatMap((a) => lerTexto(a, { soComTelefone: true })), ...lerTexto(c.texto, { soComTelefone: true })];
 }
 
 // ------------------------------------------------------------------ agenda do Android

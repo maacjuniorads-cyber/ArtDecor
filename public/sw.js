@@ -2,6 +2,8 @@
 // Deixa o app "instalável" no Android e abre a última versão salva quando a internet falha.
 // Estratégia: rede primeiro; se não houver rede, usa o que estiver em cache.
 const CACHE = 'artdecor-v1';
+// Onde fica, por um instante, o que chegou pelo "Compartilhar → ArtDecor".
+const CACHE_COMPARTILHADO = 'artdecor-compartilhado';
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -9,13 +11,18 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((nomes) => Promise.all(nomes.filter((n) => n !== CACHE).map((n) => caches.delete(n))))
+      .then((nomes) => Promise.all(nomes.filter((n) => n !== CACHE && n !== CACHE_COMPARTILHADO).map((n) => caches.delete(n))))
       .then(() => self.clients.claim()),
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  // "Compartilhar → ArtDecor" (Android): guarda o que veio e abre a tela de importar contatos.
+  if (req.method === 'POST' && new URL(req.url).pathname === '/compartilhar') {
+    event.respondWith(receberCompartilhado(req));
+    return;
+  }
   // Só arquivos do próprio app; chamadas a outros servidores (ex.: back-end) passam direto.
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
@@ -37,6 +44,26 @@ self.addEventListener('fetch', (event) => {
       }),
   );
 });
+
+async function receberCompartilhado(req) {
+  try {
+    const dados = await req.formData();
+    const arquivos = [];
+    for (const arquivo of dados.getAll('contatos')) {
+      if (arquivo && typeof arquivo.text === 'function') arquivos.push(await arquivo.text());
+    }
+    // O título que o outro app manda costuma ser só "Compartilhar" ou parecido: vale só o texto.
+    const texto = typeof dados.get('text') === 'string' ? dados.get('text') : '';
+    const cache = await caches.open(CACHE_COMPARTILHADO);
+    await cache.put(
+      '/compartilhado',
+      new Response(JSON.stringify({ arquivos, texto }), { headers: { 'Content-Type': 'application/json' } }),
+    );
+  } catch {
+    // não deu para ler: a tela abre normal, sem nada novo
+  }
+  return Response.redirect(new URL('/clientes/importar?compartilhado=1', self.location.origin).href, 303);
+}
 
 // ---- Avisos (notificações push) ----
 // Chegam da tarefa agendada (scripts/avisos.mjs) só para os celulares da equipe que ativaram.

@@ -149,7 +149,7 @@ export const passos: Passo[] = [
     rota: fixo('/clientes'),
     alvo: 'clientes-importar',
     titulo: 'Trazer os clientes da agenda',
-    texto: 'Não precisa digitar um por um: em “Importar contatos” você escolhe na agenda do celular quem é cliente (no iPhone, pelo arquivo de contatos .vcf). Entram nome e telefone, e quem já é cliente não entra de novo.\n\nOs importados aparecem com “Completar cadastro”: o endereço e o carro você preenche quando fizer o pedido.',
+    texto: 'Não precisa digitar um por um: em “Importar contatos” você escolhe na agenda do celular quem é cliente (no iPhone, pelo arquivo de contatos .vcf). Cliente que está só no WhatsApp? Copie o número lá e cole em “Digitar ou colar números”. Entram nome e telefone, e quem já é cliente não entra de novo.\n\nOs importados aparecem com “Completar cadastro”: o endereço e o carro você preenche quando fizer o pedido.',
   },
 
   // ---- Novo pedido

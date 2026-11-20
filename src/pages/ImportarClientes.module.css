@@ -194,12 +194,13 @@
 /* Na lista: botões pequenos para somar mais contatos. */
 .mais {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin: 12px 0 0;
 }
 
 .botaoMais {
-  flex: 1;
+  flex: 1 1 40%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -238,4 +239,35 @@
   .adicionados {
     animation: none;
   }
+}
+
+/* "Digitar ou colar números" ocupa a linha inteira, embaixo dos outros dois. */
+.botaoLargo {
+  flex-basis: 100%;
+}
+
+/* Campo para digitar ou colar números. */
+.colar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 18px;
+  padding: 16px;
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.colar .suave {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.textoColar {
+  min-height: 120px;
+}
+
+.acoesColar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }

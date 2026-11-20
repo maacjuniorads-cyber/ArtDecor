@@ -1,11 +1,21 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { Icon } from '@/components/Icon';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { novoId, useDados } from '@/data/store';
-import { agendaDisponivel, escolherDaAgenda, lerVcf, montarCandidatos, type Candidato, type ContatoBruto } from '@/lib/importarContatos';
+import {
+  agendaDisponivel,
+  contatosCompartilhados,
+  escolherDaAgenda,
+  lerCompartilhado,
+  lerTexto,
+  lerVcf,
+  montarCandidatos,
+  type Candidato,
+  type ContatoBruto,
+} from '@/lib/importarContatos';
 import ui from '@/styles/ui.module.css';
 import styles from './ImportarClientes.module.css';
 
@@ -22,7 +32,10 @@ function etiqueta(c: Candidato): { texto: string; aviso: boolean } | null {
   return null;
 }
 
-/** Clientes → Importar contatos: escolhe na agenda (Android) ou num arquivo .vcf. Cada escolha SOMA na lista. */
+/**
+ * Clientes → Importar contatos: agenda (Android), arquivo .vcf, números colados/digitados
+ * ou "Compartilhar → ArtDecor" de outro app. Cada escolha SOMA na lista.
+ */
 export function ImportarClientes() {
   const navigate = useNavigate();
   const { clientes, importarClientes } = useDados();
@@ -33,6 +46,10 @@ export function ImportarClientes() {
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
+  // Campo para digitar ou colar números (ex.: copiados do WhatsApp).
+  const [colando, setColando] = useState(false);
+  const [textoColado, setTextoColado] = useState('');
+  const [params] = useSearchParams();
   const temAgenda = agendaDisponivel();
   const marcados = useMemo(() => new Set(marcadosLista), [marcadosLista]);
 
@@ -61,6 +78,37 @@ export function ImportarClientes() {
     }
     setAdicionados(entraram.length === 1 ? `+1 contato na lista: ${entraram[0].nome || entraram[0].telefone}` : `+${entraram.length} contatos na lista`);
     window.setTimeout(() => setAdicionados(null), 4000);
+  }
+
+  // Chegou pelo "Compartilhar → ArtDecor" (Android): soma o que veio na lista, já marcado.
+  const adicionarRef = useRef(adicionar);
+  adicionarRef.current = adicionar;
+  const compartilhado = params.get('compartilhado') === '1';
+  // Chegou de outro app: a lista que já estava aqui volta sem a faixa de "recuperamos" (ela não saiu da tela por engano).
+  const [veioCompartilhado] = useState(compartilhado);
+  useEffect(() => {
+    if (!compartilhado) return;
+    let vivo = true;
+    lerCompartilhado().then((recebido) => {
+      if (!vivo) return;
+      navigate('/clientes/importar', { replace: true });
+      if (recebido) adicionarRef.current(contatosCompartilhados(recebido), true);
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [compartilhado, navigate]);
+
+  function adicionarColados() {
+    const contatos = lerTexto(textoColado);
+    if (contatos.length === 0) return setErro('Escreva ou cole pelo menos um nome ou número.');
+    // Só fecha o campo se algo entrou de fato (se tudo era repetido, o balão avisa e o texto fica).
+    const entrou = montarCandidatos([...brutos, ...contatos], clientes).candidatos.length > candidatos.length;
+    adicionar(contatos, true);
+    if (entrou) {
+      setTextoColado('');
+      setColando(false);
+    }
   }
 
   async function daAgenda() {
@@ -134,6 +182,46 @@ export function ImportarClientes() {
         <Icon name="documento" size={20} /> Abrir arquivo de contatos (.vcf)
         <input type="file" accept=".vcf,text/vcard,text/x-vcard,text/directory" onChange={doArquivo} />
       </label>
+      {!colando && (
+        <button type="button" className={ui.botaoSecundario} onClick={() => setColando(true)}>
+          <Icon name="telefone" size={20} /> Digitar ou colar números
+        </button>
+      )}
+    </div>
+  );
+
+  const campoColar = colando && (
+    <div className={styles.colar}>
+      <label className={ui.campo}>
+        <span className={ui.rotulo}>Nomes e números, um por linha</span>
+        <textarea
+          className={`${ui.input} ${styles.textoColar}`}
+          rows={5}
+          value={textoColado}
+          onChange={(e) => setTextoColado(e.target.value)}
+          placeholder={['Maria Souza 53 99133-3075', '53 98111-2233', 'João Pereira'].join('\n')}
+          autoFocus
+        />
+      </label>
+      <p className={styles.suave}>
+        Do WhatsApp: abra a conversa, toque no nome lá em cima, segure o dedo no número e toque em <b>Copiar</b>. Depois segure o dedo aqui e
+        toque em <b>Colar</b>. Pode pôr só o número: o nome você completa depois.
+      </p>
+      <div className={styles.acoesColar}>
+        <button
+          type="button"
+          className={ui.botaoSecundario}
+          onClick={() => {
+            setColando(false);
+            setTextoColado('');
+          }}
+        >
+          Cancelar
+        </button>
+        <button type="button" className={ui.botaoPrimario} onClick={adicionarColados}>
+          Pôr na lista
+        </button>
+      </div>
     </div>
   );
 
@@ -150,6 +238,7 @@ export function ImportarClientes() {
           <p className={styles.suave}>Basta ter o nome ou o telefone: o que faltar você completa depois. Quem já é cliente é reconhecido e não entra de novo.</p>
         </div>
         {botoes}
+        {campoColar}
 
         <details className={styles.ajuda}>
           <summary>Como exportar os contatos (.vcf)</summary>
@@ -167,6 +256,12 @@ export function ImportarClientes() {
           <p>
             O jeito mais fácil é o botão <b>Escolher da agenda</b>. Se preferir o arquivo: no app <b>Contatos</b>, abra o menu, toque em{' '}
             <b>Gerenciar contatos</b> (ou Configurações) e em <b>Exportar</b>.
+          </p>
+          <h3>Contatos que estão só no WhatsApp</h3>
+          <p>
+            O WhatsApp não deixa outros apps lerem os contatos dele. Copie o número no WhatsApp e use <b>Digitar ou colar números</b>. No
+            Android, com o app instalado, também dá pra usar o <b>Compartilhar</b> do WhatsApp e escolher <b>ArtDecor</b>: o contato cai direto
+            nesta lista.
           </p>
         </details>
         <ErroFormulario erro={erro} onFechar={() => setErro('')} />
@@ -191,7 +286,7 @@ export function ImportarClientes() {
   return (
     <>
       <Cabecalho titulo="Importar contatos" voltarPara="/clientes" />
-      <AvisoRascunho visivel={rascunho.recuperado} onDescartar={limparLista} />
+      <AvisoRascunho visivel={rascunho.recuperado && !veioCompartilhado} onDescartar={limparLista} />
       <p className={styles.resumo}>{resumo}</p>
       <p className={styles.dica}>Marque só quem é cliente da loja.</p>
 
@@ -205,7 +300,13 @@ export function ImportarClientes() {
           <Icon name="mais" size={18} /> {temAgenda ? 'Outro arquivo' : 'Outro arquivo (.vcf)'}
           <input type="file" accept=".vcf,text/vcard,text/x-vcard,text/directory" onChange={doArquivo} />
         </label>
+        {!colando && (
+          <button type="button" className={`${styles.botaoMais} ${styles.botaoLargo}`} onClick={() => setColando(true)}>
+            <Icon name="mais" size={18} /> Digitar ou colar números
+          </button>
+        )}
       </div>
+      {campoColar}
       {adicionados && (
         <p className={styles.adicionados} role="status">
           ✓ {adicionados}
