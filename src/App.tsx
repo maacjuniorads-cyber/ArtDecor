@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppLayout, TelaCheiaLayout } from '@/components/AppLayout';
 import { ComLogin } from '@/components/Autenticacao';
 import { DadosProvider } from '@/data/store';
+import { TourProvider } from '@/components/tour/Tour';
 import { Inicio } from '@/pages/Inicio';
 import { Estoque } from '@/pages/Estoque';
 import { ItemForm } from '@/pages/ItemForm';
@@ -19,6 +20,7 @@ export function App() {
     <ComLogin>
       <DadosProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <TourProvider>
           <Routes>
             <Route element={<AppLayout />}>
               <Route index element={<Inicio />} />
@@ -40,6 +42,7 @@ export function App() {
               <Route path="clientes/:id" element={<ClienteForm />} />
             </Route>
           </Routes>
+          </TourProvider>
         </BrowserRouter>
       </DadosProvider>
     </ComLogin>

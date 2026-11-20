@@ -149,7 +149,7 @@ export function Nota() {
         </div>
       </article>
 
-      <div className={`${ui.barraAcao} ${styles.naoImprimir}`}>
+      <div className={`${ui.barraAcao} ${styles.naoImprimir}`} data-tour="nota-acoes">
         <button type="button" className={ui.botaoSecundario} onClick={() => window.print()}>
           <Icon name="baixar" size={20} />
           Baixar PDF

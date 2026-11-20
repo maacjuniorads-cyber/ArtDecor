@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Badge, type BadgeTom } from '@/components/Badge';
 import { Icon } from '@/components/Icon';
 import { useUsuario } from '@/components/Autenticacao';
+import { PrimeirosPassos } from '@/components/PrimeirosPassos';
+import { useTour } from '@/components/tour/Tour';
 import { useDados } from '@/data/store';
 import { dataPorExtenso, deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
 import {
@@ -22,6 +24,7 @@ const badgeCompromisso: Record<TipoCompromisso, { tom: BadgeTom; texto: string }
 export function Inicio() {
   const { clientes, itens, pedidos } = useDados();
   const usuario = useUsuario();
+  const tour = useTour();
   const hoje = hojeISO();
   const naRua = pedidos.filter((p) => p.status === 'rua');
   const reservados = pedidos.filter((p) => p.status === 'reservado');
@@ -42,17 +45,24 @@ export function Inicio() {
           {usuario.nome ? `Olá, ${usuario.nome} · ` : ''}
           {dataPorExtenso(hoje)}
         </p>
-        <button type="button" className={styles.sair} onClick={usuario.sair}>
-          Sair
-        </button>
+        <div className={styles.acoesTopo}>
+          <button type="button" className={styles.ajuda} onClick={tour.iniciar} data-tour="ajuda">
+            Ajuda
+          </button>
+          <button type="button" className={styles.sair} onClick={usuario.sair}>
+            Sair
+          </button>
+        </div>
       </header>
 
-      <Link to="/pedidos/novo" className={styles.botaoPrincipal}>
+      <Link to="/pedidos/novo" className={styles.botaoPrincipal} data-tour="novo-pedido">
         <Icon name="mais" size={20} strokeWidth={2.2} />
         Novo pedido
       </Link>
 
-      <div className={styles.resumo}>
+      <PrimeirosPassos />
+
+      <div className={styles.resumo} data-tour="resumo">
         <Link to="/pedidos?status=rua" className={styles.cartao}>
           <span className={styles.rotulo} data-tom="rua">Na rua</span>
           <span className={styles.numero}>{naRua.length}</span>
@@ -75,6 +85,7 @@ export function Inicio() {
         </Link>
       </div>
 
+      <section data-tour="agenda">
       <h2 className={styles.secao}>Próximos dias</h2>
       {agenda.length === 0 ? (
         <p className={styles.vazio}>Nada saindo ou voltando nos próximos dias.</p>
@@ -102,6 +113,7 @@ export function Inicio() {
           })}
         </ul>
       )}
+      </section>
 
       {semContagem.length > 0 && (
         <Link to="/estoque" className={styles.aviso}>

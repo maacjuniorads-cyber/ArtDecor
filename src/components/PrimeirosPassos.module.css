@@ -1,0 +1,112 @@
+.cartao {
+  margin-top: 16px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  padding: 16px 16px 8px;
+  border: 2px solid var(--rosa);
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.titulo {
+  font-size: 18px;
+  color: var(--vinho);
+}
+
+.contagem {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.barra {
+  display: block;
+  margin: 10px 0 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #eee7ea;
+  overflow: hidden;
+}
+
+.barra > span {
+  display: block;
+  height: 100%;
+  background: var(--vinho);
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tarefa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 0;
+  text-decoration: none;
+  color: var(--texto);
+  font-size: 15px;
+}
+
+.lista li + li .tarefa {
+  border-top: 1px solid var(--divisor);
+}
+
+.marca {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #dcd2d7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+}
+
+.tarefa[data-feito='true'] .marca {
+  background: var(--status-devolvido-fg);
+  border-color: var(--status-devolvido-fg);
+}
+
+.tarefa[data-feito='true'] .textoTarefa {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
+.textoTarefa {
+  flex: 1;
+}
+
+.seta {
+  font-size: 22px;
+  color: var(--vinho);
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.esconder {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}

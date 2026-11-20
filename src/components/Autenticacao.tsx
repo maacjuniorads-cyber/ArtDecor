@@ -6,10 +6,29 @@ import ui from '@/styles/ui.module.css';
 import styles from './Telas.module.css';
 
 interface Usuario {
+  id: string;
   email: string;
   /** Primeiro nome, se cadastrado no Supabase (user_metadata.nome). */
   nome?: string;
+  /** undefined enquanto o perfil ainda está carregando. */
+  tutorialVisto?: boolean;
+  marcarTutorialVisto: () => void;
   sair: () => Promise<void>;
+}
+
+interface Perfil {
+  nome?: string;
+  tutorialVisto?: boolean;
+}
+
+const chaveTutorial = (userId: string) => `artdecor:tutorial-visto:${userId}`;
+
+function tutorialVistoLocal(userId: string): boolean {
+  try {
+    return localStorage.getItem(chaveTutorial(userId)) === '1';
+  } catch {
+    return false;
+  }
 }
 
 const Contexto = createContext<Usuario | null>(null);
@@ -23,7 +42,7 @@ export function useUsuario(): Usuario {
 /** Só mostra o app para quem estiver logado. */
 export function ComLogin({ children }: { children: ReactNode }) {
   const [sessao, setSessao] = useState<Session | null | undefined>(undefined);
-  const [nome, setNome] = useState<string | undefined>(undefined);
+  const [perfil, setPerfil] = useState<Perfil | undefined>(undefined);
 
   useEffect(() => {
     if (!supabaseConfigurado) return;
@@ -37,9 +56,10 @@ export function ComLogin({ children }: { children: ReactNode }) {
   const userId = sessao?.user.id;
   useEffect(() => {
     if (!userId) return;
+    setPerfil(undefined);
     supabase.auth.getUser().then(({ data }) => {
-      const meta = data.user?.user_metadata as { nome?: string } | undefined;
-      if (meta?.nome) setNome(meta.nome);
+      const meta = (data.user?.user_metadata ?? {}) as Perfil;
+      setPerfil({ nome: meta.nome, tutorialVisto: Boolean(meta.tutorialVisto) || tutorialVistoLocal(userId) });
     });
   }, [userId]);
 
@@ -58,10 +78,25 @@ export function ComLogin({ children }: { children: ReactNode }) {
   if (sessao === undefined) return <TelaCarregando />;
   if (!sessao) return <Login />;
 
-  const meta = sessao.user.user_metadata as { nome?: string } | undefined;
+  const meta = sessao.user.user_metadata as Perfil | undefined;
+  const id = sessao.user.id;
   const usuario: Usuario = {
+    id,
     email: sessao.user.email ?? '',
-    nome: (nome ?? meta?.nome)?.split(' ')[0],
+    nome: (perfil?.nome ?? meta?.nome)?.split(' ')[0],
+    tutorialVisto: perfil?.tutorialVisto,
+    marcarTutorialVisto: () => {
+      setPerfil((p) => ({ ...p, tutorialVisto: true }));
+      try {
+        localStorage.setItem(chaveTutorial(id), '1');
+      } catch {
+        // sem localStorage: fica só no perfil
+      }
+      // Guarda no perfil para não repetir em outro aparelho.
+      // (Repete o nome por garantia, caso o servidor substitua os dados em vez de juntar.)
+      const nomeAtual = perfil?.nome ?? meta?.nome;
+      supabase.auth.updateUser({ data: { tutorialVisto: true, ...(nomeAtual ? { nome: nomeAtual } : {}) } }).catch(() => {});
+    },
     sair: async () => {
       await supabase.auth.signOut();
     },

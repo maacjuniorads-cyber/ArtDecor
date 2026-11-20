@@ -114,7 +114,7 @@ export function PedidoForm() {
     <>
       <Cabecalho titulo={existente ? `Editar pedido ${numeroPedido(existente)}` : 'Novo pedido'} voltarPara={existente ? `/pedidos/${existente.id}` : '/pedidos'} />
       <form id="form-pedido" className={ui.form} onSubmit={salvar} noValidate>
-        <section className={ui.campo}>
+        <section className={ui.campo} data-tour="pedido-cliente">
           <label className={ui.campo}>
             <span className={ui.rotulo}>Cliente</span>
             <select className={ui.input} value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
@@ -151,7 +151,7 @@ export function PedidoForm() {
         </div>
 
         {temasComPecas.length > 0 && (
-          <section>
+          <section data-tour="pedido-kits">
             <h2 className={ui.secao}>Adicionar kit do tema</h2>
             <div className={ui.chips}>
               {temasComPecas.map((t) => {
@@ -166,7 +166,7 @@ export function PedidoForm() {
           </section>
         )}
 
-        <section>
+        <section data-tour="pedido-itens">
           <h2 className={ui.secao}>Itens ({linhas.reduce((s, l) => s + l.quantidade, 0)})</h2>
           <div className={ui.tabela}>
             {linhas.length === 0 && <p className={styles.semItens}>Escolha um tema acima ou adicione itens abaixo.</p>}
@@ -230,7 +230,7 @@ export function PedidoForm() {
           </div>
         </section>
 
-        <section className={`${ui.cartao} ${styles.totais}`}>
+        <section className={`${ui.cartao} ${styles.totais}`} data-tour="pedido-totais">
           <div>
             <span className={ui.detalhe}>Total</span>
             <b className={styles.total}>{formatarMoeda(total)}</b>

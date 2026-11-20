@@ -45,7 +45,7 @@ export function Pedidos() {
   return (
     <>
       <h1 className={ui.tituloPagina}>Pedidos</h1>
-      <div className={`${ui.segmentado} ${styles.abas}`} role="tablist" aria-label="Status do pedido">
+      <div className={`${ui.segmentado} ${styles.abas}`} role="tablist" aria-label="Status do pedido" data-tour="pedidos-abas">
         {abas.map((a) => (
           <button key={a.status} type="button" role="tab" className={ui.segmento} aria-selected={a.status === status} onClick={() => setParams({ status: a.status }, { replace: true })}>
             {a.rotulo} ({pedidos.filter((p) => p.status === a.status).length})
@@ -95,7 +95,7 @@ export function Pedidos() {
         </button>
       )}
 
-      <Link to="/pedidos/novo" className={ui.fab} aria-label="Novo pedido">
+      <Link to="/pedidos/novo" className={ui.fab} aria-label="Novo pedido" data-tour="fab">
         <Icon name="mais" size={28} strokeWidth={2.2} />
       </Link>
     </>

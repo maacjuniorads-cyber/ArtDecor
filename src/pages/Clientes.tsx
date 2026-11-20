@@ -29,7 +29,7 @@ export function Clientes() {
   return (
     <>
       <h1 className={ui.tituloPagina}>Clientes</h1>
-      <label className={`${ui.busca} ${styles.busca}`}>
+      <label className={`${ui.busca} ${styles.busca}`} data-tour="clientes-busca">
         <Icon name="busca" size={20} />
         <input type="search" placeholder="Nome, telefone, carro ou placa" value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Buscar cliente" />
       </label>
@@ -65,7 +65,7 @@ export function Clientes() {
         </ul>
       )}
 
-      <Link to="/clientes/novo" className={ui.fab} aria-label="Novo cliente">
+      <Link to="/clientes/novo" className={ui.fab} aria-label="Novo cliente" data-tour="fab">
         <Icon name="mais" size={28} strokeWidth={2.2} />
       </Link>
     </>

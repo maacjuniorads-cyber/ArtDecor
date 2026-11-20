@@ -11,7 +11,7 @@ const abas: { to: string; label: string; icon: IconName }[] = [
 
 export function BottomNav() {
   return (
-    <nav className={styles.nav} aria-label="Menu principal">
+    <nav className={styles.nav} aria-label="Menu principal" data-tour="menu">
       {abas.map((aba) => (
         <NavLink
           key={aba.to}

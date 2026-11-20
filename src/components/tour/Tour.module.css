@@ -1,0 +1,138 @@
+/* Camada que cobre o app durante o tutorial (bloqueia toques no app). */
+.camada {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.escuro {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 22, 34, 0.62);
+}
+
+/* "Holofote": recorte em volta da parte destacada; a sombra escurece o resto. */
+.foco {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow: 0 0 0 200vmax rgba(28, 22, 34, 0.62);
+  outline: 3px solid #f9dde1;
+  outline-offset: 0;
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+  pointer-events: none;
+}
+
+.balao {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 24px), 420px);
+  background: var(--superficie);
+  border-radius: 20px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 10px 30px rgba(28, 22, 34, 0.35);
+}
+
+.embaixo {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.emCima {
+  top: calc(16px + env(safe-area-inset-top));
+}
+
+.meio {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.progresso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.barra {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #eee7ea;
+  overflow: hidden;
+}
+
+.barra > span {
+  display: block;
+  height: 100%;
+  background: var(--vinho);
+  transition: width 0.25s ease;
+}
+
+.titulo {
+  margin: 10px 0 6px;
+  font-size: 20px;
+  color: var(--vinho);
+}
+
+.texto {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--texto);
+}
+
+.botoes {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pular {
+  margin-right: auto;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.voltar,
+.proximo {
+  min-height: 46px;
+  padding: 3px 16px 0;
+  border-radius: 12px;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.voltar {
+  border: 1px solid var(--borda-campo);
+  background: var(--superficie);
+  color: var(--vinho);
+}
+
+.proximo {
+  margin-left: auto;
+  border: 0;
+  background: var(--vinho);
+  color: #fff;
+}
+
+.voltar + .proximo {
+  margin-left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foco,
+  .barra > span {
+    transition: none;
+  }
+}

@@ -78,7 +78,7 @@ export function ItemForm() {
     <>
       <Cabecalho titulo={existente ? 'Editar item' : 'Novo item'} voltarPara="/estoque" />
       <form id="form-item" className={ui.form} onSubmit={salvar} noValidate>
-        <label className={styles.foto}>
+        <label className={styles.foto} data-tour="item-foto">
           {fotoUrl ? (
             <img src={fotoUrl} alt="Foto do item" />
           ) : (
@@ -122,7 +122,7 @@ export function ItemForm() {
           </label>
         </div>
 
-        <div className={ui.campo}>
+        <div className={ui.campo} data-tour="item-tipo">
           <span className={ui.rotulo} id="rotulo-tipo">Tipo de item</span>
           <div className={ui.segmentado} role="radiogroup" aria-labelledby="rotulo-tipo">
             <button type="button" role="radio" className={ui.segmento} aria-checked={tipo === 'varios'} onClick={() => setTipo('varios')}>
@@ -137,7 +137,7 @@ export function ItemForm() {
         </div>
 
         {tipo === 'varios' && (
-          <div className={ui.cartao}>
+          <div className={ui.cartao} data-tour="item-quantidade">
             <label className={ui.campo}>
               <span className={ui.rotulo}>Quantidade total</span>
               <input
@@ -162,7 +162,7 @@ export function ItemForm() {
           </div>
         )}
 
-        <label className={ui.campo}>
+        <label className={ui.campo} data-tour="item-valor">
           <span className={ui.rotulo}>Valor do aluguel (por unidade)</span>
           <span className={`${ui.input} ${ui.prefixo}`}>
             <span>R$</span>

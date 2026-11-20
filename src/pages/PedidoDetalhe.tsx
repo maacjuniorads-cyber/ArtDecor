@@ -81,7 +81,7 @@ export function PedidoDetalhe() {
           </p>
         ) : (
           <>
-            <ol className={`${ui.cartao} ${styles.etapas}`} aria-label="Andamento do pedido">
+            <ol className={`${ui.cartao} ${styles.etapas}`} aria-label="Andamento do pedido" data-tour="pedido-etapas">
               {etapas.map((e, i) => (
                 <li key={e.status} className={styles.etapa} data-feita={i <= etapaAtual} data-tom={pedido.status} aria-current={i === etapaAtual ? 'step' : undefined}>
                   <span className={styles.barraEtapa} />
@@ -158,7 +158,7 @@ export function PedidoDetalhe() {
         )}
       </div>
 
-      <div className={ui.barraAcao}>
+      <div className={ui.barraAcao} data-tour="pedido-acao">
         <Link to={`/pedidos/${pedido.id}/nota`} className={ui.botaoIcone} aria-label="Ver nota do pedido">
           <Icon name="documento" />
         </Link>
@@ -202,7 +202,7 @@ function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido
   }
 
   return (
-    <section>
+    <section data-tour="pedido-pagamento">
       <h2 className={ui.secao}>Pagamento</h2>
       <div className={`${ui.cartao} ${styles.totais}`}>
         <div>

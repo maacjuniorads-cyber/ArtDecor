@@ -19,7 +19,7 @@ export function Estoque() {
   return (
     <>
       <h1 className={ui.tituloPagina}>Estoque</h1>
-      <div className={`${ui.segmentado} ${styles.abas}`} role="tablist" aria-label="Ver">
+      <div className={`${ui.segmentado} ${styles.abas}`} role="tablist" aria-label="Ver" data-tour="estoque-abas">
         <button type="button" role="tab" className={ui.segmento} aria-selected={aba === 'itens'} onClick={() => setParams({}, { replace: true })}>
           Itens
         </button>
@@ -46,6 +46,7 @@ function ListaItens() {
 
   return (
     <>
+      <div data-tour="estoque-filtros">
       <label className={`${ui.busca} ${styles.busca}`}>
         <Icon name="busca" size={20} />
         <input type="search" placeholder="Buscar item ou tema" value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Buscar item ou tema" />
@@ -57,16 +58,17 @@ function ListaItens() {
           </button>
         ))}
       </div>
+      </div>
 
       {visiveis.length === 0 ? (
         <p className={ui.vazio}>Nenhum item encontrado.</p>
       ) : (
         <ul className={ui.lista}>
-          {visiveis.map((item) => {
+          {visiveis.map((item, i) => {
             const s = situacaoItem(item, pedidos);
             const tema = nomeTema(item.temaId);
             return (
-              <li key={item.id}>
+              <li key={item.id} data-tour={i === 0 ? 'estoque-item' : undefined}>
                 <Link to={`/estoque/${item.id}`} className={ui.linhaCartao}>
                   <Thumb nome={item.nome} fotoUrl={item.fotoUrl} />
                   <span className={ui.texto}>
@@ -99,7 +101,7 @@ function ListaItens() {
         </ul>
       )}
 
-      <Link to="/estoque/novo" className={ui.fab} aria-label="Novo item">
+      <Link to="/estoque/novo" className={ui.fab} aria-label="Novo item" data-tour="fab">
         <Icon name="mais" size={28} strokeWidth={2.2} />
       </Link>
     </>
@@ -115,9 +117,9 @@ function ListaTemas() {
     <>
       <p className={styles.dica}>Cada tema junta as peças que saem juntas. No pedido, é só escolher o tema.</p>
       {ativos.length === 0 ? (
-        <p className={ui.vazio}>Nenhum tema cadastrado.</p>
+        <p className={ui.vazio} data-tour="temas-lista">Nenhum tema cadastrado.</p>
       ) : (
-        <ul className={ui.lista}>
+        <ul className={ui.lista} data-tour="temas-lista">
           {ativos
             .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
             .map((tema) => {
@@ -154,7 +156,7 @@ function ListaTemas() {
         </ul>
       )}
 
-      <Link to="/temas/novo" className={ui.fab} aria-label="Novo tema">
+      <Link to="/temas/novo" className={ui.fab} aria-label="Novo tema" data-tour="fab">
         <Icon name="mais" size={28} strokeWidth={2.2} />
       </Link>
     </>
