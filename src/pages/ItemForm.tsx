@@ -28,6 +28,7 @@ export function ItemForm() {
   const [observacoes, setObservacoes] = useState(existente?.observacoes ?? '');
   const [fotoUrl, setFotoUrl] = useState(existente?.fotoUrl);
   const [erro, setErro] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   if (id && (!existente || existente.removido)) {
     return (
@@ -47,8 +48,9 @@ export function ItemForm() {
     }
   }
 
-  function salvar(e: FormEvent) {
+  async function salvar(e: FormEvent) {
     e.preventDefault();
+    if (salvando) return;
     const valorNum = lerValor(valor);
     const qtd = Number(quantidade);
     if (!nome.trim()) return setErro('Dê um nome ao item.');
@@ -56,7 +58,8 @@ export function ItemForm() {
     if (tipo === 'varios' && !semContagem && (!Number.isInteger(qtd) || qtd < 0 || quantidade === '')) {
       return setErro('Informe a quantidade ou marque "Ainda não contei".');
     }
-    salvarItem({
+    setSalvando(true);
+    const ok = await salvarItem({
       id: existente?.id ?? novoId(),
       nome: nome.trim(),
       categoria,
@@ -67,7 +70,8 @@ export function ItemForm() {
       observacoes: observacoes.trim() || undefined,
       fotoUrl,
     });
-    navigate('/estoque', { replace: true });
+    setSalvando(false);
+    if (ok) navigate('/estoque', { replace: true });
   }
 
   return (
@@ -182,17 +186,16 @@ export function ItemForm() {
             rotulo="Excluir item do estoque"
             confirmacao="Excluir este item? Ele some do estoque, mas continua aparecendo nos pedidos antigos."
             bloqueio={motivoBloqueio(pedidosAtivosComItem(existente.id, pedidos).map(numeroPedido), 'este item')}
-            onConfirmar={() => {
-              removerItem(existente.id);
-              navigate('/estoque', { replace: true });
+            onConfirmar={async () => {
+              if (await removerItem(existente.id)) navigate('/estoque', { replace: true });
             }}
           />
         )}
       </form>
 
       <div className={ui.barraAcao}>
-        <button type="submit" form="form-item" className={ui.botaoPrimario}>
-          Salvar item
+        <button type="submit" form="form-item" className={ui.botaoPrimario} disabled={salvando}>
+          {salvando ? 'Salvando…' : 'Salvar item'}
         </button>
       </div>
     </>

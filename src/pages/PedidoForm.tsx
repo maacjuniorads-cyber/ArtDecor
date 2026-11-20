@@ -14,7 +14,7 @@ import styles from './PedidoForm.module.css';
 export function PedidoForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { clientes, itens, temas, pedidos, salvarPedido, proximoNumeroPedido } = useDados();
+  const { clientes, itens, temas, pedidos, salvarPedido } = useDados();
   const existente = pedidos.find((p) => p.id === id);
   const hoje = hojeISO();
 
@@ -27,6 +27,7 @@ export function PedidoForm() {
   const [sinal, setSinal] = useState('');
   const [forma, setForma] = useState<FormaPagamento>('Pix');
   const [erro, setErro] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   if (id && !existente) {
     return (
@@ -80,29 +81,33 @@ export function PedidoForm() {
     );
   }
 
-  function salvar(e: FormEvent) {
+  async function salvar(e: FormEvent) {
     e.preventDefault();
+    if (salvando) return;
     if (!clienteId) return setErro('Escolha o cliente.');
     if (linhas.length === 0) return setErro('Adicione pelo menos um item.');
     if (devolucao < retirada) return setErro('A devolução não pode ser antes da retirada.');
     if (!existente && sinal.trim() && lerValor(sinal) === null) return setErro('Valor do sinal inválido (ex.: 150,00).');
 
     const comum = { clienteId, evento: evento.trim() || undefined, temaIds, itens: linhas, retirada, devolucao };
+    setSalvando(true);
     if (existente) {
-      salvarPedido({ ...existente, ...comum });
-      navigate(`/pedidos/${existente.id}`, { replace: true });
+      const ok = await salvarPedido({ ...existente, ...comum });
+      setSalvando(false);
+      if (ok) navigate(`/pedidos/${existente.id}`, { replace: true });
       return;
     }
     const novo = novoId();
     const valorSinal = lerValor(sinal) ?? 0;
-    salvarPedido({
+    const ok = await salvarPedido({
       id: novo,
-      numero: proximoNumeroPedido(),
+      numero: 0, // o banco gera o número
       ...comum,
       status: 'reservado',
       pagamentos: valorSinal > 0 ? [{ id: novoId(), valor: valorSinal, data: hoje, forma }] : [],
     });
-    navigate(`/pedidos/${novo}`, { replace: true });
+    setSalvando(false);
+    if (ok) navigate(`/pedidos/${novo}`, { replace: true });
   }
 
   return (
@@ -271,8 +276,8 @@ export function PedidoForm() {
       </form>
 
       <div className={ui.barraAcao}>
-        <button type="submit" form="form-pedido" className={ui.botaoPrimario}>
-          {existente ? 'Salvar alterações' : 'Reservar pedido'}
+        <button type="submit" form="form-pedido" className={ui.botaoPrimario} disabled={salvando}>
+          {salvando ? 'Salvando…' : existente ? 'Salvar alterações' : 'Reservar pedido'}
         </button>
       </div>
     </>

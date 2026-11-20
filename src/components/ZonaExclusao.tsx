@@ -9,7 +9,7 @@ interface Props {
   /** Se preenchido, a exclusão está bloqueada e este motivo aparece no lugar do botão. */
   bloqueio?: string;
   textoConfirmar?: string;
-  onConfirmar: () => void;
+  onConfirmar: () => unknown;
 }
 
 /** Mensagem de bloqueio quando algo está em pedidos em andamento, ou undefined se estiver livre. */

@@ -28,6 +28,7 @@ export function ClienteForm() {
   const [cor, setCor] = useState(v?.cor ?? '');
   const [placa, setPlaca] = useState(v?.placa ?? '');
   const [erro, setErro] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   if (id && !existente) {
     return (
@@ -42,12 +43,14 @@ export function ClienteForm() {
     ? pedidos.filter((p) => p.clienteId === existente.id).sort((a, b) => b.retirada.localeCompare(a.retirada))
     : [];
 
-  function salvar(e: FormEvent) {
+  async function salvar(e: FormEvent) {
     e.preventDefault();
+    if (salvando) return;
     if (!nome.trim()) return setErro('Informe o nome.');
     if (telefone.replace(/\D/g, '').length < 10) return setErro('Informe o telefone com DDD.');
     if (!semVeiculo && !modelo.trim()) return setErro('Informe o modelo do veículo ou marque "Cliente não tem veículo".');
-    salvarCliente({
+    setSalvando(true);
+    const ok = await salvarCliente({
       id: existente?.id ?? novoId(),
       nome: nome.trim(),
       telefone: telefone.trim(),
@@ -55,7 +58,8 @@ export function ClienteForm() {
       endereco: endereco.trim() || undefined,
       veiculo: semVeiculo ? null : { tipo, modelo: modelo.trim(), cor: cor.trim(), placa: placa.trim().toUpperCase() },
     });
-    navigate(-1);
+    setSalvando(false);
+    if (ok) navigate(-1);
   }
 
   return (
@@ -168,17 +172,16 @@ export function ClienteForm() {
             rotulo="Excluir cliente"
             confirmacao={`Excluir ${existente.nome}? O cadastro some da lista, mas continua aparecendo nos pedidos antigos.`}
             bloqueio={motivoBloqueio(pedidosDoCliente.filter(emAndamento).map(numeroPedido), 'este cliente')}
-            onConfirmar={() => {
-              removerCliente(existente.id);
-              navigate('/clientes', { replace: true });
+            onConfirmar={async () => {
+              if (await removerCliente(existente.id)) navigate('/clientes', { replace: true });
             }}
           />
         )}
       </form>
 
       <div className={ui.barraAcao}>
-        <button type="submit" form="form-cliente" className={ui.botaoPrimario}>
-          Salvar cliente
+        <button type="submit" form="form-cliente" className={ui.botaoPrimario} disabled={salvando}>
+          {salvando ? 'Salvando…' : 'Salvar cliente'}
         </button>
       </div>
     </>

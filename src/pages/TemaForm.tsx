@@ -18,6 +18,7 @@ export function TemaForm() {
   const [nome, setNome] = useState(existente?.nome ?? '');
   const [cor, setCor] = useState(existente?.cor ?? CORES[0]);
   const [erro, setErro] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   if (id && !existente) {
     return (
@@ -30,11 +31,14 @@ export function TemaForm() {
 
   const pecas = existente ? itensDoTema(existente, itens) : [];
 
-  function salvar(e: FormEvent) {
+  async function salvar(e: FormEvent) {
     e.preventDefault();
+    if (salvando) return;
     if (!nome.trim()) return setErro('Dê um nome ao tema.');
-    salvarTema({ id: existente?.id ?? novoId(), nome: nome.trim(), cor });
-    navigate('/estoque?aba=temas', { replace: true });
+    setSalvando(true);
+    const ok = await salvarTema({ id: existente?.id ?? novoId(), nome: nome.trim(), cor });
+    setSalvando(false);
+    if (ok) navigate('/estoque?aba=temas', { replace: true });
   }
 
   return (
@@ -90,16 +94,15 @@ export function TemaForm() {
           <ZonaExclusao
             rotulo="Excluir tema"
             confirmacao={`Excluir o tema “${existente.nome}”? As peças continuam no estoque, só deixam de fazer parte deste kit.`}
-            onConfirmar={() => {
-              removerTema(existente.id);
-              navigate('/estoque?aba=temas', { replace: true });
+            onConfirmar={async () => {
+              if (await removerTema(existente.id)) navigate('/estoque?aba=temas', { replace: true });
             }}
           />
         )}
       </form>
       <div className={ui.barraAcao}>
-        <button type="submit" form="form-tema" className={ui.botaoPrimario}>
-          Salvar tema
+        <button type="submit" form="form-tema" className={ui.botaoPrimario} disabled={salvando}>
+          {salvando ? 'Salvando…' : 'Salvar tema'}
         </button>
       </div>
     </>

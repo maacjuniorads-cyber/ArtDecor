@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Badge, type BadgeTom } from '@/components/Badge';
 import { Icon } from '@/components/Icon';
+import { useUsuario } from '@/components/Autenticacao';
 import { useDados } from '@/data/store';
 import { dataPorExtenso, deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
 import {
@@ -20,6 +21,7 @@ const badgeCompromisso: Record<TipoCompromisso, { tom: BadgeTom; texto: string }
 
 export function Inicio() {
   const { clientes, itens, pedidos } = useDados();
+  const usuario = useUsuario();
   const hoje = hojeISO();
   const naRua = pedidos.filter((p) => p.status === 'rua');
   const reservados = pedidos.filter((p) => p.status === 'reservado');
@@ -36,7 +38,13 @@ export function Inicio() {
     <>
       <header>
         <p className={styles.logo}>ArtDecor</p>
-        <p className={styles.saudacao}>Olá, Patricia · {dataPorExtenso(hoje)}</p>
+        <p className={styles.saudacao}>
+          {usuario.nome ? `Olá, ${usuario.nome} · ` : ''}
+          {dataPorExtenso(hoje)}
+        </p>
+        <button type="button" className={styles.sair} onClick={usuario.sair}>
+          Sair
+        </button>
       </header>
 
       <Link to="/pedidos/novo" className={styles.botaoPrincipal}>

@@ -176,7 +176,7 @@ export function PedidoDetalhe() {
   );
 }
 
-function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido) => void }) {
+function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido) => Promise<boolean> }) {
   const falta = faltaReceber(pedido);
   const [aberto, setAberto] = useState(false);
   const [valor, setValor] = useState('');
@@ -190,11 +190,11 @@ function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido
     setAberto(true);
   }
 
-  function registrar() {
+  async function registrar() {
     const n = lerValor(valor);
     if (n === null || n <= 0) return setErro('Informe um valor válido (ex.: 85,00).');
-    onSalvar({ ...pedido, pagamentos: [...pedido.pagamentos, { id: novoId(), valor: n, data: hojeISO(), forma }] });
-    setAberto(false);
+    const ok = await onSalvar({ ...pedido, pagamentos: [...pedido.pagamentos, { id: novoId(), valor: n, data: hojeISO(), forma }] });
+    if (ok) setAberto(false);
   }
 
   function remover(pagamentoId: string) {
