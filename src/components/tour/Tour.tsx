@@ -81,6 +81,16 @@ export function TourProvider({ children }: { children: ReactNode }) {
     }
   }, [usuario.tutorialVisto, iniciar]);
 
+  // Enquanto o tutorial está aberto, o botão "+" não se esconde ao rolar (um passo aponta para ele).
+  const aberto = indice !== null;
+  useEffect(() => {
+    if (!aberto) return;
+    document.documentElement.dataset.tourAberto = '1';
+    return () => {
+      delete document.documentElement.dataset.tourAberto;
+    };
+  }, [aberto]);
+
   const passo = indice !== null ? passos[indice] : null;
   const rota = passo ? passo.rota(contexto) : null;
 

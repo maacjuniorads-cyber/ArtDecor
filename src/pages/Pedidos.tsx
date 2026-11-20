@@ -7,6 +7,7 @@ import { faltaReceber, numeroPedido, quantidadeDeItens, totalPago, totalPedido }
 import type { Pedido, StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Pedidos.module.css';
+import { BotaoNovo } from '@/components/BotaoNovo';
 
 const abas: { status: StatusPedido; rotulo: string }[] = [
   { status: 'reservado', rotulo: 'Reservados' },
@@ -95,9 +96,7 @@ export function Pedidos() {
         </button>
       )}
 
-      <Link to="/pedidos/novo" className={ui.fab} aria-label="Novo pedido" data-tour="fab">
-        <Icon name="mais" size={28} strokeWidth={2.2} />
-      </Link>
+      <BotaoNovo para="/pedidos/novo" rotulo="Novo pedido" />
     </>
   );
 }

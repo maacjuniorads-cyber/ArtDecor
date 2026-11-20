@@ -12,6 +12,7 @@ import { ehCategoriaPadrao, listaCategorias, nomeCategoria } from '@/lib/categor
 import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import ui from '@/styles/ui.module.css';
 import styles from './Estoque.module.css';
+import { BotaoNovo } from '@/components/BotaoNovo';
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
@@ -35,11 +36,15 @@ export function Estoque() {
   );
 }
 
-/** Categoria criada pela equipe: dá para trocar o nome (vale para todas as peças dela). */
-function RenomearCategoria({ categoria, onRenomeada }: { categoria: string; onRenomeada: (nova: string) => void }) {
+/**
+ * Categoria criada pela equipe: dá para renomear ou excluir.
+ * Excluir = as peças dela passam para outra categoria (toda peça precisa de uma); aí ela some.
+ */
+function GerenciarCategoria({ categoria, onTrocada }: { categoria: string; onTrocada: (nova: string) => void }) {
   const { itens, renomearCategoria } = useDados();
-  const [editando, setEditando] = useState(false);
+  const [modo, setModo] = useState<'renomear' | 'excluir' | null>(null);
   const [texto, setTexto] = useState(categoria);
+  const [destino, setDestino] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useErro();
   const pecas = itensAtivos(itens).filter((i) => i.categoria === categoria).length;
@@ -47,25 +52,68 @@ function RenomearCategoria({ categoria, onRenomeada }: { categoria: string; onRe
   const novo = nomeCategoria(texto, outras);
   const juntar = novo !== '' && outras.includes(novo);
 
-  async function salvar() {
+  async function trocar(para: string) {
     if (salvando) return;
-    if (!novo) return setErro('Escreva o novo nome da categoria.');
-    if (novo === categoria) return setEditando(false);
     setSalvando(true);
-    const ok = await renomearCategoria(categoria, novo);
+    const ok = await renomearCategoria(categoria, para);
     setSalvando(false);
-    if (ok) onRenomeada(novo);
+    if (ok) onTrocada(para);
   }
 
-  if (!editando) {
+  function cancelar() {
+    setModo(null);
+    setTexto(categoria);
+    setDestino('');
+  }
+
+  if (!modo) {
     return (
       <div className={styles.categoriaCriada}>
-        <span>
-          Categoria criada por vocês · {pecas === 1 ? '1 peça' : `${pecas} peças`}
+        <span>Criada por vocês · {pecas === 1 ? '1 peça' : `${pecas} peças`}</span>
+        <span className={styles.acoesCategoria}>
+          <button type="button" className={styles.botaoCategoria} onClick={() => setModo('renomear')}>
+            Renomear
+          </button>
+          <button type="button" className={styles.botaoCategoria} onClick={() => setModo('excluir')}>
+            Excluir
+          </button>
         </span>
-        <button type="button" className={styles.renomear} onClick={() => setEditando(true)}>
-          Renomear
-        </button>
+      </div>
+    );
+  }
+
+  if (modo === 'excluir') {
+    return (
+      <div className={`${ui.cartao} ${styles.renomearCartao}`}>
+        <b>Excluir a categoria “{categoria}”</b>
+        <label className={ui.campo}>
+          <span className={ui.rotulo}>{pecas === 1 ? 'A peça dela vai para' : `As ${pecas} peças dela vão para`}</span>
+          <select className={ui.input} value={destino} onChange={(e) => setDestino(e.target.value)}>
+            <option value="" disabled>
+              Escolha a categoria…
+            </option>
+            {outras.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </label>
+        <span className={styles.renomearDica}>Nenhuma peça é apagada: só muda de categoria. Depois “{categoria}” some da lista.</span>
+        <div className={styles.renomearAcoes}>
+          <button type="button" className={ui.botaoSecundario} onClick={cancelar}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className={ui.botaoPrimario}
+            onClick={() => (destino ? trocar(destino) : setErro('Escolha para qual categoria as peças vão.'))}
+            disabled={salvando}
+          >
+            {salvando ? 'Salvando…' : 'Excluir'}
+          </button>
+        </div>
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
       </div>
     );
   }
@@ -79,20 +127,20 @@ function RenomearCategoria({ categoria, onRenomeada }: { categoria: string; onRe
       <span className={styles.renomearDica}>
         {juntar
           ? `Já existe “${novo}”: ${pecas === 1 ? 'a peça vai' : `as ${pecas} peças vão`} para ela.`
-          : `Muda o nome em ${pecas === 1 ? 'a peça' : `todas as ${pecas} peças`} desta categoria, para todo mundo.`}
+          : pecas === 1
+            ? 'Muda o nome na peça desta categoria, para todo mundo.'
+            : `Muda o nome em todas as ${pecas} peças desta categoria, para todo mundo.`}
       </span>
       <div className={styles.renomearAcoes}>
-        <button
-          type="button"
-          className={ui.botaoSecundario}
-          onClick={() => {
-            setEditando(false);
-            setTexto(categoria);
-          }}
-        >
+        <button type="button" className={ui.botaoSecundario} onClick={cancelar}>
           Cancelar
         </button>
-        <button type="button" className={ui.botaoPrimario} onClick={salvar} disabled={salvando}>
+        <button
+          type="button"
+          className={ui.botaoPrimario}
+          onClick={() => (!novo ? setErro('Escreva o novo nome da categoria.') : novo === categoria ? cancelar() : trocar(novo))}
+          disabled={salvando}
+        >
           {salvando ? 'Salvando…' : 'Salvar nome'}
         </button>
       </div>
@@ -142,7 +190,7 @@ function ListaItens() {
       </div>
       </div>
       {categoria !== 'Todos' && !ehCategoriaPadrao(categoria) && (
-        <RenomearCategoria key={categoria} categoria={categoria} onRenomeada={setCategoria} />
+        <GerenciarCategoria key={categoria} categoria={categoria} onTrocada={setCategoria} />
       )}
 
       {visiveis.length === 0 ? (
@@ -187,9 +235,7 @@ function ListaItens() {
         </ul>
       )}
 
-      <Link to="/estoque/novo" className={ui.fab} aria-label="Novo item" data-tour="fab">
-        <Icon name="mais" size={28} strokeWidth={2.2} />
-      </Link>
+      <BotaoNovo para="/estoque/novo" rotulo="Novo item" />
     </>
   );
 }
@@ -242,9 +288,7 @@ function ListaTemas() {
         </ul>
       )}
 
-      <Link to="/temas/novo" className={ui.fab} aria-label="Novo tema" data-tour="fab">
-        <Icon name="mais" size={28} strokeWidth={2.2} />
-      </Link>
+      <BotaoNovo para="/temas/novo" rotulo="Novo tema" />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { iniciais } from '@/lib/estoque';
 import type { Cliente } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Clientes.module.css';
+import { BotaoNovo } from '@/components/BotaoNovo';
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
@@ -82,9 +83,7 @@ export function Clientes() {
         </ul>
       )}
 
-      <Link to="/clientes/novo" className={ui.fab} aria-label="Novo cliente" data-tour="fab">
-        <Icon name="mais" size={28} strokeWidth={2.2} />
-      </Link>
+      <BotaoNovo para="/clientes/novo" rotulo="Novo cliente" />
     </>
   );
 }
