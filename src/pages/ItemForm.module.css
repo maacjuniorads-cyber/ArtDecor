@@ -42,3 +42,10 @@
   font-size: 16px;
   background: transparent;
 }
+
+/* Quantidade + "Ainda não contei": respiro entre o campo e a marcação. */
+.quantidade {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

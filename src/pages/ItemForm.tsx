@@ -137,7 +137,7 @@ export function ItemForm() {
         </div>
 
         {tipo === 'varios' && (
-          <div className={ui.cartao} data-tour="item-quantidade">
+          <div className={`${ui.cartao} ${styles.quantidade}`} data-tour="item-quantidade">
             <label className={ui.campo}>
               <span className={ui.rotulo}>Quantidade total</span>
               <input
