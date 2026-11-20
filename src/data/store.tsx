@@ -18,6 +18,7 @@ import { MODO_DEMO } from '@/lib/demo';
 import { TelaCarregando, TelaErro } from '@/components/Telas';
 import { Aviso, type TipoAviso } from '@/components/Aviso';
 import { StatusConexao } from '@/components/StatusConexao';
+import { Salvando, type FaseSalvando } from '@/components/Salvando';
 import { comPrazo, ehErroDeRede, gravarFila, lerFila, type Operacao } from './fila';
 
 interface Dados {
@@ -136,7 +137,7 @@ async function enviar(op: Operacao): Promise<Operacao> {
   switch (op.tipo) {
     case 'item': {
       let fotoUrl = op.item.fotoUrl;
-      if (fotoUrl?.startsWith('data:')) fotoUrl = await comPrazo(enviarFoto(op.item.id, fotoUrl), 40000);
+      if (fotoUrl?.startsWith('data:')) fotoUrl = await comPrazo(enviarFoto(op.item.id, fotoUrl), 25000);
       const item = { ...op.item, fotoUrl };
       await verificar(supabase.from('itens').upsert(paraItem(item)));
       return { tipo: 'item', item };
@@ -182,6 +183,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
   const [pendentes, setPendentes] = useState(() => (MODO_DEMO ? 0 : lerFila().length));
   const [enviando, setEnviando] = useState(false);
   const enviandoRef = useRef(false);
+  const [salvamento, setSalvamento] = useState<FaseSalvando | null>(null);
 
   const avisar = useCallback((texto: string, tipo: TipoAviso = 'erro') => setAviso({ texto, tipo }), []);
 
@@ -318,13 +320,20 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       }
       setDados((d) => aplicarLocal(d, op));
       setPendentes(fila.length);
-      avisar(
-        navigator.onLine
-          ? 'A internet está fraca. Ficou salvo no celular e vai pro sistema sozinho assim que a conexão melhorar.'
-          : 'Sem internet. Ficou salvo no celular e vai pro sistema sozinho quando a internet voltar.',
-        'info',
-      );
       return true;
+    }
+
+    const pausa = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
+
+    /** Mostra o cartão "Guardado no celular" por um instante antes de sair da tela. */
+    async function guardarComAviso(op: Operacao): Promise<boolean> {
+      const ok = guardar(op);
+      if (ok) {
+        setSalvamento('guardado');
+        await pausa(1700);
+        setSalvamento(null);
+      }
+      return ok;
     }
 
     /** Grava no banco; sem internet, guarda no celular. Em erro do banco mostra o aviso e devolve false. */
@@ -338,18 +347,40 @@ export function DadosProvider({ children }: { children: ReactNode }) {
         setDados((d) => aplicarLocal(d, op));
         return true;
       }
-      // Sem internet, ou ainda há coisa esperando (a ordem precisa ser mantida): vai para a fila.
-      if (!navigator.onLine || lerFila().length > 0) {
+      // Sem internet: vai direto para a fila.
+      if (!navigator.onLine) return guardarComAviso(op);
+      // Ainda há coisa esperando (a ordem precisa ser mantida): entra na fila e tenta enviar tudo.
+      if (lerFila().length > 0) {
         const ok = guardar(op);
-        if (ok && navigator.onLine) enviarFila();
+        if (ok) enviarFila();
         return ok;
       }
+
+      // Rápido (o normal): nem aparece nada. Demorou: "Salvando…"; demorou mais: "internet lenta".
+      let apareceu = false;
+      const t1 = window.setTimeout(() => {
+        apareceu = true;
+        setSalvamento('salvando');
+      }, 350);
+      const t2 = window.setTimeout(() => setSalvamento('lento'), 3000);
+      const parar = () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
       try {
         const final = await enviar(op);
+        parar();
         setDados((d) => aplicarLocal(d, final));
+        if (apareceu) {
+          setSalvamento('salvo');
+          await pausa(650);
+        }
+        setSalvamento(null);
         return true;
       } catch (e) {
-        if (ehErroDeRede(e)) return guardar(op);
+        parar();
+        if (ehErroDeRede(e)) return guardarComAviso(op);
+        setSalvamento(null);
         avisar(`Não foi possível salvar: ${e instanceof Error ? e.message : String(e)}`);
         return false;
       }
@@ -380,6 +411,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       <StatusConexao online={online} pendentes={pendentes} enviando={enviando} onEnviar={enviarFila} />
       {children}
       {aviso && <Aviso mensagem={aviso.texto} tipo={aviso.tipo} onFechar={() => setAviso(null)} />}
+      {salvamento && <Salvando fase={salvamento} />}
     </Contexto.Provider>
   );
 }

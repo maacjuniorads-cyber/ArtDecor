@@ -55,7 +55,7 @@ export function ehErroDeRede(e: unknown): boolean {
 }
 
 /** Desiste de esperar depois de alguns segundos (sinal fraco que nunca responde). */
-export function comPrazo<T>(promessa: Promise<T>, ms = 20000): Promise<T> {
+export function comPrazo<T>(promessa: Promise<T>, ms = 8000): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const t = window.setTimeout(() => reject(new Error('tempo esgotado')), ms);
     promessa.then(

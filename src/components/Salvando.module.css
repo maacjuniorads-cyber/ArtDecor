@@ -1,0 +1,123 @@
+.fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(46, 38, 56, 0.28);
+  animation: aparecer 0.18s ease-out;
+}
+
+.cartao {
+  width: min(300px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 22px 24px;
+  border-radius: 22px;
+  background: var(--superficie);
+  box-shadow: 0 14px 40px rgba(46, 38, 56, 0.28);
+  text-align: center;
+  animation: subir 0.22s ease-out;
+}
+
+.girando {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 5px solid #f3dde4;
+  border-top-color: var(--vinho);
+  animation: girar 0.8s linear infinite;
+}
+
+.selo {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: estourar 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.cartao[data-fase='guardado'] .selo {
+  background: var(--status-rua-bg);
+  color: var(--status-rua-fg);
+}
+
+.cartao[data-fase='salvo'] .selo {
+  background: var(--status-devolvido-bg);
+  color: var(--status-devolvido-fg);
+}
+
+/* O "certinho" se desenha. */
+.marca {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: desenhar 0.4s 0.15s ease-out forwards;
+}
+
+.titulo {
+  margin: 4px 0 0;
+  font-family: var(--fonte-titulo);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.texto {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--texto-suave, #5f5870);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes estourar {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+@keyframes desenhar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fundo,
+  .cartao,
+  .selo {
+    animation: none;
+  }
+  .girando {
+    animation-duration: 2s;
+  }
+  .marca {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
