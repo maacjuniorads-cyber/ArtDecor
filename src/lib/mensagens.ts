@@ -3,6 +3,9 @@
  * São identificados como mensagens automáticas do sistema da ArtDecor
  * (quem envia não precisa "assinar" a cobrança/lembrete pessoalmente).
  * No WhatsApp, *texto* vira negrito e _texto_ vira itálico.
+ *
+ * Sem emojis: o link wa.me estraga emojis (chegam como "�" no cliente).
+ * Símbolos simples como • — × passam sem problema.
  */
 import { empresa } from './empresa';
 import { deISO, formatarMoeda, hojeISO, somarDias } from './formato';
@@ -41,7 +44,7 @@ function montar(linhas: string[]): string {
 
 export function lembreteDevolucao(pedido: Pedido, cliente?: Cliente): string {
   return montar([
-    `🔔 *Lembrete automático — ${empresa.nome}*`,
+    `*Lembrete automático — ${empresa.nome}*`,
     '',
     `${saudacao(cliente)} A devolução dos itens do pedido nº ${numero(pedido)} está marcada para *${quandoPorExtenso(pedido.devolucao)}*.${linhaPagamento(pedido)}`,
     '',
@@ -53,7 +56,7 @@ export function lembreteDevolucao(pedido: Pedido, cliente?: Cliente): string {
 
 export function lembreteRetirada(pedido: Pedido, cliente?: Cliente): string {
   return montar([
-    `🔔 *Lembrete automático — ${empresa.nome}*`,
+    `*Lembrete automático — ${empresa.nome}*`,
     '',
     `${saudacao(cliente)} A retirada dos itens do pedido nº ${numero(pedido)} está marcada para *${quandoPorExtenso(pedido.retirada)}*.${linhaPagamento(pedido)}`,
     '',
@@ -70,7 +73,7 @@ export function resumoPedido(pedido: Pedido, cliente: Cliente | undefined, nomeI
   const falta = faltaReceber(pedido);
   const dataBR = (iso: string) => deISO(iso).toLocaleDateString('pt-BR');
   return montar([
-    `📄 *Resumo do pedido nº ${numero(pedido)} — ${empresa.nome}*`,
+    `*Resumo do pedido nº ${numero(pedido)} — ${empresa.nome}*`,
     '',
     saudacao(cliente),
     '',
