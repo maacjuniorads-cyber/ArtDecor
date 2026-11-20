@@ -11,11 +11,29 @@ function formatar(linha: string): ReactNode[] {
   });
 }
 
+interface Props {
+  texto: string;
+  /** Arquivo anexado (ex.: a nota em PDF), mostrado acima do texto. */
+  anexo?: string;
+  hora?: string;
+}
+
 /** Balão de mensagem no estilo do WhatsApp, para mostrar como o texto chega no cliente. */
-export function MensagemWhatsApp({ texto, hora = '10:30' }: { texto: string; hora?: string }) {
+export function MensagemWhatsApp({ texto, anexo, hora = '10:30' }: Props) {
   return (
     <div className={styles.fundo} aria-label="Exemplo de como a mensagem chega no WhatsApp do cliente">
       <div className={styles.balao}>
+        {anexo && (
+          <div className={styles.anexo}>
+            <span className={styles.iconePdf} aria-hidden="true">
+              PDF
+            </span>
+            <span className={styles.anexoTexto}>
+              <span className={styles.anexoNome}>{anexo}</span>
+              <span className={styles.anexoDetalhe}>1 página · PDF</span>
+            </span>
+          </div>
+        )}
         {texto.split('\n').map((linha, i) => (linha === '' ? <div key={i} className={styles.espaco} /> : <div key={i}>{formatar(linha)}</div>))}
         <span className={styles.hora}>
           {hora} <span aria-hidden="true">✓✓</span>

@@ -55,6 +55,38 @@
   margin-top: 12px;
 }
 
+/* Exemplo visual do aviso de peça já reservada (igual ao do formulário de pedido). */
+.exemploConflito {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--fundo);
+}
+
+.exemploNome {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.exemploNome:not(:first-child) {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--divisor);
+}
+
+.exemploDetalhe {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.exemploAviso {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--status-alerta-fg);
+}
+
 .progresso {
   display: flex;
   align-items: center;
@@ -90,6 +122,7 @@
   font-size: 16px;
   line-height: 1.45;
   color: var(--texto);
+  white-space: pre-line; /* permite listas passo a passo com quebras de linha */
 }
 
 .botoes {

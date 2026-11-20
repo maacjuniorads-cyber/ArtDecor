@@ -18,7 +18,7 @@ export interface Passo {
   titulo: string | ((c: ContextoTour) => string);
   texto: string;
   /** Mostra um exemplo de mensagem do WhatsApp dentro do balão. */
-  previa?: 'lembrete';
+  previa?: 'lembrete' | 'nota' | 'conflito';
 }
 
 const fixo = (r: string) => () => r;
@@ -156,7 +156,21 @@ export const passos: Passo[] = [
     rota: fixo('/pedidos/novo'),
     alvo: 'pedido-itens',
     titulo: '3º itens e quantidades',
-    texto: 'Use − e + para a quantidade, × para tirar, e “+ Adicionar item avulso” para colocar outras peças. Se a peça já estiver reservada para outro cliente nas mesmas datas, aparece um aviso em vermelho dizendo em qual pedido.',
+    texto: 'Use − e + para a quantidade, × para tirar, e “+ Adicionar item avulso” para colocar outras peças.',
+  },
+  {
+    rota: fixo('/pedidos/novo'),
+    alvo: 'pedido-itens',
+    titulo: 'Atenção: peça já reservada nas mesmas datas',
+    texto:
+      'O app confere sozinho se alguma peça já está em outro pedido com datas que se cruzam. Se estiver, aparece um aviso em vermelho embaixo da peça dizendo em qual pedido, de qual cliente e em que datas — como neste exemplo:',
+    previa: 'conflito',
+  },
+  {
+    rota: fixo('/pedidos/novo'),
+    titulo: 'O que fazer quando aparece o aviso',
+    texto:
+      '• Peça única (painel, cômoda…): ela só existe uma vez — troque a peça, mude as datas ou combine com o outro cliente.\n• Peça com quantidade (cilindros, toalhas…): o aviso diz quantas sobram livres nessas datas. Diminua a quantidade ou ajuste as datas.\n\nSe mesmo assim quiser salvar (por exemplo, a peça volta de manhã e sai à tarde), o app pede para tocar no botão uma segunda vez, para confirmar. O aviso também aparece dentro do pedido salvo, para ninguém esquecer.',
   },
   {
     rota: fixo('/pedidos/novo'),
@@ -206,7 +220,19 @@ export const passos: Passo[] = [
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}/nota` : null),
     alvo: 'nota-acoes',
     titulo: 'Nota para o cliente',
-    texto: '“Enviar nota no WhatsApp” abre o Compartilhar do celular: escolha o WhatsApp e depois o cliente — vai a nota em PDF junto com o resumo do pedido. “Só mensagem” abre direto a conversa do cliente, só com o texto. “Baixar PDF” guarda a nota no celular.',
+    texto: 'Esta é a nota do pedido, com o logo da ArtDecor, os itens, os valores, o Pix e os nomes. Embaixo ficam três botões:\n• Enviar nota no WhatsApp — manda o PDF da nota + o resumo.\n• Só mensagem — abre direto a conversa do cliente, só com o texto (sem o PDF).\n• Baixar PDF — guarda a nota no seu celular.',
+  },
+  {
+    rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}/nota` : null),
+    titulo: 'Enviando a nota, passo a passo',
+    texto:
+      '1. Toque em “Enviar nota no WhatsApp” (o botão verde).\n2. Abre a tela de compartilhar do celular: toque no ícone do WhatsApp.\n3. Escolha o cliente na lista (dá para buscar pelo nome) e toque na setinha.\n4. Confira e toque em enviar.\n\nPronto: a nota em PDF e o resumo chegam juntos. Dica: o cliente precisa estar salvo nos contatos do seu WhatsApp para aparecer na lista. Se não estiver, use “Só mensagem”, que abre direto a conversa pelo número.',
+  },
+  {
+    rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}/nota` : null),
+    titulo: 'O que o cliente recebe',
+    texto: 'No WhatsApp do cliente chegam a nota em PDF (ele toca para abrir) e, junto, o resumo do pedido com os itens, as datas, o total e o que falta pagar, identificado como mensagem automática da ArtDecor. Veja um exemplo:',
+    previa: 'nota',
   },
 
   // ---- Fim

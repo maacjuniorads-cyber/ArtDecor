@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useUsuario } from '@/components/Autenticacao';
 import { MensagemWhatsApp } from '@/components/MensagemWhatsApp';
 import { useDados } from '@/data/store';
-import { exemploLembrete } from '@/lib/mensagens';
+import { exemploLembrete, exemploNota } from '@/lib/mensagens';
 import { passos, type ContextoTour } from './passos';
 import styles from './Tour.module.css';
 
@@ -192,6 +192,21 @@ export function TourProvider({ children }: { children: ReactNode }) {
               {passo.previa === 'lembrete' && (
                 <div className={styles.previa}>
                   <MensagemWhatsApp texto={exemploLembrete()} />
+                </div>
+              )}
+              {passo.previa === 'conflito' && (
+                <div className={`${styles.previa} ${styles.exemploConflito}`} aria-label="Exemplo do aviso de conflito">
+                  <span className={styles.exemploNome}>Painel redondo Unicórnio</span>
+                  <span className={styles.exemploDetalhe}>Peça única · R$ 60,00</span>
+                  <span className={styles.exemploAviso}>Já reservado nessas datas — #0012 Ana (21/11–23/11)</span>
+                  <span className={styles.exemploNome}>Cilindro rosa</span>
+                  <span className={styles.exemploDetalhe}>3 × R$ 15,00 = R$ 45,00</span>
+                  <span className={styles.exemploAviso}>Só 1 livres nessas datas — #0012 Ana (21/11–23/11, 2 un.)</span>
+                </div>
+              )}
+              {passo.previa === 'nota' && (
+                <div className={styles.previa}>
+                  <MensagemWhatsApp texto={exemploNota().texto} anexo={exemploNota().arquivo} />
                 </div>
               )}
               <div className={styles.botoes}>

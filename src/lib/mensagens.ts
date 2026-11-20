@@ -119,6 +119,36 @@ export function resumoPedido(pedido: Pedido, cliente: Cliente | undefined, nomeI
   ]);
 }
 
+/** Exemplo usado no tutorial: nota (PDF) + resumo, como o cliente recebe. */
+export function exemploNota(): { texto: string; arquivo: string } {
+  const hoje = hojeISO();
+  const nomes: Record<string, string> = {
+    a: 'Painel redondo Unicórnio',
+    b: 'Trio de capas de cilindro',
+    c: 'Bandeja espelhada',
+  };
+  const pedido: Pedido = {
+    id: 'exemplo',
+    numero: 12,
+    clienteId: 'exemplo',
+    temaIds: [],
+    itens: [
+      { itemId: 'a', quantidade: 1, valorUnitario: 60 },
+      { itemId: 'b', quantidade: 1, valorUnitario: 45 },
+      { itemId: 'c', quantidade: 4, valorUnitario: 6 },
+    ],
+    retirada: somarDias(hoje, 3),
+    devolucao: somarDias(hoje, 5),
+    status: 'reservado',
+    pagamentos: [{ id: 'p', valor: 50, data: hoje, forma: 'Pix' }],
+  };
+  const cliente: Cliente = { id: 'exemplo', nome: 'Maria Silva', telefone: '', veiculo: null };
+  return {
+    texto: resumoPedido(pedido, cliente, (id) => nomes[id] ?? 'Item'),
+    arquivo: `Nota ${empresa.nome} 0012 - ${cliente.nome}.pdf`,
+  };
+}
+
 /** Exemplo usado no tutorial para mostrar como a mensagem chega no cliente. */
 export function exemploLembrete(): string {
   const hoje = hojeISO();
