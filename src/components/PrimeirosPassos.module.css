@@ -100,6 +100,52 @@
   clip-path: inset(50%);
 }
 
+.recolhido {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--superficie);
+  border: 2px solid var(--rosa);
+  border-radius: var(--raio);
+  padding: 4px 6px 4px 14px;
+}
+
+.tituloRecolhido {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--vinho);
+  white-space: nowrap;
+}
+
+.barraRecolhida {
+  flex: 1;
+  min-width: 30px;
+  height: 6px;
+  border-radius: 3px;
+  background: #eee7ea;
+  overflow: hidden;
+}
+
+.barraRecolhida > span {
+  display: block;
+  height: 100%;
+  background: var(--vinho);
+}
+
+.mostrar {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--vinho);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .esconder {
   width: 100%;
   min-height: 44px;

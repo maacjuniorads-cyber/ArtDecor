@@ -30,15 +30,34 @@ export function PrimeirosPassos() {
   ];
   const feitas = tarefas.filter((t) => t.feito).length;
 
-  if (oculto || feitas === tarefas.length) return null;
+  if (feitas === tarefas.length) return null;
 
-  function esconder() {
-    setOculto(true);
+  function recolher(valor: boolean) {
+    setOculto(valor);
     try {
-      localStorage.setItem(chave(usuario.id), '1');
+      if (valor) localStorage.setItem(chave(usuario.id), '1');
+      else localStorage.removeItem(chave(usuario.id));
     } catch {
       // ignora
     }
+  }
+
+  // Recolhida: uma faixa pequena com o progresso e o botão para abrir de novo.
+  if (oculto) {
+    return (
+      <section className={styles.recolhido} data-tour="primeiros-passos" aria-label="Primeiros passos">
+        <span className={styles.tituloRecolhido}>Primeiros passos</span>
+        <span className={styles.barraRecolhida} aria-hidden="true">
+          <span style={{ width: `${(feitas / tarefas.length) * 100}%` }} />
+        </span>
+        <span className={styles.contagem}>
+          {feitas} de {tarefas.length}
+        </span>
+        <button type="button" className={styles.mostrar} onClick={() => recolher(false)} aria-expanded="false">
+          Mostrar
+        </button>
+      </section>
+    );
   }
 
   return (
@@ -70,8 +89,8 @@ export function PrimeirosPassos() {
           </li>
         ))}
       </ul>
-      <button type="button" className={styles.esconder} onClick={esconder}>
-        Esconder esta lista
+      <button type="button" className={styles.esconder} onClick={() => recolher(true)} aria-expanded="true">
+        Recolher lista
       </button>
     </section>
   );
