@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  /* A barra de baixo aqui é mais alta (tem a contagem): folga para a observação não ficar atrás dela. */
+  padding-bottom: 40px;
 }
 
 .intro {
@@ -166,4 +168,13 @@
 
 .barra > * {
   flex: none;
+}
+
+/* Texto de várias linhas: a caixinha fica na primeira linha, não no meio. */
+.marcarTopo {
+  align-items: flex-start;
+}
+
+.marcarTopo input {
+  margin-top: 1px;
 }

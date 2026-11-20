@@ -161,6 +161,11 @@
   margin: 0;
 }
 
+/* Contorno de foco colado no campo (sem a sobra que parecia uma segunda borda). */
+.input:focus-visible {
+  outline-offset: 0;
+}
+
 .input:disabled {
   background: #f0ebee;
   color: var(--texto-suave);
@@ -177,6 +182,11 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* O campo de dentro não tem borda: o contorno de foco vai na caixa inteira. */
+.prefixo:focus-within {
+  outline: 3px solid var(--azul);
 }
 
 .prefixo > span {

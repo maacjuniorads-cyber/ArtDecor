@@ -172,7 +172,7 @@ export function Conferencia() {
 
   return (
     <>
-      <Cabecalho titulo={`Conferir devolução ${numeroPedido(pedido)}`} voltarPara={`/pedidos/${pedido.id}`} />
+      <Cabecalho titulo={`Devolução ${numeroPedido(pedido)}`} voltarPara={`/pedidos/${pedido.id}`} />
 
       <div className={styles.conteudo}>
         <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
@@ -302,13 +302,13 @@ function LinhaConferencia({
           ) : (
             <>
               <Contador
-                rotulo="Voltaram quebradas ou estragadas"
+                rotulo="Voltaram estragadas"
                 valor={estado.avariadas}
                 max={linha.quantidade - estado.faltando}
                 onMudar={(n) => onMudar({ avariadas: n })}
               />
               <Contador
-                rotulo="Não voltaram (faltando)"
+                rotulo="Não voltaram"
                 valor={estado.faltando}
                 max={linha.quantidade - estado.avariadas}
                 onMudar={(n) => onMudar({ faltando: n })}
@@ -337,10 +337,10 @@ function LinhaConferencia({
           </label>
 
           {contado ? (
-            <label className={ui.marcar}>
+            <label className={`${ui.marcar} ${styles.marcarTopo}`}>
               <input type="checkbox" checked={estado.tirar} onChange={(e) => onMudar({ tirar: e.target.checked })} />
               <span>
-                Tirar do estoque {qtdProblema === 1 ? 'esta peça' : `estas ${qtdProblema} peças`}
+                Tirar do estoque {qtdProblema === 0 ? 'as peças com problema' : qtdProblema === 1 ? 'esta peça' : `estas ${qtdProblema} peças`}
                 <span className={styles.dica}>Não aparece mais como livre. Se consertar, é só aumentar a quantidade na peça.</span>
               </span>
             </label>
