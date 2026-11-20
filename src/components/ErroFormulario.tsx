@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import styles from './ErroFormulario.module.css';
 
+/** Quanto tempo o balão fica na tela (o CSS esmaece no último meio segundo). */
+const DURACAO_MS = 4000;
+
 export interface ErroEstado {
   texto: string;
   /** Muda a cada vez que o erro aparece (mesmo texto de novo = anima de novo). */
@@ -22,7 +25,8 @@ export function ErroFormulario({ erro, onFechar }: { erro: ErroEstado | null; on
   useEffect(() => {
     if (!erro) return;
     navigator.vibrate?.(60);
-    const t = window.setTimeout(onFechar, 7000);
+    // Fica uns segundos e some (esmaecendo no fim, pelo CSS).
+    const t = window.setTimeout(onFechar, DURACAO_MS);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [erro?.vez]);

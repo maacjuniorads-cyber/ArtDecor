@@ -19,7 +19,8 @@
   transform: translateX(-50%);
   animation:
     entrar 0.25s ease-out,
-    tremer 0.4s 0.25s ease-in-out;
+    tremer 0.4s 0.25s ease-in-out,
+    sumir 0.5s 3.5s ease-in forwards;
 }
 
 /* Setinha apontando para o botão. */
@@ -70,6 +71,13 @@
   from {
     opacity: 0;
     transform: translate(-50%, 14px);
+  }
+}
+
+@keyframes sumir {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 8px);
   }
 }
 
