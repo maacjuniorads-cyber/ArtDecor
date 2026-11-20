@@ -1,6 +1,6 @@
 # ArtDecor
 
-Aplicativo interno da **ArtDecor**, uma pequena loja de aluguel de decoração para festas e eventos em Jaguarão (RS).
+Aplicativo interno da **ArtDecor**, uma loja de aluguel de decoração para festas e eventos em Jaguarão (RS).
 
 Ele substitui o caderno e as conversas soltas no WhatsApp: mostra o que está em casa, o que está com cliente, o que sai e o que volta em cada dia, e quanto falta receber. Funciona no celular como um app instalado (PWA) e é usado por três pessoas da família, que compartilham os mesmos dados em tempo real.
 
