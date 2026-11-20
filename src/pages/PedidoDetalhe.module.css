@@ -68,6 +68,35 @@
   flex-shrink: 0;
 }
 
+.lembrete {
+  margin-top: 10px;
+  height: 48px;
+  font-size: 16px;
+  color: var(--status-devolvido-fg);
+}
+
+.conflito {
+  background: var(--rosa);
+  border-radius: var(--raio);
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--status-alerta-fg);
+}
+
+.conflito ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.conflito li + li {
+  margin-top: 4px;
+}
+
+.conflito a {
+  color: var(--status-alerta-fg);
+  font-weight: 700;
+}
+
 .rotuloData {
   font-size: 12px;
   font-weight: 700;

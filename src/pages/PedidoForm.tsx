@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { novoId, useDados } from '@/data/store';
 import { lerValor } from '@/lib/contato';
-import { itensAtivos, itensDoTema, livresAgora } from '@/lib/estoque';
-import { formatarMoeda, hojeISO, somarDias } from '@/lib/formato';
+import { conflitosDoItem, itensAtivos, itensDoTema, livresNoPeriodo } from '@/lib/estoque';
+import { deISO, formatarMoeda, hojeISO, somarDias } from '@/lib/formato';
 import { numeroPedido, totalPago } from '@/lib/pedidos';
 import { FORMAS_PAGAMENTO, type FormaPagamento, type ItemPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
@@ -28,6 +28,11 @@ export function PedidoForm() {
   const [forma, setForma] = useState<FormaPagamento>('Pix');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+  // Segundo toque em "Reservar" depois do aviso de conflito de datas.
+  const [aceitouConflito, setAceitouConflito] = useState(false);
+
+  // Mudou itens ou datas: o aviso de conflito precisa ser visto de novo.
+  useEffect(() => setAceitouConflito(false), [linhas, retirada, devolucao]);
 
   if (id && !existente) {
     return (
@@ -38,9 +43,22 @@ export function PedidoForm() {
     );
   }
 
-  // Ao editar, o próprio pedido não conta como "ocupando" os itens.
-  const outrosPedidos = pedidos.filter((p) => p.id !== existente?.id);
   const item = (itemId: string) => itens.find((i) => i.id === itemId);
+  const nomeCliente = (cid: string) => clientes.find((c) => c.id === cid)?.nome.split(' ')[0] ?? 'cliente';
+  const dataCurta = (iso: string) => deISO(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+  // Cruzamento de datas: para cada item, outros pedidos ativos que usam a peça no mesmo período.
+  // (Ao editar, o próprio pedido não conta.)
+  const periodoValido = devolucao >= retirada;
+  const analise = new Map(
+    linhas.map((l) => {
+      const it = item(l.itemId);
+      const conflitos = periodoValido ? conflitosDoItem(l.itemId, { retirada, devolucao }, pedidos, existente?.id) : [];
+      const livres = it ? livresNoPeriodo(it, conflitos) : null;
+      return [l.itemId, { conflitos, livres, falta: livres !== null && l.quantidade > livres }] as const;
+    }),
+  );
+  const haConflito = [...analise.values()].some((a) => a.falta);
   const clientesOpcoes = clientes
     .filter((c) => !c.removido || c.id === clienteId)
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -88,6 +106,11 @@ export function PedidoForm() {
     if (linhas.length === 0) return setErro('Adicione pelo menos um item.');
     if (devolucao < retirada) return setErro('A devolução não pode ser antes da retirada.');
     if (!existente && sinal.trim() && lerValor(sinal) === null) return setErro('Valor do sinal inválido (ex.: 150,00).');
+    if (haConflito && !aceitouConflito) {
+      setAceitouConflito(true);
+      return setErro('Algumas peças já estão reservadas nessas datas (veja os avisos em vermelho). Para salvar mesmo assim, toque no botão de novo.');
+    }
+    setErro('');
 
     const comum = { clienteId, evento: evento.trim() || undefined, temaIds, itens: linhas, retirada, devolucao };
     setSalvando(true);
@@ -173,8 +196,10 @@ export function PedidoForm() {
             {linhas.map((l) => {
               const it = item(l.itemId);
               if (!it) return null;
-              const livres = livresAgora(it, outrosPedidos);
-              const passou = livres !== null && l.quantidade > livres;
+              const a = analise.get(l.itemId);
+              const ondeMais = a?.conflitos
+                .map((c) => `${numeroPedido(c.pedido)} ${nomeCliente(c.pedido.clienteId)} (${dataCurta(c.pedido.retirada)}–${dataCurta(c.pedido.devolucao)}${c.quantidade > 1 ? `, ${c.quantidade} un.` : ''})`)
+                .join('; ');
               return (
                 <div key={l.itemId} className={styles.linha}>
                   <span className={ui.texto}>
@@ -187,7 +212,14 @@ export function PedidoForm() {
                         ? `Peça única · ${formatarMoeda(l.valorUnitario)}`
                         : `${l.quantidade} × ${formatarMoeda(l.valorUnitario)} = ${formatarMoeda(l.quantidade * l.valorUnitario)}`}
                     </span>
-                    {passou && <span className={styles.aviso}>{livres === 0 ? 'Está todo na rua agora' : `Só ${livres} livres agora`}</span>}
+                    {a?.falta && (
+                      <span className={styles.aviso} role="alert">
+                        {it.tipo === 'unica' || a.livres === 0 ? 'Já reservado nessas datas' : `Só ${a.livres} livres nessas datas`} — {ondeMais}
+                      </span>
+                    )}
+                    {!a?.falta && a && a.conflitos.length > 0 && (
+                      <span className={styles.info}>Também está em {ondeMais}</span>
+                    )}
                   </span>
                   {it.tipo === 'unica' ? (
                     <button type="button" className={ui.botaoIcone} onClick={() => mudarQuantidade(l.itemId, -1)} aria-label={`Remover ${it.nome}`}>
@@ -277,7 +309,7 @@ export function PedidoForm() {
 
       <div className={ui.barraAcao}>
         <button type="submit" form="form-pedido" className={ui.botaoPrimario} disabled={salvando}>
-          {salvando ? 'Salvando…' : existente ? 'Salvar alterações' : 'Reservar pedido'}
+          {salvando ? 'Salvando…' : haConflito && aceitouConflito ? 'Salvar mesmo assim' : existente ? 'Salvar alterações' : 'Reservar pedido'}
         </button>
       </div>
     </>

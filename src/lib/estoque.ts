@@ -58,6 +58,49 @@ export function situacaoTema(tema: Tema, itens: Item[], pedidos: Pedido[]): Situ
   return { tipo: 'livre' };
 }
 
+// ---------------------------------------------------------------------------
+// Disponibilidade por período (cruzamento de datas entre pedidos)
+// ---------------------------------------------------------------------------
+
+export interface Periodo {
+  retirada: string;
+  devolucao: string;
+}
+
+/** Dois períodos se cruzam se um começa antes (ou no dia) do outro terminar. */
+export function sobrepoe(a: Periodo, b: Periodo): boolean {
+  return a.retirada <= b.devolucao && b.retirada <= a.devolucao;
+}
+
+export interface Conflito {
+  pedido: Pedido;
+  quantidade: number;
+}
+
+/** Outros pedidos ativos (reservado/na rua) que usam o item em datas que cruzam o período. */
+export function conflitosDoItem(itemId: string, periodo: Periodo, pedidos: Pedido[], ignorarPedidoId?: string): Conflito[] {
+  const lista: Conflito[] = [];
+  for (const p of pedidos) {
+    if (p.id === ignorarPedidoId) continue;
+    if (p.status !== 'reservado' && p.status !== 'rua') continue;
+    if (!sobrepoe(periodo, p)) continue;
+    const quantidade = p.itens.filter((i) => i.itemId === itemId).reduce((s, i) => s + i.quantidade, 0);
+    if (quantidade > 0) lista.push({ pedido: p, quantidade });
+  }
+  return lista.sort((a, b) => a.pedido.retirada.localeCompare(b.pedido.retirada));
+}
+
+/**
+ * Quantas unidades sobram para o período, descontando os outros pedidos que cruzam
+ * as datas (conta de forma conservadora: soma tudo que cruza). null = item sem contagem.
+ */
+export function livresNoPeriodo(item: Item, conflitos: Conflito[]): number | null {
+  const ocupadas = conflitos.reduce((s, c) => s + c.quantidade, 0);
+  if (item.tipo === 'unica') return ocupadas > 0 ? 0 : 1;
+  if (item.quantidadeTotal === null) return null;
+  return Math.max(0, item.quantidadeTotal - ocupadas);
+}
+
 export function iniciais(nome: string): string {
   return nome
     .split(/\s+/)

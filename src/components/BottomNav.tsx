@@ -4,6 +4,7 @@ import styles from './BottomNav.module.css';
 
 const abas: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Início', icon: 'inicio' },
+  { to: '/agenda', label: 'Agenda', icon: 'calendario' },
   { to: '/estoque', label: 'Estoque', icon: 'estoque' },
   { to: '/pedidos', label: 'Pedidos', icon: 'pedidos' },
   { to: '/clientes', label: 'Clientes', icon: 'clientes' },

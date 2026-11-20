@@ -4,6 +4,7 @@ import { ComLogin } from '@/components/Autenticacao';
 import { DadosProvider } from '@/data/store';
 import { TourProvider } from '@/components/tour/Tour';
 import { Inicio } from '@/pages/Inicio';
+import { Agenda } from '@/pages/Agenda';
 import { Estoque } from '@/pages/Estoque';
 import { ItemForm } from '@/pages/ItemForm';
 import { TemaForm } from '@/pages/TemaForm';
@@ -24,6 +25,7 @@ export function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route index element={<Inicio />} />
+              <Route path="agenda" element={<Agenda />} />
               <Route path="estoque" element={<Estoque />} />
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="clientes" element={<Clientes />} />

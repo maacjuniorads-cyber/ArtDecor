@@ -86,7 +86,12 @@ export function Inicio() {
       </div>
 
       <section data-tour="agenda">
-      <h2 className={styles.secao}>Próximos dias</h2>
+      <div className={styles.secaoTopo}>
+        <h2 className={styles.secao}>Próximos dias</h2>
+        <Link to="/agenda" className={styles.verAgenda}>
+          Ver calendário
+        </Link>
+      </div>
       {agenda.length === 0 ? (
         <p className={styles.vazio}>Nada saindo ou voltando nos próximos dias.</p>
       ) : (

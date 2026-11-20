@@ -56,7 +56,15 @@ export const passos: Passo[] = [
     rota: fixo('/'),
     alvo: 'menu',
     titulo: 'Menu',
-    texto: 'Embaixo de todas as telas fica o menu: Início, Estoque, Pedidos e Clientes. Vamos ver cada um.',
+    texto: 'Embaixo de todas as telas fica o menu: Início, Agenda, Estoque, Pedidos e Clientes. Vamos ver cada um.',
+  },
+
+  // ---- Agenda
+  {
+    rota: fixo('/agenda'),
+    alvo: 'agenda-calendario',
+    titulo: 'Agenda',
+    texto: 'O mês inteiro de uma vez. Em cada dia, o número azul é o que SAI (retirada) e o rosa é o que VOLTA (devolução). Toque num dia para ver a lista logo abaixo. As setas trocam de mês.',
   },
 
   // ---- Estoque
@@ -146,7 +154,7 @@ export const passos: Passo[] = [
     rota: fixo('/pedidos/novo'),
     alvo: 'pedido-itens',
     titulo: '3º itens e quantidades',
-    texto: 'Use − e + para a quantidade, × para tirar, e “+ Adicionar item avulso” para colocar outras peças. Se pedir mais do que tem em casa, aparece um aviso.',
+    texto: 'Use − e + para a quantidade, × para tirar, e “+ Adicionar item avulso” para colocar outras peças. Se a peça já estiver reservada para outro cliente nas mesmas datas, aparece um aviso em vermelho dizendo em qual pedido.',
   },
   {
     rota: fixo('/pedidos/novo'),
@@ -167,6 +175,12 @@ export const passos: Passo[] = [
     alvo: 'pedido-etapas',
     titulo: 'Andamento do pedido',
     texto: 'A barra mostra a etapa: Reservado → Na rua → Devolvido. Marcou errado? Aparece “← Voltar para…” logo abaixo.',
+  },
+  {
+    rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
+    alvo: 'pedido-lembrete',
+    titulo: 'Lembrete pelo WhatsApp',
+    texto: 'Um toque abre o WhatsApp do cliente com a mensagem pronta: lembrete da retirada (pedido reservado) ou da devolução (pedido na rua), com o valor que falta, se houver.',
   },
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),

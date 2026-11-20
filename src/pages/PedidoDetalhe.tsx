@@ -6,6 +6,8 @@ import { ZonaExclusao } from '@/components/ZonaExclusao';
 import { novoId, useDados } from '@/data/store';
 import { lerValor, linkWhatsApp, valorParaCampo } from '@/lib/contato';
 import { deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
+import { conflitosDoItem, livresNoPeriodo } from '@/lib/estoque';
+import { lembreteDevolucao, lembreteRetirada } from '@/lib/mensagens';
 import { faltaReceber, numeroPedido, totalPago, totalPedido } from '@/lib/pedidos';
 import { FORMAS_PAGAMENTO, type FormaPagamento, type Pedido, type StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
@@ -60,6 +62,27 @@ export function PedidoDetalhe() {
   const veiculo = cliente?.veiculo;
   const podeEditar = pedido.status === 'reservado' || pedido.status === 'rua';
 
+  // Lembrete por WhatsApp: retirada (reservado) ou devolução (na rua).
+  const lembrete =
+    pedido.status === 'reservado'
+      ? { texto: 'Lembrar retirada no WhatsApp', mensagem: lembreteRetirada(pedido, cliente) }
+      : pedido.status === 'rua'
+        ? { texto: 'Lembrar devolução no WhatsApp', mensagem: lembreteDevolucao(pedido, cliente) }
+        : null;
+
+  // Peças que, além de neste pedido, estão em outro pedido ativo com datas que se cruzam
+  // e não há unidades suficientes para os dois.
+  const conflitos = podeEditar
+    ? pedido.itens.flatMap((ip) => {
+        const it = itens.find((i) => i.id === ip.itemId);
+        if (!it) return [];
+        const lista = conflitosDoItem(ip.itemId, pedido, pedidos, pedido.id);
+        const livres = livresNoPeriodo(it, lista);
+        if (livres === null || ip.quantidade <= livres) return [];
+        return lista.map((conflito) => ({ item: it.nome, conflito }));
+      })
+    : [];
+
   return (
     <>
       <Cabecalho
@@ -113,7 +136,36 @@ export function PedidoDetalhe() {
               </a>
             )}
           </div>
+          {cliente && lembrete && (
+            <a
+              href={linkWhatsApp(cliente.whatsapp ?? cliente.telefone, lembrete.mensagem)}
+              target="_blank"
+              rel="noreferrer"
+              className={`${ui.botaoSecundario} ${styles.lembrete}`}
+              data-tour="pedido-lembrete"
+            >
+              <Icon name="telefone" size={20} />
+              {lembrete.texto}
+            </a>
+          )}
         </section>
+
+        {conflitos.length > 0 && (
+          <section className={styles.conflito} role="alert">
+            <b>Atenção: peças reservadas em outro pedido nas mesmas datas</b>
+            <ul>
+              {conflitos.map(({ item, conflito }) => (
+                <li key={`${item}-${conflito.pedido.id}`}>
+                  <Link to={`/pedidos/${conflito.pedido.id}`}>
+                    {item} — {numeroPedido(conflito.pedido)} {clientes.find((c) => c.id === conflito.pedido.clienteId)?.nome.split(' ')[0] ?? ''} (
+                    {deISO(conflito.pedido.retirada).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}–
+                    {deISO(conflito.pedido.devolucao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })})
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className={ui.grade2}>
           <div className={ui.cartao}>

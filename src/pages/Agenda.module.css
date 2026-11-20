@@ -1,0 +1,149 @@
+.calendario {
+  margin-top: 14px;
+  padding: 12px 10px 10px;
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.tituloMes {
+  font-size: 18px;
+  text-transform: capitalize;
+}
+
+.navMes {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--vinho);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.girar {
+  transform: rotate(180deg);
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.diaSemana {
+  text-align: center;
+  font-family: var(--fonte-titulo);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--texto-suave);
+  padding: 4px 0;
+}
+
+.dia {
+  min-height: 52px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texto);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  padding: 6px 0 4px;
+  cursor: pointer;
+}
+
+.dia[data-fora='true'] {
+  color: #b8afb5;
+}
+
+.dia[data-hoje='true'] .numero {
+  background: var(--rosa);
+  color: var(--vinho);
+}
+
+.dia[aria-selected='true'] {
+  background: var(--vinho);
+  color: #fff;
+}
+
+.dia[aria-selected='true'] .numero {
+  background: transparent;
+  color: #fff;
+}
+
+.numero {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.marcas {
+  display: flex;
+  gap: 2px;
+  min-height: 16px;
+}
+
+.marcaSai,
+.marcaVolta {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  display: inline-block;
+}
+
+.marcaSai {
+  background: var(--status-rua-bg);
+  color: var(--status-rua-fg);
+}
+
+.marcaVolta {
+  background: var(--status-alerta-bg);
+  color: var(--status-alerta-fg);
+}
+
+.legenda {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--divisor);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.legenda > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legenda button {
+  margin-left: auto;
+}
+
+.tituloDia {
+  margin: 20px 0 10px;
+  font-size: 18px;
+  text-transform: capitalize;
+}
