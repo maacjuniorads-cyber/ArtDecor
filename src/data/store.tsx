@@ -4,8 +4,10 @@
  * - Ao abrir, carrega tudo (o volume é pequeno: uma loja).
  * - Escuta mudanças em tempo real: o que um aparelho grava aparece nos outros.
  * - Cada ação grava no banco e devolve true/false; em caso de erro, mostra um aviso.
+ * - Sem internet, a gravação fica guardada no celular (fila.ts) e é enviada
+ *   sozinha, na mesma ordem, quando a internet volta.
  */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import type { Cliente, Item, Pedido, StatusPedido, Tema } from '@/types';
@@ -14,7 +16,9 @@ import { dadosDeExemplo, ehExemplo } from './exemploTour';
 import { dadosDemo } from './demo';
 import { MODO_DEMO } from '@/lib/demo';
 import { TelaCarregando, TelaErro } from '@/components/Telas';
-import { Aviso } from '@/components/Aviso';
+import { Aviso, type TipoAviso } from '@/components/Aviso';
+import { StatusConexao } from '@/components/StatusConexao';
+import { comPrazo, ehErroDeRede, gravarFila, lerFila, type Operacao } from './fila';
 
 interface Dados {
   itens: Item[];
@@ -23,7 +27,7 @@ interface Dados {
   pedidos: Pedido[];
 }
 
-/** Todas as ações devolvem true se gravou, false se deu erro (o aviso já aparece sozinho). */
+/** Todas as ações devolvem true se gravou (ou guardou para enviar depois), false se deu erro (o aviso já aparece sozinho). */
 interface Api extends Dados {
   salvarItem: (item: Item) => Promise<boolean>;
   removerItem: (itemId: string) => Promise<boolean>;
@@ -37,6 +41,8 @@ interface Api extends Dados {
   /** Liga/desliga os dados de exemplo do tutorial (só na tela, nunca gravados). */
   mostrarExemplo: (ligar: boolean) => void;
   exemploAtivo: boolean;
+  /** Gravações feitas sem internet que ainda não chegaram ao banco. */
+  pendentes: number;
 }
 
 const vazio: Dados = { itens: [], temas: [], clientes: [], pedidos: [] };
@@ -94,18 +100,96 @@ async function enviarFoto(itemId: string, dataUrl: string): Promise<string> {
   return supabase.storage.from('fotos').getPublicUrl(caminho).data.publicUrl;
 }
 
+/** Aplica a operação nos dados da tela (sem banco). */
+function aplicarLocal(d: Dados, op: Operacao): Dados {
+  switch (op.tipo) {
+    case 'item':
+      return { ...d, itens: upsert(d.itens, op.item) };
+    case 'removerItem':
+      return { ...d, itens: d.itens.map((i) => (i.id === op.id ? { ...i, removido: true } : i)) };
+    case 'tema':
+      return { ...d, temas: upsert(d.temas, op.tema) };
+    case 'removerTema':
+      return {
+        ...d,
+        temas: d.temas.map((t) => (t.id === op.id ? { ...t, removido: true } : t)),
+        itens: d.itens.map((i) => (i.temaId === op.id ? { ...i, temaId: undefined } : i)),
+      };
+    case 'cliente':
+      return { ...d, clientes: upsert(d.clientes, op.cliente) };
+    case 'removerCliente':
+      return { ...d, clientes: d.clientes.map((c) => (c.id === op.id ? { ...c, removido: true } : c)) };
+    case 'pedido':
+      return { ...d, pedidos: upsert(d.pedidos, op.pedido) };
+    case 'status':
+      return { ...d, pedidos: d.pedidos.map((p) => (p.id === op.id ? { ...p, status: op.status } : p)) };
+  }
+}
+
+async function verificar(resposta: PromiseLike<{ error: { message: string } | null }>) {
+  const { error } = await comPrazo(Promise.resolve(resposta));
+  if (error) throw new Error(error.message);
+}
+
+/** Envia a operação ao banco e devolve a versão final para a tela (ex.: pedido já com código). */
+async function enviar(op: Operacao): Promise<Operacao> {
+  switch (op.tipo) {
+    case 'item': {
+      let fotoUrl = op.item.fotoUrl;
+      if (fotoUrl?.startsWith('data:')) fotoUrl = await comPrazo(enviarFoto(op.item.id, fotoUrl), 40000);
+      const item = { ...op.item, fotoUrl };
+      await verificar(supabase.from('itens').upsert(paraItem(item)));
+      return { tipo: 'item', item };
+    }
+    case 'removerItem':
+      await verificar(supabase.from('itens').update({ removido: true }).eq('id', op.id));
+      return op;
+    case 'tema':
+      await verificar(supabase.from('temas').upsert(paraTema(op.tema)));
+      return op;
+    case 'removerTema':
+      // As peças continuam no estoque, só deixam de pertencer ao tema.
+      await verificar(supabase.from('itens').update({ tema_id: null }).eq('tema_id', op.id));
+      await verificar(supabase.from('temas').update({ removido: true }).eq('id', op.id));
+      return op;
+    case 'cliente':
+      await verificar(supabase.from('clientes').upsert(paraCliente(op.cliente)));
+      return op;
+    case 'removerCliente':
+      await verificar(supabase.from('clientes').update({ removido: true }).eq('id', op.id));
+      return op;
+    case 'pedido': {
+      const resposta = supabase.from('pedidos').upsert(paraPedido(op.pedido)).select().single();
+      const { data, error } = await comPrazo(Promise.resolve(resposta));
+      if (error) throw new Error(error.message);
+      return { tipo: 'pedido', pedido: dePedido(data) };
+    }
+    case 'status':
+      await verificar(supabase.from('pedidos').update({ status: op.status }).eq('id', op.id));
+      return op;
+  }
+}
+
 const Contexto = createContext<Api | null>(null);
 
 export function DadosProvider({ children }: { children: ReactNode }) {
   const [dados, setDados] = useState<Dados>(() => (MODO_DEMO ? dadosDemo() : vazio));
   const [carregando, setCarregando] = useState(!MODO_DEMO);
   const [erroCarga, setErroCarga] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<{ texto: string; tipo: TipoAviso } | null>(null);
   const [exemploAtivo, setExemploAtivo] = useState(false);
+  const [online, setOnline] = useState(() => navigator.onLine);
+  const [pendentes, setPendentes] = useState(() => (MODO_DEMO ? 0 : lerFila().length));
+  const [enviando, setEnviando] = useState(false);
+  const enviandoRef = useRef(false);
+
+  const avisar = useCallback((texto: string, tipo: TipoAviso = 'erro') => setAviso({ texto, tipo }), []);
 
   const recarregar = useCallback(async () => {
     try {
-      setDados(await buscarTudo());
+      const novos = await buscarTudo();
+      // O que ainda está na fila continua aparecendo por cima do que veio do banco.
+      setDados(lerFila().reduce(aplicarLocal, novos));
       setErroCarga(null);
     } catch (e) {
       setErroCarga(e instanceof Error ? e.message : String(e));
@@ -114,9 +198,62 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /** Envia o que ficou guardado sem internet, na ordem. Para no primeiro erro de conexão. */
+  const enviarFila = useCallback(async () => {
+    if (MODO_DEMO || enviandoRef.current || !navigator.onLine || lerFila().length === 0) return;
+    enviandoRef.current = true;
+    setEnviando(true);
+    let enviados = 0;
+    try {
+      for (;;) {
+        const fila = lerFila();
+        const op = fila[0];
+        if (!op) break;
+        try {
+          const final = await enviar(op);
+          let resto = fila.slice(1);
+          // A foto já subiu: as próximas gravações da mesma peça usam o endereço dela.
+          if (op.tipo === 'item' && final.tipo === 'item' && op.item.fotoUrl?.startsWith('data:')) {
+            resto = resto.map((o) =>
+              o.tipo === 'item' && o.item.id === op.item.id && o.item.fotoUrl === op.item.fotoUrl
+                ? { ...o, item: { ...o.item, fotoUrl: final.item.fotoUrl } }
+                : o,
+            );
+          }
+          gravarFila(resto);
+          setDados((d) => aplicarLocal(d, final));
+          enviados++;
+        } catch (e) {
+          if (ehErroDeRede(e)) break; // tenta de novo quando a internet voltar
+          // Erro do banco (não de conexão): não adianta repetir.
+          gravarFila(fila.slice(1));
+          avisar(`Uma alteração feita sem internet não pôde ser salva: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+    } finally {
+      enviandoRef.current = false;
+      setEnviando(false);
+      setPendentes(lerFila().length);
+    }
+    if (enviados > 0 && lerFila().length === 0) {
+      avisar(
+        enviados === 1
+          ? 'Internet de volta: a alteração que estava esperando foi salva.'
+          : `Internet de volta: as ${enviados} alterações que estavam esperando foram salvas.`,
+        'sucesso',
+      );
+    }
+  }, [avisar]);
+
+  /** Primeiro envia o que estava esperando, depois busca tudo de novo. */
+  const sincronizar = useCallback(async () => {
+    await enviarFila();
+    await recarregar();
+  }, [enviarFila, recarregar]);
+
   useEffect(() => {
     if (MODO_DEMO) return; // demonstração: dados fictícios, sem banco
-    recarregar();
+    sincronizar();
 
     const canal = supabase
       .channel('artdecor-dados')
@@ -134,19 +271,31 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       )
       .subscribe();
 
-    // Celular dormiu / app voltou do segundo plano: busca de novo para não perder nada.
+    // Celular dormiu / app voltou do segundo plano: envia o que esperava e busca de novo.
     const aoVoltar = () => {
-      if (document.visibilityState === 'visible') recarregar();
+      if (document.visibilityState === 'visible') sincronizar();
     };
+    const ficouOnline = () => {
+      setOnline(true);
+      sincronizar();
+    };
+    const ficouOffline = () => setOnline(false);
     document.addEventListener('visibilitychange', aoVoltar);
-    window.addEventListener('online', aoVoltar);
+    window.addEventListener('online', ficouOnline);
+    window.addEventListener('offline', ficouOffline);
+    // Wi-Fi conectado mas sem internet de verdade: tenta de novo de tempos em tempos.
+    const tentar = window.setInterval(() => {
+      if (lerFila().length > 0) enviarFila();
+    }, 30000);
 
     return () => {
       supabase.removeChannel(canal);
       document.removeEventListener('visibilitychange', aoVoltar);
-      window.removeEventListener('online', aoVoltar);
+      window.removeEventListener('online', ficouOnline);
+      window.removeEventListener('offline', ficouOffline);
+      window.clearInterval(tentar);
     };
-  }, [recarregar]);
+  }, [sincronizar, enviarFila]);
 
   const api = useMemo<Api>(() => {
     // Durante o tutorial, os dados de exemplo aparecem junto com os reais (só na tela).
@@ -160,101 +309,77 @@ export function DadosProvider({ children }: { children: ReactNode }) {
         }
       : dados;
 
-    /** Roda a gravação; em erro mostra o aviso e devolve false. */
-    async function executar(acao: () => Promise<void>, id?: string): Promise<boolean> {
-      // Dados de exemplo do tutorial nunca vão para o banco.
-      if (id && ehExemplo(id)) {
-        setAviso('Isso é só um exemplo do tutorial — não é salvo.');
+    /** Guarda no celular para enviar depois. */
+    function guardar(op: Operacao): boolean {
+      const fila = [...lerFila(), op];
+      if (!gravarFila(fila)) {
+        avisar('Sem internet, e o celular não tem espaço para guardar. Tente de novo quando a internet voltar.');
         return false;
       }
-      try {
-        await acao();
-        return true;
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        setAviso(navigator.onLine ? `Não foi possível salvar: ${msg}` : 'Sem internet. Não foi possível salvar — tente de novo.');
-        return false;
-      }
+      setDados((d) => aplicarLocal(d, op));
+      setPendentes(fila.length);
+      avisar(
+        navigator.onLine
+          ? 'A internet está fraca. Ficou salvo no celular e vai pro sistema sozinho assim que a conexão melhorar.'
+          : 'Sem internet. Ficou salvo no celular e vai pro sistema sozinho quando a internet voltar.',
+        'info',
+      );
+      return true;
     }
 
-    async function verificar(resposta: PromiseLike<{ error: { message: string } | null }>) {
-      const { error } = await resposta;
-      if (error) throw new Error(error.message);
+    /** Grava no banco; sem internet, guarda no celular. Em erro do banco mostra o aviso e devolve false. */
+    async function executar(op: Operacao, id: string): Promise<boolean> {
+      // Dados de exemplo do tutorial nunca vão para o banco.
+      if (ehExemplo(id)) {
+        avisar('Isso é só um exemplo do tutorial — não é salvo.');
+        return false;
+      }
+      if (MODO_DEMO) {
+        setDados((d) => aplicarLocal(d, op));
+        return true;
+      }
+      // Sem internet, ou ainda há coisa esperando (a ordem precisa ser mantida): vai para a fila.
+      if (!navigator.onLine || lerFila().length > 0) {
+        const ok = guardar(op);
+        if (ok && navigator.onLine) enviarFila();
+        return ok;
+      }
+      try {
+        const final = await enviar(op);
+        setDados((d) => aplicarLocal(d, final));
+        return true;
+      } catch (e) {
+        if (ehErroDeRede(e)) return guardar(op);
+        avisar(`Não foi possível salvar: ${e instanceof Error ? e.message : String(e)}`);
+        return false;
+      }
     }
 
     return {
       ...visiveis,
       exemploAtivo,
       mostrarExemplo: setExemploAtivo,
+      pendentes,
 
-      salvarItem: (item) =>
-        executar(async () => {
-          let fotoUrl = item.fotoUrl;
-          if (fotoUrl?.startsWith('data:')) fotoUrl = await enviarFoto(item.id, fotoUrl);
-          const final = { ...item, fotoUrl };
-          await verificar(supabase.from('itens').upsert(paraItem(final)));
-          setDados((d) => ({ ...d, itens: upsert(d.itens, final) }));
-        }, item.id),
-
-      removerItem: (itemId) =>
-        executar(async () => {
-          await verificar(supabase.from('itens').update({ removido: true }).eq('id', itemId));
-          setDados((d) => ({ ...d, itens: d.itens.map((i) => (i.id === itemId ? { ...i, removido: true } : i)) }));
-        }, itemId),
-
-      salvarTema: (tema) =>
-        executar(async () => {
-          await verificar(supabase.from('temas').upsert(paraTema(tema)));
-          setDados((d) => ({ ...d, temas: upsert(d.temas, tema) }));
-        }, tema.id),
-
-      removerTema: (temaId) =>
-        executar(async () => {
-          // As peças continuam no estoque, só deixam de pertencer ao tema.
-          await verificar(supabase.from('itens').update({ tema_id: null }).eq('tema_id', temaId));
-          await verificar(supabase.from('temas').update({ removido: true }).eq('id', temaId));
-          setDados((d) => ({
-            ...d,
-            temas: d.temas.map((t) => (t.id === temaId ? { ...t, removido: true } : t)),
-            itens: d.itens.map((i) => (i.temaId === temaId ? { ...i, temaId: undefined } : i)),
-          }));
-        }, temaId),
-
-      salvarCliente: (cliente) =>
-        executar(async () => {
-          await verificar(supabase.from('clientes').upsert(paraCliente(cliente)));
-          setDados((d) => ({ ...d, clientes: upsert(d.clientes, cliente) }));
-        }, cliente.id),
-
-      removerCliente: (clienteId) =>
-        executar(async () => {
-          await verificar(supabase.from('clientes').update({ removido: true }).eq('id', clienteId));
-          setDados((d) => ({ ...d, clientes: d.clientes.map((c) => (c.id === clienteId ? { ...c, removido: true } : c)) }));
-        }, clienteId),
-
-      salvarPedido: (pedido) =>
-        executar(async () => {
-          const { data, error } = await supabase.from('pedidos').upsert(paraPedido(pedido)).select().single();
-          if (error) throw new Error(error.message);
-          const salvo = dePedido(data);
-          setDados((d) => ({ ...d, pedidos: upsert(d.pedidos, salvo) }));
-        }, pedido.id),
-
-      mudarStatus: (pedidoId, status) =>
-        executar(async () => {
-          await verificar(supabase.from('pedidos').update({ status }).eq('id', pedidoId));
-          setDados((d) => ({ ...d, pedidos: d.pedidos.map((p) => (p.id === pedidoId ? { ...p, status } : p)) }));
-        }, pedidoId),
+      salvarItem: (item) => executar({ tipo: 'item', item }, item.id),
+      removerItem: (id) => executar({ tipo: 'removerItem', id }, id),
+      salvarTema: (tema) => executar({ tipo: 'tema', tema }, tema.id),
+      removerTema: (id) => executar({ tipo: 'removerTema', id }, id),
+      salvarCliente: (cliente) => executar({ tipo: 'cliente', cliente }, cliente.id),
+      removerCliente: (id) => executar({ tipo: 'removerCliente', id }, id),
+      salvarPedido: (pedido) => executar({ tipo: 'pedido', pedido }, pedido.id),
+      mudarStatus: (id, status) => executar({ tipo: 'status', id, status }, id),
     };
-  }, [dados, exemploAtivo]);
+  }, [dados, exemploAtivo, pendentes, avisar, enviarFila]);
 
   if (carregando) return <TelaCarregando />;
-  if (erroCarga) return <TelaErro mensagem={erroCarga} onTentar={recarregar} />;
+  if (erroCarga) return <TelaErro mensagem={erroCarga} onTentar={sincronizar} />;
 
   return (
     <Contexto.Provider value={api}>
+      <StatusConexao online={online} pendentes={pendentes} enviando={enviando} onEnviar={enviarFila} />
       {children}
-      {aviso && <Aviso mensagem={aviso} onFechar={() => setAviso(null)} />}
+      {aviso && <Aviso mensagem={aviso.texto} tipo={aviso.tipo} onFechar={() => setAviso(null)} />}
     </Contexto.Provider>
   );
 }

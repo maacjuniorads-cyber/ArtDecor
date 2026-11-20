@@ -32,3 +32,11 @@
   font-size: 22px;
   cursor: pointer;
 }
+
+.aviso[data-tipo='info'] {
+  background: var(--status-rua-fg);
+}
+
+.aviso[data-tipo='sucesso'] {
+  background: var(--status-devolvido-fg);
+}

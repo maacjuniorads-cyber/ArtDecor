@@ -26,7 +26,11 @@ export function TelaErro({ mensagem, onTentar }: { mensagem: string; onTentar: (
     <TelaMarca>
       <div className={styles.caixa} role="alert">
         <p className={styles.titulo}>Não foi possível carregar os dados</p>
-        <p className={styles.texto}>{navigator.onLine ? mensagem : 'Parece que o celular está sem internet.'}</p>
+        <p className={styles.texto}>
+          {navigator.onLine
+            ? mensagem
+            : 'Parece que o celular está sem internet. Quando conectar, o app abre sozinho. O que você salvou sem internet continua guardado no celular.'}
+        </p>
         <button type="button" className={styles.botao} onClick={onTentar}>
           Tentar de novo
         </button>

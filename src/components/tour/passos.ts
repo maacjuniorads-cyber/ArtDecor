@@ -190,6 +190,11 @@ export const passos: Passo[] = [
     titulo: 'Fechou sem querer? Nada se perde',
     texto: 'Enquanto você preenche um pedido, um cliente, uma peça ou a conferência, o app guarda tudo no celular a cada toque. Se a tela recarregar, o app fechar ou o celular desligar no meio, é só abrir a mesma tela de novo: aparece “Recuperamos o que você estava preenchendo” e está tudo lá. Quer começar do zero? Toque em “Descartar”.\n\nE dentro dos cadastros a tela não recarrega ao puxar para baixo, para não atrapalhar.',
   },
+  {
+    rota: fixo('/pedidos/novo'),
+    titulo: 'Sem internet? Salve do mesmo jeito',
+    texto: 'Se a internet cair, aparece uma faixa no topo: “Sem internet”. Pode continuar trabalhando e tocar em Salvar normalmente: o app avisa que ficou guardado no celular.\n\nQuando a internet voltar, ele envia tudo sozinho, na ordem, e mostra “Internet de volta”. Se fechar o app antes, não tem problema: fica guardado e vai na próxima vez que abrir com internet.\n\nAté enviar, só o seu celular vê essas mudanças — nos outros celulares elas aparecem depois.',
+  },
 
   // ---- Pedidos
   {

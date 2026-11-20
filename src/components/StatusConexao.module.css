@@ -1,0 +1,62 @@
+/* Fica no fluxo da página (empurra o conteúdo), sempre no topo. */
+.faixa {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+  background: #4f4a66;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.faixa[data-online='true'] {
+  background: var(--status-rua-fg);
+}
+
+.ponto {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f2b8c6;
+}
+
+.faixa[data-online='true'] .ponto {
+  background: #bfe3c8;
+  animation: piscar 1.2s ease-in-out infinite;
+}
+
+@keyframes piscar {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.botao {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa[data-online='true'] .ponto {
+    animation: none;
+  }
+}

@@ -28,14 +28,15 @@ export function quantidadeDeItens(pedido: Pedido): number {
   return pedido.itens.reduce((soma, i) => soma + i.quantidade, 0);
 }
 
-/** Como o pedido aparece no app: #A13213. */
+/** Como o pedido aparece no app: #A13213. Feito sem internet, ainda não tem código. */
 export function numeroPedido(pedido: Pedido): string {
-  return `#${codigoPedido(pedido)}`;
+  return pedido.codigo || pedido.numero > 0 ? `#${codigoPedido(pedido)}` : '(sem código ainda)';
 }
 
 /** Código sem o "#" (nota, nome do arquivo, mensagens). */
 export function codigoPedido(pedido: Pedido): string {
-  return pedido.codigo || String(pedido.numero).padStart(4, '0');
+  if (pedido.codigo) return pedido.codigo;
+  return pedido.numero > 0 ? String(pedido.numero).padStart(4, '0') : 'sem código ainda';
 }
 
 /** Reservado ou na rua: o pedido ainda prende itens e cliente. */
