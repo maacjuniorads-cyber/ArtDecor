@@ -29,7 +29,7 @@ export const passos: Passo[] = [
     rota: fixo('/'),
     titulo: (c) => (c.nome ? `Bem-vinda ao ArtDecor, ${c.nome}!` : 'Bem-vinda ao ArtDecor!'),
     texto:
-      'Vou te mostrar como o app funciona, tela por tela. Leva uns 3 minutos e você pode pular quando quiser.\n\nPara ficar mais fácil de entender, durante o tutorial aparecem alguns dados de EXEMPLO — a cliente “Silvia Exemplo”, o “João Exemplo” e umas peças com “(exemplo)” no nome. Eles são só para mostrar e somem sozinhos quando o tutorial terminar. Nada é salvo.',
+      'Vou te mostrar como o app funciona, tela por tela. Leva uns 13 a 14 minutos — vá no seu ritmo, e dá pra pular quando quiser.\n\nPara ficar mais fácil de entender, durante o tutorial aparecem alguns dados de EXEMPLO — a cliente “Silvia Exemplo”, o “João Exemplo” e umas peças com “(exemplo)” no nome. Eles são só para mostrar e somem sozinhos quando o tutorial terminar. Nada é salvo.',
   },
   {
     rota: fixo('/'),
