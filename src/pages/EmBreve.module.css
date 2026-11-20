@@ -1,0 +1,11 @@
+.titulo {
+  font-size: 28px;
+}
+
+.texto {
+  margin: 12px 0 0;
+  padding: 18px 16px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  color: var(--texto-suave);
+}

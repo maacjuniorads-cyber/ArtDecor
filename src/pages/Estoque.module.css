@@ -1,0 +1,65 @@
+.abas {
+  margin-top: 12px;
+}
+
+.busca {
+  margin-top: 12px;
+}
+
+.chips {
+  margin: 10px 0 12px;
+}
+
+.situacao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.livres {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--texto-medio);
+  white-space: nowrap;
+}
+
+.dica {
+  margin: 12px 0;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.tema {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.temaTopo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cor {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pecas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.peca {
+  font-size: 12px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--fundo);
+  color: var(--texto-medio);
+}

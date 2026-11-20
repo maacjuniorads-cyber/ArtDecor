@@ -1,0 +1,26 @@
+.app {
+  max-width: var(--largura-app);
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--fundo);
+  position: relative;
+}
+
+.conteudo {
+  padding: 24px 20px calc(var(--nav-altura) + 100px + env(safe-area-inset-bottom));
+}
+
+.conteudoTelaCheia {
+  padding: 16px 20px calc(110px + env(safe-area-inset-bottom));
+}
+
+@media print {
+  .app {
+    max-width: none;
+    background: #fff;
+  }
+
+  .conteudoTelaCheia {
+    padding: 0;
+  }
+}

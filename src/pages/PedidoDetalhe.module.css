@@ -1,0 +1,112 @@
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.etapas {
+  list-style: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.etapa {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.etapa[aria-current='step'] {
+  color: var(--texto);
+}
+
+.barraEtapa {
+  height: 6px;
+  border-radius: 3px;
+  background: #eee7ea;
+}
+
+.etapa[data-feita='true'][data-tom='reservado'] .barraEtapa { background: var(--lilas); }
+.etapa[data-feita='true'][data-tom='rua'] .barraEtapa { background: var(--azul); }
+.etapa[data-feita='true'][data-tom='devolvido'] .barraEtapa { background: var(--status-devolvido-fg); }
+
+.cliente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clienteLink {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.whats {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--status-devolvido-bg);
+  color: var(--status-devolvido-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rotuloData {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rotuloData[data-tom='rua'] { color: var(--status-rua-fg); }
+.rotuloData[data-tom='alerta'] { color: var(--status-alerta-fg); }
+
+.data {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+.totais {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.totais > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total {
+  font-family: var(--fonte-titulo);
+  font-size: 19px;
+}
+
+.pago {
+  color: var(--status-devolvido-fg);
+  font-weight: 700;
+}
+
+.falta {
+  padding-top: 8px;
+  border-top: 1px solid var(--divisor);
+}
+
+.valorFalta {
+  color: var(--vinho);
+}

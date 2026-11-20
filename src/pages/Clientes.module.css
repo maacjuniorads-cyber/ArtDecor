@@ -1,0 +1,28 @@
+.busca {
+  margin: 14px 0 12px;
+}
+
+.veiculo,
+.semVeiculo {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.veiculo {
+  color: var(--status-rua-fg);
+}
+
+.semVeiculo {
+  color: var(--texto-suave);
+  font-weight: 600;
+}
+
+.pedidos {
+  font-size: 12px;
+  color: var(--texto-suave);
+  white-space: nowrap;
+}

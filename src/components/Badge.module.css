@@ -1,0 +1,28 @@
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.reservado {
+  background: var(--status-reservado-bg);
+  color: var(--status-reservado-fg);
+}
+
+.rua {
+  background: var(--status-rua-bg);
+  color: var(--status-rua-fg);
+}
+
+.devolvido {
+  background: var(--status-devolvido-bg);
+  color: var(--status-devolvido-fg);
+}
+
+.alerta {
+  background: var(--status-alerta-bg);
+  color: var(--status-alerta-fg);
+}

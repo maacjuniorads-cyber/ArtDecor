@@ -1,0 +1,103 @@
+.semItens {
+  margin: 0;
+  padding: 18px 16px;
+  font-size: 14px;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.aviso {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--status-alerta-fg);
+}
+
+.passos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qtd {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.adicionar {
+  display: block;
+}
+
+.selectAdicionar {
+  width: 100%;
+  height: 52px;
+  border: 0;
+  background: transparent;
+  color: var(--vinho);
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  appearance: none;
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.totais {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.totais > div,
+.totais > label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.total {
+  font-family: var(--fonte-titulo);
+  font-size: 20px;
+}
+
+.sinal {
+  width: 140px;
+  height: 44px;
+}
+
+.sinal input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  font-size: 15px;
+  text-align: right;
+  background: transparent;
+}
+
+.falta {
+  padding-top: 10px;
+  border-top: 1px solid var(--divisor);
+}
+
+.valorFalta {
+  color: var(--vinho);
+}

@@ -1,0 +1,191 @@
+.logo {
+  margin: 0;
+  font-family: var(--fonte-logo);
+  font-size: 46px;
+  line-height: 1.05;
+  color: var(--vinho);
+}
+
+.saudacao {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--texto-suave);
+}
+
+.saudacao::first-letter {
+  text-transform: uppercase;
+}
+
+.botaoPrincipal {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: var(--raio-botao);
+  background: var(--vinho);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 17px;
+  padding-top: 3px;
+}
+
+.botaoPrincipal:active {
+  background: var(--vinho-escuro);
+}
+
+.resumo {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  padding: 16px;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.rotulo {
+  font-family: var(--fonte-titulo);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rotulo[data-tom='rua'] { color: var(--status-rua-fg); }
+.rotulo[data-tom='reservado'] { color: var(--status-reservado-fg); }
+.rotulo[data-tom='alerta'] { color: var(--status-alerta-fg); }
+.rotulo[data-tom='devolvido'] { color: var(--status-devolvido-fg); }
+
+.numero {
+  font-family: var(--fonte-titulo);
+  font-size: 34px;
+  font-weight: 700;
+  margin-top: 6px;
+  line-height: 1.2;
+}
+
+.numeroMoeda {
+  font-size: 24px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.legenda {
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.secao {
+  margin: 28px 0 12px;
+  font-size: 19px;
+}
+
+.vazio {
+  margin: 0;
+  padding: 18px 16px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.agenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  overflow: hidden;
+}
+
+.agenda li + li {
+  border-top: 1px solid var(--divisor);
+}
+
+.linhaAgenda {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.dia {
+  width: 48px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.diaNumero {
+  font-family: var(--fonte-titulo);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.diaSemana {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.linhaTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.linhaNome {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.linhaDetalhe {
+  font-size: 13px;
+  color: var(--texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aviso {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--rosa);
+  border-radius: var(--raio);
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--texto);
+}
+
+.avisoIcone {
+  color: var(--vinho);
+  flex-shrink: 0;
+}
+
+.avisoDetalhe {
+  font-size: 13px;
+  color: #5e4a55;
+}
+
+.avisoAcao {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--vinho);
+}

@@ -1,0 +1,43 @@
+/* Identidade visual ArtDecor — tirada do cartão da marca */
+:root {
+  /* Marca */
+  --vinho: #8e2a4e;
+  --vinho-escuro: #6e1f3c;
+  --ameixa: #8b4a6b;
+  --azul: #4a7aa8;
+  --lilas: #8a87a0;
+  --rosa: #f9dde1;
+  --bege: #e8e3df;
+
+  /* Superfícies e texto */
+  --fundo: #f6f1ee;
+  --superficie: #ffffff;
+  --texto: #2e2638;
+  --texto-medio: #4f4a66;
+  --texto-suave: #6b6378;
+  --borda: #e7dfe3;
+  --borda-campo: #dcd2d7;
+  --divisor: #f0e9ec;
+
+  /* Status (fundo / texto) — todos passam 4.5:1 */
+  --status-reservado-bg: #eceaf2;
+  --status-reservado-fg: #4f4a66;
+  --status-rua-bg: #e3ecf5;
+  --status-rua-fg: #2f5a85;
+  --status-devolvido-bg: #e6f0e8;
+  --status-devolvido-fg: #2f6b40;
+  --status-alerta-bg: #f9dde1;
+  --status-alerta-fg: #7a2343;
+
+  /* Tipografia */
+  --fonte-logo: 'Great Vibes', cursive;
+  --fonte-titulo: 'Josefin Sans', system-ui, sans-serif;
+  --fonte-corpo: 'Nunito', system-ui, sans-serif;
+
+  /* Forma */
+  --raio: 16px;
+  --raio-botao: 14px;
+  --nav-altura: 76px;
+  --largura-app: 480px;
+  --sombra-fab: 0 6px 16px rgba(142, 42, 78, 0.3);
+}

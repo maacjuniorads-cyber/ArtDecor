@@ -1,0 +1,37 @@
+.cores {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cores legend {
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.cor {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+}
+
+.cor input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cor:has(input:checked) {
+  box-shadow: 0 0 0 3px var(--fundo), 0 0 0 5px var(--texto);
+}
+
+.cor:has(input:focus-visible) {
+  outline: 3px solid var(--azul);
+  outline-offset: 4px;
+}
