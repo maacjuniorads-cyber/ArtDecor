@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsuario } from '@/components/Autenticacao';
@@ -56,7 +57,7 @@ export function Conferencia() {
 
   const [estados, setEstados] = useState<Record<string, Estado>>(() => (pedido ? estadoInicial(pedido) : {}));
   const [observacao, setObservacao] = useState(pedido?.conferencia?.observacao ?? '');
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
 
   const rascunho = useRascunho(`conferencia:${id}`, { estados, observacao }, (v) => {
@@ -207,11 +208,7 @@ export function Conferencia() {
           />
         </label>
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
       </div>
 
       <div className={`${ui.barraAcao} ${styles.barra}`}>

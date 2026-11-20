@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BadgeStatus } from '@/components/Badge';
@@ -28,7 +29,7 @@ export function ClienteForm() {
   const [modelo, setModelo] = useState(v?.modelo ?? '');
   const [cor, setCor] = useState(v?.cor ?? '');
   const [placa, setPlaca] = useState(v?.placa ?? '');
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
 
   const rascunho = useRascunho(
@@ -183,11 +184,7 @@ export function ClienteForm() {
           </section>
         )}
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
 
         {existente && (
           <ZonaExclusao

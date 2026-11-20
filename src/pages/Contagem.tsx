@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { CampoFoto } from '@/components/CampoFoto';
 import { useSemPuxarParaAtualizar } from '@/components/Rascunho';
 import { Link } from 'react-router-dom';
@@ -153,7 +154,7 @@ function Ficha({
   const [quantidade, setQuantidade] = useState(item.quantidadeTotal !== null ? String(item.quantidadeTotal) : '');
   const [valor, setValor] = useState(item.valorAluguel > 0 ? valorParaCampo(item.valorAluguel) : '');
   const [fotoUrl, setFotoUrl] = useState(item.fotoUrl);
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
 
   const tema = temas.find((t) => t.id === item.temaId)?.nome;
@@ -264,11 +265,7 @@ function Ficha({
           <span className={styles.dica}>Não sabe o preço agora? Pode deixar em branco e pôr depois.</span>
         </label>
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
 
         {podeVoltar && (
           <button type="button" className={`${ui.botaoTexto} ${styles.voltar}`} onClick={onVoltar}>

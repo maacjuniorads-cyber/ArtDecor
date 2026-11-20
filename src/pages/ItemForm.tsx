@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { CampoFoto } from '@/components/CampoFoto';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -28,7 +29,7 @@ export function ItemForm() {
   const [valor, setValor] = useState(existente ? valorParaCampo(existente.valorAluguel) : '');
   const [observacoes, setObservacoes] = useState(existente?.observacoes ?? '');
   const [fotoUrl, setFotoUrl] = useState(existente?.fotoUrl);
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
 
   const rascunho = useRascunho(
@@ -193,11 +194,7 @@ export function ItemForm() {
           <textarea className={ui.input} rows={3} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Ex: cuidado, quebra fácil" />
         </label>
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
 
         {existente && (
           <ZonaExclusao

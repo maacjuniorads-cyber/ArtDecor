@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
@@ -18,7 +19,7 @@ export function TemaForm() {
   const existente = temas.find((t) => t.id === id && !t.removido);
   const [nome, setNome] = useState(existente?.nome ?? '');
   const [cor, setCor] = useState(existente?.cor ?? CORES[0]);
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
 
   const rascunho = useRascunho(`tema:${id ?? 'novo'}`, { nome, cor }, (v) => {
@@ -94,11 +95,7 @@ export function TemaForm() {
 
         {!existente && <p className={ui.detalhe}>Depois de criar o tema, escolha ele no cadastro de cada peça para montar o kit.</p>}
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
 
         {existente && (
           <ZonaExclusao

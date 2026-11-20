@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { CampoData } from '@/components/CampoData';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -28,7 +29,7 @@ export function PedidoForm() {
   const [temaIds, setTemaIds] = useState<string[]>(existente?.temaIds ?? []);
   const [sinal, setSinal] = useState('');
   const [forma, setForma] = useState<FormaPagamento>('Pix');
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
   // Segundo toque em "Reservar" depois do aviso de conflito de datas.
   const [aceitouConflito, setAceitouConflito] = useState(false);
@@ -321,11 +322,7 @@ export function PedidoForm() {
           {existente && <p className={styles.nota}>Pagamentos são registrados no detalhe do pedido.</p>}
         </section>
 
-        {erro && (
-          <p className={ui.erro} role="alert">
-            {erro}
-          </p>
-        )}
+        <ErroFormulario erro={erro} onFechar={() => setErro('')} />
       </form>
 
       <div className={ui.barraAcao}>
