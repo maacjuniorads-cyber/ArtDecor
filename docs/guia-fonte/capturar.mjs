@@ -137,6 +137,7 @@ await rolar(0);
 await print('09-pedido-topo');
 await rolarAte('Itens');
 await print('10-pedido-itens');
+await page.evaluate(() => localStorage.clear()); // não deixa rascunho para os próximos prints
 
 await abrir(`${DEMO}/pedidos`);
 await print('11-pedidos');
@@ -174,6 +175,23 @@ await abrir(`${DEMO}/pedidos/demo-p12/nota`);
 await print('18-nota');
 await rolar(99999);
 await print('19-nota-botoes');
+
+// Avisos no celular
+await abrir(`${DEMO}/avisos`);
+await print('23-avisos');
+
+// Rascunho recuperado: começa um pedido, "recarrega" e mostra a faixa
+await page.evaluate(() => localStorage.clear()); // tira rascunhos dos prints anteriores
+await abrir(`${DEMO}/pedidos/novo`);
+await page.select('select', 'demo-c1');
+await digitar('input[placeholder^="Ex: Anivers"]', 'Aniversário da Ana');
+await clicarTexto('Capivara', 'button');
+await espera(400);
+await page.reload({ waitUntil: 'networkidle0' });
+await espera(1200);
+await rolar(0);
+await print('24-rascunho');
+await clicarTexto('Descartar', 'button');
 
 // Tutorial
 await tutorialAte('Como o lembrete chega no cliente');

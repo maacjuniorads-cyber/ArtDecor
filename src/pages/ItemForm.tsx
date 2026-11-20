@@ -101,7 +101,7 @@ export function ItemForm() {
       <Cabecalho titulo={existente ? 'Editar item' : 'Novo item'} voltarPara="/estoque" />
       <form id="form-item" className={ui.form} onSubmit={salvar} noValidate>
         <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
-        <CampoFoto fotoUrl={fotoUrl} alt="Foto do item" convite="Tirar foto ou escolher da galeria" onEscolher={escolherFoto} dataTour="item-foto" />
+        <CampoFoto fotoUrl={fotoUrl} alt="Foto do item" convite="Foto da peça (opcional)" onEscolher={escolherFoto} dataTour="item-foto" />
         {fotoUrl && (
           <button type="button" className={ui.botaoTexto} onClick={() => setFotoUrl(undefined)}>
             Remover foto

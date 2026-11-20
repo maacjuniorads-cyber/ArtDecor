@@ -42,6 +42,13 @@ const paths = {
       <circle cx="12" cy="13" r="3.5" />
     </>
   ),
+  galeria: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="1.8" />
+      <path d="m21 16-5-5-9 9" />
+    </>
+  ),
   baixar: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
   documento: (
     <>

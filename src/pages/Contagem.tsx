@@ -199,7 +199,7 @@ function Ficha({
   return (
     <>
       <div className={ui.form}>
-        <CampoFoto fotoUrl={fotoUrl} alt={`Foto: ${item.nome}`} convite="Tirar foto (opcional)" onEscolher={escolherFoto} />
+        <CampoFoto fotoUrl={fotoUrl} alt={`Foto: ${item.nome}`} convite="Foto (opcional)" onEscolher={escolherFoto} />
 
         <div>
           <h2 className={styles.nome}>{item.nome}</h2>

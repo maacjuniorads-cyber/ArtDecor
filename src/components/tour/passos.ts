@@ -105,7 +105,7 @@ export const passos: Passo[] = [
     rota: (c) => (c.primeiroItem ? `/estoque/${c.primeiroItem.id}` : null),
     alvo: 'item-foto',
     titulo: 'Editando um item',
-    texto: 'Ao abrir um item: toque no quadro de cima para tirar uma foto ou escolher da galeria. A foto ajuda a reconhecer a peça.',
+    texto: 'Ao abrir um item, a foto fica no alto: “Tirar foto” abre a câmera e “Galeria” pega uma foto já salva no celular. A foto aparece inteira e ajuda a reconhecer a peça.',
   },
   {
     rota: (c) => (c.primeiroItem ? `/estoque/${c.primeiroItem.id}` : null),
@@ -184,6 +184,11 @@ export const passos: Passo[] = [
     alvo: 'pedido-totais',
     titulo: '4º sinal e reservar',
     texto: 'O total é calculado sozinho. Se o cliente deu sinal, digite o valor e a forma (Pix, dinheiro ou cartão). Depois toque em “Reservar pedido”.',
+  },
+  {
+    rota: fixo('/pedidos/novo'),
+    titulo: 'Fechou sem querer? Nada se perde',
+    texto: 'Enquanto você preenche um pedido, um cliente, uma peça ou a conferência, o app guarda tudo no celular a cada toque. Se a tela recarregar, o app fechar ou o celular desligar no meio, é só abrir a mesma tela de novo: aparece “Recuperamos o que você estava preenchendo” e está tudo lá. Quer começar do zero? Toque em “Descartar”.\n\nE dentro dos cadastros a tela não recarrega ao puxar para baixo, para não atrapalhar.',
   },
 
   // ---- Pedidos
@@ -266,6 +271,6 @@ export const passos: Passo[] = [
     rota: fixo('/'),
     alvo: 'ajuda',
     titulo: 'Pronto!',
-    texto: 'Agora é só usar! Os dados de exemplo vão sumir e ficam só os seus. Comece pelos “Primeiros passos”. Se quiser ver este tutorial de novo (com os exemplos), toque em “Ajuda” aqui em cima.',
+    texto: 'Agora é só usar! Os dados de exemplo vão sumir e ficam só os seus. Comece pelos “Primeiros passos”. Se quiser ver este tutorial de novo (com os exemplos), toque em “Ajuda” aqui em cima.\n\nDica: nas listas (Início, Estoque, Pedidos…), puxe a tela para baixo para atualizar.',
   },
 ];

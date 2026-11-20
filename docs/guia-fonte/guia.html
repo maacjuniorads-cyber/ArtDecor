@@ -107,6 +107,7 @@
       <div><b>11</b> Pagamentos</div>
       <div><b>12</b> Devolução</div>
       <div><b>13</b> Nota pro cliente</div>
+      <div><b>14</b> Avisos no celular</div>
       <div><b>★</b> Dicas e dúvidas</div>
     </div>
     <div class="versao">Atualizado em novembro de 2026</div>
@@ -153,7 +154,7 @@
         <tr><td>A receber</td><td>Quanto ainda falta receber, somando todos os pedidos (inclusive cobranças de peça quebrada).</td></tr>
         <tr><td>Próximos dias</td><td>O que <span class="selo rua">Sai</span>, o que <span class="selo contar">Volta</span> e o que está <span class="selo contar">Atrasado</span>. Toque num nome para abrir o pedido. <b>“Ver calendário”</b> abre a Agenda.</td></tr>
         <tr><td>Primeiros passos</td><td>Lista de tarefas para começar. Cada uma se marca sozinha quando você faz. Dá pra recolher a lista.</td></tr>
-        <tr><td>Ajuda · Sair</td><td>No alto: <b>Ajuda</b> abre o tutorial de novo; <b>Sair</b> desconecta.</td></tr>
+        <tr><td>Avisos · Ajuda · Sair</td><td>No alto: <b>Avisos</b> liga os avisos no celular (parte 14); <b>Ajuda</b> abre o tutorial de novo; <b>Sair</b> desconecta.</td></tr>
       </table>
       <p>Embaixo de todas as telas fica o <b>menu</b>: <b>Início · Agenda · Estoque · Pedidos · Clientes</b>.</p>
     </div>
@@ -218,7 +219,7 @@
       <p class="intro">Muitos itens já foram cadastrados, mas estão como <span class="selo contar">Falta contar</span> e com valor <b>R$ 0</b>. Para completar um de cada vez pela ficha (ou vários em sequência pela <b>contagem rápida</b>, parte 6):</p>
       <ol class="passos">
         <li>No Estoque, toque no item.</li>
-        <li><b>Foto (opcional):</b> toque no quadro de cima para tirar uma foto ou escolher da galeria.</li>
+        <li><b>Foto (opcional):</b> <b>“Tirar foto”</b> abre a câmera; <b>“Galeria”</b> pega uma foto já salva no celular. A foto aparece inteira.</li>
         <li><b>Tipo de item:</b>
           <br>• <b>Tenho vários</b> — cilindros, toalhas, bandejas…
           <br>• <b>Peça única</b> — painel, cômoda, baú… (não precisa contar).</li>
@@ -246,7 +247,7 @@
       <p>Enquanto houver peças sem contagem, aparece a faixa rosa <b>“Contagem rápida”</b> no alto do <b>Estoque</b>, e o aviso <b>“itens sem contagem”</b> no Início. Toque em <span class="botao">Contar</span>.</p>
       <h3>Para cada peça</h3>
       <ol class="passos">
-        <li><b>Foto</b> (opcional): toque no quadro para fotografar.</li>
+        <li><b>Foto</b> (opcional): <b>Tirar foto</b> ou <b>Galeria</b>.</li>
         <li><b>Tenho vários</b> ou <b>Peça única</b>.</li>
         <li><b>Quantas tem?</b> Use <b>−</b> e <b>+</b> ou digite o número.</li>
         <li><b>Valor do aluguel</b> de uma unidade. Não sabe agora? Pode deixar em branco.</li>
@@ -314,13 +315,38 @@
   </div>
   <ol class="passos">
     <li><b>Cliente:</b> escolha na lista. Se for novo, toque em “+ Cadastrar cliente novo”.</li>
-    <li><b>Evento</b> (opcional) e as datas de <b>retirada</b> e <b>devolução</b>.</li>
+    <li><b>Evento</b> (opcional) e as datas de <b>retirada</b> e <b>devolução</b> — embaixo de cada data aparece o dia da semana.</li>
     <li><b>Kit do tema:</b> toque no tema (ex.: <b>+ Heróis</b>) — as peças do kit entram sozinhas.</li>
     <li><b>Outros itens:</b> “+ Adicionar item avulso”. Use <b>−</b> e <b>+</b> para a quantidade, ou <b>×</b> para tirar.</li>
     <li><b>Sinal:</b> se o cliente já pagou uma parte, digite o valor e escolha Pix, Dinheiro ou Cartão.</li>
     <li>Confira o <b>Total</b> e toque em <span class="botao">Reservar pedido</span>.</li>
   </ol>
   <div class="dica cuidado"><b>Aviso em vermelho “Já reservado nessas datas”:</b> o app confere sozinho se a peça já está em outro pedido com datas que se cruzam, e diz <b>qual pedido, de quem e em que datas</b>. Se for peça de várias unidades, mostra quantas sobram (“Só 1 livre…”). O que fazer: troque a peça, mude as datas ou fale com o outro cliente. Se tiver certeza (ex.: o outro devolve de manhã e este retira à tarde), toque no botão de novo: ele vira <b>“Salvar mesmo assim”</b>.</div>
+</section>
+
+<!-- ============ 9b. RASCUNHO ============ -->
+<section class="pagina">
+  <h2><span class="num">9</span> Se a tela fechar no meio <span class="novo">NOVO</span></h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Enquanto você preenche um <b>pedido</b>, um <b>cliente</b>, uma <b>peça</b>, um <b>tema</b> ou a <b>conferência da devolução</b>, o app guarda tudo no celular a cada toque.</p>
+      <h3>Se acontecer um acidente</h3>
+      <p>A tela recarregou, o app fechou, a bateria acabou ou atendeu uma ligação no meio? Abra a mesma tela de novo:</p>
+      <ol class="passos">
+        <li>Aparece a faixa azul <b>“Recuperamos o que você estava preenchendo”</b>.</li>
+        <li>Está tudo como você deixou: cliente, datas, peças, sinal…</li>
+        <li>Confira e continue. Ao salvar, o rascunho some sozinho.</li>
+      </ol>
+      <p>Quer começar do zero? Toque em <span class="botao claro">Descartar</span>.</p>
+      <div class="dica"><b>Bônus:</b> no meio de um pedido dá para tocar em “+ Cadastrar cliente novo”, cadastrar e voltar — o pedido continua lá.</div>
+      <div class="dica"><b>Sem recarregar sem querer:</b> dentro dos cadastros, puxar a tela para baixo <b>não</b> atualiza o app. Nas listas (Início, Estoque, Pedidos…), puxar para baixo atualiza.</div>
+      <p style="font-size:11.5pt;color:var(--suave)">O rascunho fica só no seu celular e vale por 7 dias.</p>
+    </div>
+    <div>
+      <div class="cel corta-topo"><img src="prints/24-rascunho.png" alt="Rascunho recuperado"></div>
+      <div class="legenda">Pedido recuperado depois de a tela recarregar</div>
+    </div>
+  </div>
 </section>
 
 <!-- ============ 9. ANDAMENTO ============ -->
@@ -493,6 +519,33 @@
   </div>
 </section>
 
+<!-- ============ 14. AVISOS ============ -->
+<section class="pagina">
+  <h2><span class="num">14</span> Avisos no celular <span class="novo">NOVO</span></h2>
+  <div class="duas">
+    <div>
+      <p class="intro">O celular avisa sozinho, <b>mesmo com o app fechado</b>, quando tem algo pra fazer. Os avisos são <b>só para a equipe</b> — os clientes não recebem nada.</p>
+      <table class="tab">
+        <tr><td>Resumo do dia</td><td>De manhã (~8h): o que sai, o que volta e o que está atrasado. Se o dia está livre, não avisa.</td></tr>
+        <tr><td>Retiradas de amanhã</td><td>No fim da tarde (~18h): quem retira amanhã e quantas peças separar.</td></tr>
+        <tr><td>Devolução atrasada</td><td>Na manhã seguinte ao dia combinado, se o pedido ainda não voltou.</td></tr>
+      </table>
+      <p>Tocando no aviso, o app abre direto no pedido (ou na Agenda).</p>
+      <h3>Ligar os avisos</h3>
+      <ol class="passos">
+        <li>No Início, toque em <b>Avisos</b> (no alto).</li>
+        <li>Toque em <span class="botao">Ativar avisos neste celular</span>.</li>
+        <li>Quando o celular perguntar, toque em <b>Permitir</b>. Na hora chega um aviso de teste.</li>
+      </ol>
+      <p>Na mesma tela dá para escolher quais avisos receber. Vale <b>só para aquele celular</b>: cada pessoa ativa no seu.</p>
+      <div class="dica"><b>Precisa do app instalado</b> na tela de início (o ícone do ArtDecor). No iPhone, só funciona abrindo pelo ícone.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/23-avisos.png" alt="Avisos no celular"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ DICAS ============ -->
 <section class="pagina">
   <h2><span class="num">★</span> Dicas e dúvidas</h2>
@@ -500,11 +553,10 @@
     <tr><td>Apareceu uma faixa vermelha no topo</td><td>Algo não foi salvo (geralmente falta de internet). Confira a conexão e toque em salvar de novo — o que você digitou continua na tela.</td></tr>
     <tr><td>“Isso é só um exemplo do tutorial”</td><td>Você tentou mudar um dado de exemplo durante o tutorial. Eles não são salvos — termine ou pule o tutorial para usar os dados de verdade.</td></tr>
     <tr><td>Cadastrei no meu celular, aparece nos outros?</td><td>Sim! Você, o Junior e o Maycel veem tudo igual, na hora.</td></tr>
-    <tr><td>Bom dia ou boa tarde?</td><td>As mensagens do WhatsApp escolhem sozinhas a saudação pelo horário em que você envia.</td></tr>
     <tr><td>E se o celular quebrar?</td><td>Nada se perde: tudo fica na nuvem, e o sistema faz uma <b>cópia de segurança automática todo dia</b>. No fim do Início também tem “Cópia de segurança dos dados” para baixar planilhas.</td></tr>
     <tr><td>Excluí sem querer</td><td>Itens e clientes excluídos somem das listas, mas não se perdem dos pedidos antigos. Peça ajuda ao Junior para recuperar.</td></tr>
     <tr><td>Esqueci a senha</td><td>Fale com o Junior: ele cria uma senha nova.</td></tr>
-    <tr><td>O app está estranho ou desatualizado</td><td>Feche o app e abra de novo.</td></tr>
+    <tr><td>O app está estranho ou desatualizado</td><td>Numa lista (Início, Estoque…), <b>puxe a tela para baixo</b> para atualizar. Se não resolver, feche o app e abra de novo.</td></tr>
   </table>
 
   <h3>Para começar bem</h3>

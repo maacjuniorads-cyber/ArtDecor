@@ -1,7 +1,6 @@
 /**
  * Reduz a foto tirada no celular para no máximo `lado` px e devolve um
- * data URL JPEG pequeno (~30–60 KB), que cabe no localStorage.
- * Quando houver back-end, a foto vai para o storage dele.
+ * data URL JPEG (~100–150 KB). Ao salvar, a foto vai para o Storage do Supabase.
  */
 export function reduzirImagem(arquivo: File, lado = 800, qualidade = 0.8): Promise<string> {
   return new Promise((resolve, reject) => {
