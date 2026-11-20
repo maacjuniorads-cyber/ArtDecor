@@ -58,6 +58,8 @@ export function ItemForm() {
     if (tipo === 'varios' && !semContagem && (!Number.isInteger(qtd) || qtd < 0 || quantidade === '')) {
       return setErro('Informe a quantidade ou marque "Ainda não contei".');
     }
+    // 0 = "ainda não contei": a peça volta para "falta contar" (igual à contagem rápida).
+    const zero = tipo === 'varios' && !semContagem && qtd === 0;
     setSalvando(true);
     const ok = await salvarItem({
       id: existente?.id ?? novoId(),
@@ -65,7 +67,7 @@ export function ItemForm() {
       categoria,
       temaId: temaId || undefined,
       tipo,
-      quantidadeTotal: tipo === 'unica' ? 1 : semContagem ? null : qtd,
+      quantidadeTotal: tipo === 'unica' ? 1 : semContagem || zero ? null : qtd,
       valorAluguel: valorNum,
       observacoes: observacoes.trim() || undefined,
       fotoUrl,
@@ -151,6 +153,11 @@ export function ItemForm() {
                 disabled={semContagem}
               />
             </label>
+            {!semContagem && quantidade.trim() !== '' && Number(quantidade) === 0 && (
+              <span className={styles.avisoZero} role="status">
+                Com 0, a peça fica como “falta contar”. Se não tem mais essa peça, exclua no fim da tela.
+              </span>
+            )}
             <label className={ui.marcar}>
               <input type="checkbox" checked={semContagem} onChange={(e) => setSemContagem(e.target.checked)} />
               <span>

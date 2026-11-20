@@ -96,7 +96,8 @@ function ListaItens() {
                     <span className={styles.situacao}>
                       {s.tipo === 'unica' && <Badge tom={s.alugado ? 'rua' : 'devolvido'}>{s.alugado ? 'Alugado' : 'Livre'}</Badge>}
                       {s.tipo === 'sem-contagem' && <Badge tom="alerta">Falta contar</Badge>}
-                      {s.tipo === 'contado' && (
+                      {s.tipo === 'contado' && s.total === 0 && <Badge tom="alerta">Sem unidades</Badge>}
+                      {s.tipo === 'contado' && s.total > 0 && (
                         <>
                           <span className={`${ui.barra} ${s.livres === 0 ? ui.barraVazia : ''}`} aria-hidden="true">
                             <span style={{ width: `${s.total ? (s.livres / s.total) * 100 : 0}%` }} />
