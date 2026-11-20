@@ -98,3 +98,46 @@
   font-weight: 700;
   font-size: 15px;
 }
+
+/* Filtro numa categoria criada pela equipe: linha com "Renomear". */
+.categoriaCriada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -4px 0 12px;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.renomear {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--vinho);
+  background: var(--superficie);
+  color: var(--vinho);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.renomearCartao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.renomearDica {
+  font-size: 13px;
+  color: var(--texto-suave);
+  line-height: 1.4;
+}
+
+.renomearAcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

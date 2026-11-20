@@ -11,6 +11,7 @@ import type { Cliente, Item, Pedido, StatusPedido, Tema } from '@/types';
 export type Operacao =
   | { tipo: 'item'; item: Item }
   | { tipo: 'removerItem'; id: string }
+  | { tipo: 'renomearCategoria'; de: string; para: string }
   | { tipo: 'tema'; tema: Tema }
   | { tipo: 'removerTema'; id: string }
   | { tipo: 'cliente'; cliente: Cliente }

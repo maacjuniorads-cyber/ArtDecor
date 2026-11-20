@@ -32,6 +32,8 @@ interface Dados {
 interface Api extends Dados {
   salvarItem: (item: Item) => Promise<boolean>;
   removerItem: (itemId: string) => Promise<boolean>;
+  /** Troca o nome de uma categoria em todas as peças que usam ela. */
+  renomearCategoria: (de: string, para: string) => Promise<boolean>;
   salvarTema: (tema: Tema) => Promise<boolean>;
   removerTema: (temaId: string) => Promise<boolean>;
   salvarCliente: (cliente: Cliente) => Promise<boolean>;
@@ -110,6 +112,8 @@ function aplicarLocal(d: Dados, op: Operacao): Dados {
       return { ...d, itens: upsert(d.itens, op.item) };
     case 'removerItem':
       return { ...d, itens: d.itens.map((i) => (i.id === op.id ? { ...i, removido: true } : i)) };
+    case 'renomearCategoria':
+      return { ...d, itens: d.itens.map((i) => (i.categoria === op.de ? { ...i, categoria: op.para } : i)) };
     case 'tema':
       return { ...d, temas: upsert(d.temas, op.tema) };
     case 'removerTema':
@@ -148,6 +152,10 @@ async function enviar(op: Operacao): Promise<Operacao> {
     }
     case 'removerItem':
       await verificar(supabase.from('itens').update({ removido: true }).eq('id', op.id));
+      return op;
+    case 'renomearCategoria':
+      // Todas as peças da categoria de uma vez (inclusive as apagadas, para não voltar o nome antigo).
+      await verificar(supabase.from('itens').update({ categoria: op.para }).eq('categoria', op.de));
       return op;
     case 'tema':
       await verificar(supabase.from('temas').upsert(paraTema(op.tema)));
@@ -405,6 +413,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       pendentes,
 
       salvarItem: (item) => executar({ tipo: 'item', item }, item.id),
+      renomearCategoria: (de, para) => executar({ tipo: 'renomearCategoria', de, para }, `categoria:${de}`),
       removerItem: (id) => executar({ tipo: 'removerItem', id }, id),
       salvarTema: (tema) => executar({ tipo: 'tema', tema }, tema.id),
       removerTema: (id) => executar({ tipo: 'removerTema', id }, id),

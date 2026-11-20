@@ -8,7 +8,8 @@ import { itensAtivos, itensDoTema, situacaoItem, situacaoTema } from '@/lib/esto
 import { itensSemContagem } from '@/lib/pedidos';
 import { ehExemplo } from '@/data/exemploTour';
 import { deISO, formatarMoeda } from '@/lib/formato';
-import { listaCategorias } from '@/lib/categorias';
+import { ehCategoriaPadrao, listaCategorias, nomeCategoria } from '@/lib/categorias';
+import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import ui from '@/styles/ui.module.css';
 import styles from './Estoque.module.css';
 
@@ -31,6 +32,72 @@ export function Estoque() {
       </div>
       {aba === 'itens' ? <ListaItens /> : <ListaTemas />}
     </>
+  );
+}
+
+/** Categoria criada pela equipe: dá para trocar o nome (vale para todas as peças dela). */
+function RenomearCategoria({ categoria, onRenomeada }: { categoria: string; onRenomeada: (nova: string) => void }) {
+  const { itens, renomearCategoria } = useDados();
+  const [editando, setEditando] = useState(false);
+  const [texto, setTexto] = useState(categoria);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useErro();
+  const pecas = itensAtivos(itens).filter((i) => i.categoria === categoria).length;
+  const outras = listaCategorias(itens).filter((c) => c !== categoria);
+  const novo = nomeCategoria(texto, outras);
+  const juntar = novo !== '' && outras.includes(novo);
+
+  async function salvar() {
+    if (salvando) return;
+    if (!novo) return setErro('Escreva o novo nome da categoria.');
+    if (novo === categoria) return setEditando(false);
+    setSalvando(true);
+    const ok = await renomearCategoria(categoria, novo);
+    setSalvando(false);
+    if (ok) onRenomeada(novo);
+  }
+
+  if (!editando) {
+    return (
+      <div className={styles.categoriaCriada}>
+        <span>
+          Categoria criada por vocês · {pecas === 1 ? '1 peça' : `${pecas} peças`}
+        </span>
+        <button type="button" className={styles.renomear} onClick={() => setEditando(true)}>
+          Renomear
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${ui.cartao} ${styles.renomearCartao}`}>
+      <label className={ui.campo}>
+        <span className={ui.rotulo}>Novo nome da categoria</span>
+        <input className={ui.input} value={texto} onChange={(e) => setTexto(e.target.value)} maxLength={30} autoFocus />
+      </label>
+      <span className={styles.renomearDica}>
+        {juntar
+          ? `Já existe “${novo}”: ${pecas === 1 ? 'a peça vai' : `as ${pecas} peças vão`} para ela.`
+          : `Muda o nome em ${pecas === 1 ? 'a peça' : `todas as ${pecas} peças`} desta categoria, para todo mundo.`}
+      </span>
+      <div className={styles.renomearAcoes}>
+        <button
+          type="button"
+          className={ui.botaoSecundario}
+          onClick={() => {
+            setEditando(false);
+            setTexto(categoria);
+          }}
+        >
+          Cancelar
+        </button>
+        <button type="button" className={ui.botaoPrimario} onClick={salvar} disabled={salvando}>
+          {salvando ? 'Salvando…' : 'Salvar nome'}
+        </button>
+      </div>
+      <ErroFormulario erro={erro} onFechar={() => setErro('')} />
+    </div>
   );
 }
 
@@ -74,6 +141,9 @@ function ListaItens() {
         ))}
       </div>
       </div>
+      {categoria !== 'Todos' && !ehCategoriaPadrao(categoria) && (
+        <RenomearCategoria key={categoria} categoria={categoria} onRenomeada={setCategoria} />
+      )}
 
       {visiveis.length === 0 ? (
         <p className={ui.vazio}>Nenhum item encontrado.</p>

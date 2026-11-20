@@ -39,3 +39,8 @@ export function ordemCategoria(categoria: string): number {
   const i = (CATEGORIAS as readonly string[]).indexOf(categoria);
   return i >= 0 ? i : CATEGORIAS.length;
 }
+
+/** É uma das 10 de sempre? (Essas não dá para renomear.) */
+export function ehCategoriaPadrao(categoria: string): boolean {
+  return (CATEGORIAS as readonly string[]).includes(categoria);
+}
