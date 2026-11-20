@@ -45,6 +45,9 @@ export function Inicio() {
           {dataPorExtenso(hoje)}
         </p>
         <div className={styles.acoesTopo}>
+          <Link to="/avisos" className={styles.ajuda} data-tour="avisos">
+            Avisos
+          </Link>
           <button type="button" className={styles.ajuda} onClick={tour.iniciar} data-tour="ajuda">
             Ajuda
           </button>

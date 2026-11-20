@@ -1,0 +1,58 @@
+# Avisos no celular da equipe do ArtDecor (notificações push).
+#
+# - De manhã (~8h de Brasília): resumo do dia + devoluções que atrasaram ontem.
+# - No fim da tarde (~18h): retiradas de amanhã.
+# - Botão "Run workflow" no GitHub: escolha "teste" para mandar um aviso de teste.
+#
+# Os avisos vão SÓ para os celulares da equipe que ativaram em "Avisos" no app.
+# O GitHub às vezes atrasa tarefas agendadas em alguns minutos — normal.
+#
+# Segredos necessários (Settings → Secrets and variables → Actions):
+#   BACKUP_EMAIL / BACKUP_SENHA — o mesmo login de leitura da cópia de segurança
+#   VAPID_PRIVADA               — chave privada dos avisos
+
+name: Avisos no celular
+
+on:
+  schedule:
+    - cron: '40 10 * * *' # manhã: ~07:40 em Brasília
+    - cron: '40 20 * * *' # tarde: ~17:40 em Brasília
+  workflow_dispatch:
+    inputs:
+      momento:
+        description: 'Qual aviso mandar agora'
+        type: choice
+        options: [teste, manha, tarde]
+        default: teste
+
+permissions:
+  contents: read
+
+concurrency:
+  group: avisos
+  cancel-in-progress: false
+
+jobs:
+  avisos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Mandar os avisos
+        env:
+          SUPABASE_URL: https://lfzixpurwimjdrtllaoc.supabase.co
+          SUPABASE_KEY: sb_publishable_BU11Ist9fIwP21T05z1Ksw_6zimhwf9 # chave pública (a mesma que vai no app)
+          BACKUP_EMAIL: ${{ secrets.BACKUP_EMAIL }}
+          BACKUP_SENHA: ${{ secrets.BACKUP_SENHA }}
+          VAPID_PRIVADA: ${{ secrets.VAPID_PRIVADA }}
+          MOMENTO: ${{ github.event_name == 'workflow_dispatch' && inputs.momento || (github.event.schedule == '40 10 * * *' && 'manha' || 'tarde') }}
+        run: node scripts/avisos.mjs "$MOMENTO"

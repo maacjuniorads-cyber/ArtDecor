@@ -9,3 +9,6 @@ dist
 !.vscode/extensions.json
 !.env.demo
 tsconfig.tsbuildinfo
+
+# Chave privada dos avisos (nunca enviar ao GitHub)
+CHAVE-AVISOS-PRIVADA.txt

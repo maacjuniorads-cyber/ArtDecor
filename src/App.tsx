@@ -20,6 +20,7 @@ import { Clientes } from '@/pages/Clientes';
 import { ClienteForm } from '@/pages/ClienteForm';
 import { EmBreve } from '@/pages/EmBreve';
 import { Backup } from '@/pages/Backup';
+import { Avisos } from '@/pages/Avisos';
 
 export function App() {
   return (
@@ -53,6 +54,7 @@ export function App() {
               <Route path="clientes/novo" element={<ClienteForm />} />
               <Route path="clientes/:id" element={<ClienteForm />} />
               <Route path="backup" element={<Backup />} />
+              <Route path="avisos" element={<Avisos />} />
             </Route>
           </Routes>
           </TourProvider>

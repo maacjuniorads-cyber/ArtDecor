@@ -37,3 +37,40 @@ self.addEventListener('fetch', (event) => {
       }),
   );
 });
+
+// ---- Avisos (notificações push) ----
+// Chegam da tarefa agendada (scripts/avisos.mjs) só para os celulares da equipe que ativaram.
+self.addEventListener('push', (event) => {
+  let dados = {};
+  try {
+    dados = event.data ? event.data.json() : {};
+  } catch {
+    dados = { body: event.data ? event.data.text() : '' };
+  }
+  event.waitUntil(
+    self.registration.showNotification(dados.title || 'ArtDecor', {
+      body: dados.body || '',
+      icon: '/icone-192.png',
+      badge: '/icone-192.png',
+      tag: dados.tag,
+      renotify: Boolean(dados.tag),
+      data: { url: dados.url || '/' },
+    }),
+  );
+});
+
+// Toque no aviso: abre o app na tela certa (ou traz para a frente se já estiver aberto).
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const destino = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((janelas) => {
+      for (const janela of janelas) {
+        if (new URL(janela.url).origin === self.location.origin && 'focus' in janela) {
+          return janela.focus().then((j) => (j && 'navigate' in j ? j.navigate(destino) : undefined));
+        }
+      }
+      return self.clients.openWindow(destino);
+    }),
+  );
+});

@@ -253,6 +253,14 @@ export const passos: Passo[] = [
     previa: 'nota',
   },
 
+  // ---- Avisos
+  {
+    rota: fixo('/'),
+    alvo: 'avisos',
+    titulo: 'Avisos no celular',
+    texto: 'Toque em “Avisos” e depois em “Ativar avisos neste celular”. Aí o celular avisa sozinho, mesmo com o app fechado:\n• de manhã, o resumo do dia (o que sai e o que volta);\n• no fim da tarde, quem retira amanhã, pra separar as peças;\n• na manhã seguinte, se alguém atrasou a devolução.\n\nOs avisos são só para você — os clientes não recebem nada.',
+  },
+
   // ---- Fim
   {
     rota: fixo('/'),
