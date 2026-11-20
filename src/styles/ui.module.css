@@ -143,6 +143,24 @@
   color: var(--texto);
 }
 
+/* Datas: no iPhone o campo tem largura mínima própria e passava da coluna
+   (as duas datas lado a lado se sobrepunham). Aqui ele cabe na coluna. */
+.input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: left;
+}
+
+.input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+
 .input:disabled {
   background: #f0ebee;
   color: var(--texto-suave);
