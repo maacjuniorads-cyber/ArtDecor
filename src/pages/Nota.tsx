@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
@@ -5,6 +6,7 @@ import { useDados } from '@/data/store';
 import { linkWhatsApp } from '@/lib/contato';
 import { empresa } from '@/lib/empresa';
 import { deISO, formatarMoeda, hojeISO } from '@/lib/formato';
+import { baixarArquivo, gerarPdfNota, podeCompartilharArquivo } from '@/lib/notaPdf';
 import { faltaReceber, totalPago, totalPedido } from '@/lib/pedidos';
 import ui from '@/styles/ui.module.css';
 import styles from './Nota.module.css';
@@ -18,6 +20,42 @@ export function Nota() {
   const { id } = useParams();
   const { pedidos, clientes, itens, temas } = useDados();
   const pedido = pedidos.find((p) => p.id === id);
+  const cliente = pedido ? clientes.find((c) => c.id === pedido.clienteId) : undefined;
+
+  const documentoRef = useRef<HTMLElement>(null);
+  const [pdf, setPdf] = useState<File | null>(null);
+  const [gerando, setGerando] = useState(false);
+  const [aviso, setAviso] = useState('');
+
+  const numeroArquivo = pedido ? String(pedido.numero).padStart(4, '0') : '';
+  const nomeArquivo = `Nota ArtDecor ${numeroArquivo}${cliente ? ` - ${cliente.nome}` : ''}.pdf`;
+  // Se o pedido mudar (ex.: pagamento registrado em outro celular), o PDF é refeito.
+  const versao = pedido ? JSON.stringify([pedido, cliente?.nome, cliente?.telefone, cliente?.endereco, itens.length]) : '';
+
+  async function gerar(): Promise<File> {
+    if (!documentoRef.current) throw new Error('nota não está na tela');
+    setGerando(true);
+    try {
+      const arquivo = await gerarPdfNota(documentoRef.current, nomeArquivo);
+      setPdf(arquivo);
+      return arquivo;
+    } finally {
+      setGerando(false);
+    }
+  }
+
+  // Prepara o PDF assim que a nota abre, para o "Enviar" ser instantâneo.
+  useEffect(() => {
+    if (!versao) return;
+    setPdf(null);
+    const t = window.setTimeout(() => {
+      gerar().catch(() => {
+        // tenta de novo quando a pessoa tocar no botão
+      });
+    }, 300);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [versao]);
 
   if (!pedido) {
     return (
@@ -28,8 +66,7 @@ export function Nota() {
     );
   }
 
-  const cliente = clientes.find((c) => c.id === pedido.clienteId);
-  const numero = String(pedido.numero).padStart(4, '0');
+  const numero = numeroArquivo;
   const total = totalPedido(pedido);
   const falta = faltaReceber(pedido);
   const pago = totalPago(pedido);
@@ -56,13 +93,46 @@ export function Nota() {
     .filter((linha, i, arr) => linha !== '' || arr[i - 1] !== '')
     .join('\n');
 
+  const telefoneWhats = cliente ? cliente.whatsapp ?? cliente.telefone : '';
+
+  async function baixarPdf() {
+    setAviso('');
+    try {
+      baixarArquivo(pdf ?? (await gerar()));
+    } catch {
+      setAviso('Não foi possível gerar o PDF. Tente de novo.');
+    }
+  }
+
+  async function enviarNota() {
+    setAviso('');
+    try {
+      const arquivo = pdf ?? (await gerar());
+      if (podeCompartilharArquivo(arquivo)) {
+        // Abre o "Compartilhar" do celular: escolha WhatsApp e o cliente; a nota vai anexada com o texto.
+        await navigator.share({ files: [arquivo], text: mensagem, title: `Nota ${numero}` });
+      } else {
+        // Computador (ou aparelho sem compartilhar arquivos): baixa o PDF para anexar.
+        baixarArquivo(arquivo);
+        setAviso('O PDF da nota foi baixado. Toque em “Só mensagem” para abrir a conversa e anexe o arquivo pelo clipe 📎.');
+      }
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return; // fechou o compartilhar
+      if (e instanceof DOMException && e.name === 'NotAllowedError') {
+        setAviso('A nota ficou pronta. Toque de novo em “Enviar nota no WhatsApp”.');
+        return;
+      }
+      setAviso('Não foi possível enviar a nota. Tente de novo.');
+    }
+  }
+
   return (
     <>
       <div className={styles.naoImprimir}>
         <Cabecalho titulo="Nota do pedido" voltarPara={`/pedidos/${pedido.id}`} />
       </div>
 
-      <article className={styles.documento} aria-label={`Nota de locação ${numero}`}>
+      <article ref={documentoRef} className={styles.documento} aria-label={`Nota de locação ${numero}`}>
         <header className={styles.topo}>
           <div>
             <div className={styles.logo}>{empresa.nome}</div>
@@ -144,21 +214,40 @@ export function Nota() {
         </div>
 
         <div className={styles.assinaturas}>
-          <div>Cliente</div>
-          <div>{empresa.nome}</div>
+          <div>
+            <div className={styles.assinado}>{cliente?.nome ?? ''}</div>
+            <div className={styles.linhaAssinatura}>{cliente?.nome ?? 'Cliente'}</div>
+            <div className={styles.papel}>Cliente</div>
+          </div>
+          <div>
+            <div className={styles.assinado}>{empresa.assinatura}</div>
+            <div className={styles.linhaAssinatura}>{empresa.responsavel}</div>
+            <div className={styles.papel}>{empresa.nome}</div>
+          </div>
         </div>
       </article>
 
-      <div className={`${ui.barraAcao} ${styles.naoImprimir}`} data-tour="nota-acoes">
-        <button type="button" className={ui.botaoSecundario} onClick={() => window.print()}>
+      {aviso && (
+        <p className={`${styles.avisoNota} ${styles.naoImprimir}`} role="status">
+          {aviso}
+        </p>
+      )}
+
+      <div className={`${ui.barraAcao} ${styles.acoes} ${styles.naoImprimir}`} data-tour="nota-acoes">
+        <button type="button" className={ui.botaoSecundario} onClick={baixarPdf} disabled={gerando && !pdf}>
           <Icon name="baixar" size={20} />
           Baixar PDF
         </button>
         {cliente && (
-          <a href={linkWhatsApp(cliente.whatsapp ?? cliente.telefone, mensagem)} target="_blank" rel="noreferrer" className={`${ui.botaoPrimario} ${styles.whats}`}>
-            <Icon name="telefone" size={20} />
-            WhatsApp
+          <a href={linkWhatsApp(telefoneWhats, mensagem)} target="_blank" rel="noreferrer" className={ui.botaoSecundario}>
+            Só mensagem
           </a>
+        )}
+        {cliente && (
+          <button type="button" className={`${ui.botaoPrimario} ${styles.whats} ${styles.enviar}`} onClick={enviarNota} disabled={gerando && !pdf}>
+            <Icon name="telefone" size={20} />
+            {gerando && !pdf ? 'Preparando a nota…' : 'Enviar nota no WhatsApp'}
+          </button>
         )}
       </div>
     </>

@@ -5,6 +5,9 @@ export const empresa = {
   telefone: '(53) 99133-3075',
   pixChave: '(53) 99133-3075',
   pixTitular: 'Patricia Guadalupe Garcia',
+  /** Nome que aparece "assinado" (só visual — a nota é um comprovante simples, sem valor jurídico). */
+  assinatura: 'Patricia Guadalupe',
+  responsavel: 'Patricia Guadalupe Garcia',
   // TODO: substituir pelas regras reais combinadas com a Patricia.
   condicoes:
     'Os itens devem ser devolvidos na data combinada. Itens danificados ou não devolvidos serão cobrados.',
