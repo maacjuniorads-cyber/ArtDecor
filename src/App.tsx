@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppLayout, TelaCheiaLayout } from '@/components/AppLayout';
 import { ComLogin } from '@/components/Autenticacao';
 import { Abertura } from '@/components/Telas';
+import { RolarParaTopo } from '@/components/RolarParaTopo';
 import { DadosProvider } from '@/data/store';
 import { TourProvider } from '@/components/tour/Tour';
 import { Inicio } from '@/pages/Inicio';
@@ -27,6 +28,7 @@ export function App() {
     <ComLogin>
       <DadosProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <RolarParaTopo />
           <TourProvider>
           <Routes>
             <Route element={<AppLayout />}>
