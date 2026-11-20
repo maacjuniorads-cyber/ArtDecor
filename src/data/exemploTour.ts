@@ -11,7 +11,7 @@ export const PREFIXO_EXEMPLO = 'exemplo-';
 export const ehExemplo = (id: string) => id.startsWith(PREFIXO_EXEMPLO);
 
 /** Id do pedido de exemplo que o tutorial abre (reservado, com sinal). */
-export const PEDIDO_EXEMPLO_TOUR = 'exemplo-ped-maria';
+export const PEDIDO_EXEMPLO_TOUR = 'exemplo-ped-silvia';
 
 export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]; pedidos: Pedido[] } {
   const hoje = hojeISO();
@@ -28,8 +28,8 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
 
   const clientes: Cliente[] = [
     {
-      id: 'exemplo-cli-maria',
-      nome: 'Maria Exemplo',
+      id: 'exemplo-cli-silvia',
+      nome: 'Silvia Exemplo',
       telefone: '(53) 90000-0000',
       endereco: 'Rua do Exemplo, 100, Centro',
       veiculo: { tipo: 'Carro', modelo: 'Onix', cor: 'prata', placa: 'EXE1A23' },
@@ -41,7 +41,7 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
     {
       id: PEDIDO_EXEMPLO_TOUR,
       numero: 101,
-      clienteId: 'exemplo-cli-maria',
+      clienteId: 'exemplo-cli-silvia',
       evento: 'Aniversário de 7 anos',
       temaIds: ['exemplo-tema-unicornio'],
       itens: [

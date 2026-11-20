@@ -142,7 +142,7 @@ export function exemploNota(): { texto: string; arquivo: string } {
     status: 'reservado',
     pagamentos: [{ id: 'p', valor: 50, data: hoje, forma: 'Pix' }],
   };
-  const cliente: Cliente = { id: 'exemplo', nome: 'Maria Silva', telefone: '', veiculo: null };
+  const cliente: Cliente = { id: 'exemplo', nome: 'Silvia Exemplo', telefone: '', veiculo: null };
   return {
     texto: resumoPedido(pedido, cliente, (id) => nomes[id] ?? 'Item'),
     arquivo: `Nota ${empresa.nome} 0012 - ${cliente.nome}.pdf`,
@@ -163,5 +163,5 @@ export function exemploLembrete(): string {
     status: 'rua',
     pagamentos: [{ id: 'p', valor: 80, data: hoje, forma: 'Pix' }],
   };
-  return lembreteDevolucao(pedido, { id: 'exemplo', nome: 'Maria Silva', telefone: '', veiculo: null });
+  return lembreteDevolucao(pedido, { id: 'exemplo', nome: 'Silvia Exemplo', telefone: '', veiculo: null });
 }
