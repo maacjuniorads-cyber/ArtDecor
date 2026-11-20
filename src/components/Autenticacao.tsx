@@ -23,6 +23,7 @@ export function useUsuario(): Usuario {
 /** Só mostra o app para quem estiver logado. */
 export function ComLogin({ children }: { children: ReactNode }) {
   const [sessao, setSessao] = useState<Session | null | undefined>(undefined);
+  const [nome, setNome] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!supabaseConfigurado) return;
@@ -30,6 +31,17 @@ export function ComLogin({ children }: { children: ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((_evento, s) => setSessao(s));
     return () => data.subscription.unsubscribe();
   }, []);
+
+  // O nome vem do perfil no servidor (não da sessão guardada no aparelho),
+  // assim uma mudança feita no painel do Supabase aparece sem precisar sair e entrar.
+  const userId = sessao?.user.id;
+  useEffect(() => {
+    if (!userId) return;
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata as { nome?: string } | undefined;
+      if (meta?.nome) setNome(meta.nome);
+    });
+  }, [userId]);
 
   if (!supabaseConfigurado) {
     return (
@@ -49,7 +61,7 @@ export function ComLogin({ children }: { children: ReactNode }) {
   const meta = sessao.user.user_metadata as { nome?: string } | undefined;
   const usuario: Usuario = {
     email: sessao.user.email ?? '',
-    nome: meta?.nome?.split(' ')[0],
+    nome: (nome ?? meta?.nome)?.split(' ')[0],
     sair: async () => {
       await supabase.auth.signOut();
     },
