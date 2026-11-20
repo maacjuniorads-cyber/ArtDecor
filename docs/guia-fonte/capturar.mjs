@@ -109,6 +109,28 @@ await print('03-agenda');
 await abrir(`${DEMO}/estoque`);
 await print('04-estoque');
 
+// Categoria nova: cria no cadastro da peça e depois mostra Renomear/Excluir no Estoque.
+// (Sem recarregar a página entre um e outro: a demonstração esquece o que foi salvo ao recarregar.)
+await abrir(`${DEMO}/estoque/novo`);
+await digitar('input[placeholder^="Ex: Bandeja"]', 'Bandeja dourada');
+await page.select('select', '__nova__');
+await espera(300);
+await digitar('input[placeholder="Ex: Bandejas"]', 'Bandejas');
+await rolarAte('Categoria');
+await print('04b-categoria-nova');
+await digitar('input[inputmode="decimal"]', '8,00');
+await digitar('input[type="number"]', '6');
+await page.evaluate(() => document.querySelector('form#form-item').requestSubmit());
+await espera(1000);
+await page.evaluate(() => {
+  const chip = [...document.querySelectorAll('button')].find((b) => b.textContent === 'Bandejas');
+  chip.click();
+  chip.scrollIntoView({ inline: 'center', block: 'nearest' });
+});
+await espera(400);
+await rolarAte('Buscar', 120);
+await print('04c-categoria-gerenciar');
+
 await abrir(`${DEMO}/estoque?aba=temas`);
 await print('05-temas');
 
@@ -129,6 +151,24 @@ await print('07-clientes');
 await abrir(`${DEMO}/clientes/novo`);
 await rolarAte('Veículo');
 await print('08-cliente-veiculo');
+
+// Importar contatos: finge a agenda do Android (o Chrome do computador não tem) e cola uns números.
+await page.evaluateOnNewDocument(() => {
+  window.ContactsManager = function () {};
+  Object.defineProperty(navigator, 'contacts', { value: { select: async () => [] } });
+});
+await abrir(`${DEMO}/clientes/importar`);
+await clicarTexto('Digitar ou colar números', 'button');
+await page.evaluate(() => {
+  const el = document.querySelector('textarea');
+  const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+  set.call(el, ['Mariana Souza 53 99133-3075', 'Carla Mendes 53 99555-7788', '53 98111-2233', 'Roberto Lima', '(53) 99222-1111'].join(String.fromCharCode(10)));
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+});
+await clicarTexto('Pôr na lista', 'button');
+await rolar(0);
+await print('08b-importar');
+await page.evaluate(() => localStorage.clear()); // não deixa a lista de importação nos próximos prints
 
 // Novo pedido com o kit Heróis nas mesmas datas do pedido #A58340 (mostra o aviso)
 await abrir(`${DEMO}/pedidos/novo`);

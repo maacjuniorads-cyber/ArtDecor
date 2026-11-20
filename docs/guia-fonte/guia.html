@@ -97,11 +97,11 @@
       <div><b>1</b> Abrindo o app</div>
       <div><b>2</b> Tela de Início</div>
       <div><b>3</b> Agenda</div>
-      <div><b>4</b> Estoque</div>
+      <div><b>4</b> Estoque e categorias</div>
       <div><b>5</b> Completar um item</div>
       <div><b>6</b> Contagem rápida</div>
       <div><b>7</b> Temas (kits)</div>
-      <div><b>8</b> Clientes</div>
+      <div><b>8</b> Clientes e importação</div>
       <div><b>9</b> Novo pedido</div>
       <div><b>10</b> Andamento e lembretes</div>
       <div><b>11</b> Pagamentos</div>
@@ -192,9 +192,9 @@
       <p class="intro">Aqui estão todas as peças da loja.</p>
       <ul class="pontos">
         <li><b>Buscar:</b> digite o nome do item ou do tema na caixa de busca.</li>
-        <li><b>Filtrar:</b> toque numa categoria (Painéis, Vidros, Toalhas…). Arraste para o lado para ver mais.</li>
+        <li><b>Filtrar:</b> toque numa categoria (Painéis, Vidros, Toalhas…). Arraste para o lado para ver mais. Dá para <b>criar categorias novas</b> (próxima página).</li>
         <li><b>Abrir um item:</b> toque nele para ver e editar.</li>
-        <li><b>Cadastrar item novo:</b> toque no botão redondo <span class="botao">+</span> no canto de baixo.</li>
+        <li><b>Cadastrar item novo:</b> toque no botão redondo <span class="botao">+</span> no canto de baixo. Ele se esconde enquanto você rola a lista para baixo; role um pouco para cima que ele volta.</li>
       </ul>
       <h3>O que cada aviso quer dizer</h3>
       <table class="tab">
@@ -209,6 +209,27 @@
       <div class="cel"><img src="prints/04-estoque.png" alt="Tela de Estoque"></div>
     </div>
   </div>
+</section>
+
+<!-- ============ 4b. CATEGORIAS ============ -->
+<section class="pagina">
+  <h2><span class="num">4</span> Categorias novas <span class="novo">NOVO</span></h2>
+  <p class="intro">Além das de sempre (Painéis, Vidros, Toalhas…), você pode criar as suas — por exemplo <b>Bandejas</b>.</p>
+  <div class="celulares">
+    <div><div class="cel corta-topo"><img src="prints/04b-categoria-nova.png" alt="Criar categoria nova"></div><div class="legenda">Criando no cadastro da peça</div></div>
+    <div><div class="cel corta-topo"><img src="prints/04c-categoria-gerenciar.png" alt="Renomear ou excluir categoria"></div><div class="legenda">Renomear ou excluir no Estoque</div></div>
+  </div>
+  <h3>Criar</h3>
+  <ol class="passos">
+    <li>No cadastro da peça, abra a lista <b>Categoria</b> e escolha a última opção, <b>“+ Nova categoria…”</b>.</li>
+    <li>Escreva o nome (ex.: <b>Bandejas</b>) e salve a peça. A categoria aparece no filtro do Estoque, para todo mundo.</li>
+  </ol>
+  <h3>Renomear ou excluir</h3>
+  <p>No Estoque, toque no filtro da categoria criada: aparecem <span class="botao claro">Renomear</span> e <span class="botao claro">Excluir</span> (só nas criadas por vocês).</p>
+  <ul class="pontos">
+    <li><b>Renomear</b> muda o nome em todas as peças dela. Se o nome já existir, elas se juntam na que existe.</li>
+    <li><b>Excluir</b> pede para onde as peças vão (ex.: Vidros). Nenhuma peça é apagada.</li>
+  </ul>
 </section>
 
 <!-- ============ 5. ITEM ============ -->
@@ -303,7 +324,30 @@
     <li>Toque em <span class="botao">Salvar cliente</span>.</li>
   </ol>
   <p>Tocando num cliente você pode <b>editar</b> os dados e ver <b>todos os pedidos</b> dele.</p>
-  <div class="dica"><b>Trazer da agenda do celular <span class="novo">NOVO</span>:</b> toque em <span class="botao claro">Importar contatos</span> e marque quem é cliente — no Android, direto da agenda; no iPhone, pelo arquivo de contatos (.vcf). Entram nome e telefone; quem já é cliente não entra de novo. Os importados aparecem com <b>“Completar cadastro”</b> até você preencher endereço e carro.</div>
+  <div class="dica"><b>Tem muitos clientes na agenda?</b> Não precisa digitar um por um: use <span class="botao claro">Importar contatos</span> (próxima página).</div>
+</section>
+
+<!-- ============ 7b. IMPORTAR CLIENTES ============ -->
+<section class="pagina">
+  <h2><span class="num">8</span> Trazer clientes do celular <span class="novo">NOVO</span></h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Em <b>Clientes</b>, toque em <span class="botao claro">Importar contatos</span>. Dá para trazer de vários jeitos — e <b>tudo vai somando na mesma lista</b>:</p>
+      <ul class="pontos">
+        <li><b>Escolher da agenda</b> (Android): abre a agenda do celular; marque quem é cliente. Lembrou de mais alguém? <b>“+ Mais da agenda”</b>.</li>
+        <li><b>Cliente que está só no WhatsApp:</b> no WhatsApp, abra a conversa, toque no nome, segure o dedo no número e toque em <b>Copiar</b>. No app, toque em <b>“Digitar ou colar números”</b>, cole e toque em <span class="botao">Pôr na lista</span>. Pode pôr o nome junto, um por linha.</li>
+        <li><b>Pelo app Contatos</b> (Android, com o ArtDecor instalado): abra a pessoa, toque em <b>Compartilhar</b> e escolha <b>ArtDecor</b>.</li>
+        <li><b>iPhone:</b> pelo arquivo de contatos (.vcf) — o passo a passo está na própria tela.</li>
+      </ul>
+      <p>Depois, confira as marcações e toque em <span class="botao">Importar clientes</span>.</p>
+      <div class="dica"><b>Basta o nome ou o telefone:</b> o que faltar você completa depois. Os importados aparecem com <b>“Completar cadastro”</b>. Quem já é cliente é reconhecido e não entra de novo.</div>
+      <div class="dica"><b>Por que não pelo WhatsApp direto?</b> O WhatsApp não deixa outros apps lerem os contatos dele — por isso o copiar e colar.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/08b-importar.png" alt="Importar contatos"></div>
+      <div class="legenda">A lista vai somando</div>
+    </div>
+  </div>
 </section>
 
 <!-- ============ 8. NOVO PEDIDO ============ -->
@@ -554,10 +598,11 @@
   <h2><span class="num">★</span> Dicas e dúvidas</h2>
   <table class="tab" style="font-size:11.5pt">
     <tr><td>Faixa no topo</td><td><b>“Sem internet”</b>: pode salvar normalmente, vai sozinho quando a internet voltar. <b>Vermelha</b>: algo não foi salvo — leia o aviso e salve de novo.</td></tr>
-    <tr><td>“Isso é só um exemplo do tutorial”</td><td>Você tentou mudar um dado de exemplo durante o tutorial. Eles não são salvos — termine ou pule o tutorial para usar os dados de verdade.</td></tr>
+    <tr><td>“Isso é só um exemplo do tutorial”</td><td>Você tentou mudar um dado de exemplo do tutorial. Eles não são salvos — termine ou pule o tutorial.</td></tr>
     <tr><td>Tem limite de cadastro?</td><td>Na prática, não: cabem <b>mais de 200 mil cadastros</b> (peças, clientes e pedidos) e <b>cerca de 10 mil fotos</b>. Pode cadastrar à vontade.</td></tr>
-    <tr><td>E se o celular quebrar?</td><td>Nada se perde: tudo fica na nuvem, e o sistema faz uma <b>cópia de segurança automática todo dia</b>. No fim do Início também tem “Cópia de segurança dos dados” para baixar planilhas.</td></tr>
-    <tr><td>Excluí sem querer</td><td>Itens e clientes excluídos somem das listas, mas não se perdem dos pedidos antigos. Peça ajuda ao Junior para recuperar.</td></tr>
+    <tr><td>E se o celular quebrar?</td><td>Nada se perde: fica tudo na nuvem, com <b>cópia de segurança automática todo dia</b> (e planilhas para baixar no fim do Início).</td></tr>
+    <tr><td>O botão <b>+</b> sumiu</td><td>Ele se esconde enquanto você rola para baixo ou digita. Role um pouco para cima que ele volta.</td></tr>
+    <tr><td>Excluí sem querer</td><td>Itens e clientes excluídos continuam nos pedidos antigos. O Junior consegue recuperar.</td></tr>
     <tr><td>Esqueci a senha</td><td>Fale com o Junior: ele cria uma senha nova.</td></tr>
     <tr><td>O app está estranho ou desatualizado</td><td>Numa lista (Início, Estoque…), <b>puxe a tela para baixo</b> para atualizar. Se não resolver, feche o app e abra de novo.</td></tr>
   </table>
@@ -565,7 +610,7 @@
   <h3>Para começar bem</h3>
   <ol class="passos">
     <li>Complete o estoque com a <b>contagem rápida</b>: quantidade, valor e foto. O aviso <b>“itens sem contagem”</b> no Início mostra quantos faltam.</li>
-    <li>Cadastre os clientes conforme forem fazendo pedidos.</li>
+    <li>Traga os clientes da agenda em <b>Clientes → Importar contatos</b>; os outros, cadastre conforme forem fazendo pedidos.</li>
     <li>Use o app em todo pedido e em toda devolução — assim o Início e a Agenda sempre mostram o que sai e o que volta.</li>
   </ol>
 
