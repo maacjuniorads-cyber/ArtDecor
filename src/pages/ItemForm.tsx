@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
@@ -29,6 +30,22 @@ export function ItemForm() {
   const [fotoUrl, setFotoUrl] = useState(existente?.fotoUrl);
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+
+  const rascunho = useRascunho(
+    `item:${id ?? 'novo'}`,
+    { nome, categoria, temaId, tipo, semContagem, quantidade, valor, observacoes, fotoUrl },
+    (v) => {
+      setNome(v.nome);
+      setCategoria(v.categoria);
+      setTemaId(v.temaId);
+      setTipo(v.tipo);
+      setSemContagem(v.semContagem);
+      setQuantidade(v.quantidade);
+      setValor(v.valor);
+      setObservacoes(v.observacoes);
+      setFotoUrl(v.fotoUrl);
+    },
+  );
 
   if (id && (!existente || existente.removido)) {
     return (
@@ -73,13 +90,17 @@ export function ItemForm() {
       fotoUrl,
     });
     setSalvando(false);
-    if (ok) navigate('/estoque', { replace: true });
+    if (ok) {
+      rascunho.limpar();
+      navigate('/estoque', { replace: true });
+    }
   }
 
   return (
     <>
       <Cabecalho titulo={existente ? 'Editar item' : 'Novo item'} voltarPara="/estoque" />
       <form id="form-item" className={ui.form} onSubmit={salvar} noValidate>
+        <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
         <label className={styles.foto} data-tour="item-foto">
           {fotoUrl ? (
             <img src={fotoUrl} alt="Foto do item" />
@@ -194,7 +215,10 @@ export function ItemForm() {
             confirmacao="Excluir este item? Ele some do estoque, mas continua aparecendo nos pedidos antigos."
             bloqueio={motivoBloqueio(pedidosAtivosComItem(existente.id, pedidos).map(numeroPedido), 'este item')}
             onConfirmar={async () => {
-              if (await removerItem(existente.id)) navigate('/estoque', { replace: true });
+              if (await removerItem(existente.id)) {
+                rascunho.limpar();
+                navigate('/estoque', { replace: true });
+              }
             }}
           />
         )}

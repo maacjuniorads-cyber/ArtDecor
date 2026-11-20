@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Thumb } from '@/components/Thumb';
@@ -20,6 +21,11 @@ export function TemaForm() {
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
 
+  const rascunho = useRascunho(`tema:${id ?? 'novo'}`, { nome, cor }, (v) => {
+    setNome(v.nome);
+    setCor(v.cor);
+  });
+
   if (id && !existente) {
     return (
       <>
@@ -38,13 +44,17 @@ export function TemaForm() {
     setSalvando(true);
     const ok = await salvarTema({ id: existente?.id ?? novoId(), nome: nome.trim(), cor });
     setSalvando(false);
-    if (ok) navigate('/estoque?aba=temas', { replace: true });
+    if (ok) {
+      rascunho.limpar();
+      navigate('/estoque?aba=temas', { replace: true });
+    }
   }
 
   return (
     <>
       <Cabecalho titulo={existente ? 'Editar tema' : 'Novo tema'} voltarPara="/estoque?aba=temas" />
       <form id="form-tema" className={ui.form} onSubmit={salvar} noValidate>
+        <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
         <label className={ui.campo}>
           <span className={ui.rotulo}>Nome do tema</span>
           <input className={ui.input} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Minecraft" />
@@ -95,7 +105,10 @@ export function TemaForm() {
             rotulo="Excluir tema"
             confirmacao={`Excluir o tema “${existente.nome}”? As peças continuam no estoque, só deixam de fazer parte deste kit.`}
             onConfirmar={async () => {
-              if (await removerTema(existente.id)) navigate('/estoque?aba=temas', { replace: true });
+              if (await removerTema(existente.id)) {
+                rascunho.limpar();
+                navigate('/estoque?aba=temas', { replace: true });
+              }
             }}
           />
         )}

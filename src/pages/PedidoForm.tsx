@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { CampoData } from '@/components/CampoData';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
@@ -34,6 +35,22 @@ export function PedidoForm() {
 
   // Mudou itens ou datas: o aviso de conflito precisa ser visto de novo.
   useEffect(() => setAceitouConflito(false), [linhas, retirada, devolucao]);
+
+  // Rascunho: se a tela recarregar no meio, nada do que foi preenchido se perde.
+  const rascunho = useRascunho(
+    `pedido:${id ?? 'novo'}`,
+    { clienteId, evento, retirada, devolucao, linhas, temaIds, sinal, forma },
+    (v) => {
+      setClienteId(v.clienteId);
+      setEvento(v.evento);
+      setRetirada(v.retirada);
+      setDevolucao(v.devolucao);
+      setLinhas(v.linhas);
+      setTemaIds(v.temaIds);
+      setSinal(v.sinal);
+      setForma(v.forma);
+    },
+  );
 
   if (id && !existente) {
     return (
@@ -118,7 +135,10 @@ export function PedidoForm() {
     if (existente) {
       const ok = await salvarPedido({ ...existente, ...comum });
       setSalvando(false);
-      if (ok) navigate(`/pedidos/${existente.id}`, { replace: true });
+      if (ok) {
+        rascunho.limpar();
+        navigate(`/pedidos/${existente.id}`, { replace: true });
+      }
       return;
     }
     const novo = novoId();
@@ -132,13 +152,17 @@ export function PedidoForm() {
       cobrancas: [],
     });
     setSalvando(false);
-    if (ok) navigate(`/pedidos/${novo}`, { replace: true });
+    if (ok) {
+      rascunho.limpar();
+      navigate(`/pedidos/${novo}`, { replace: true });
+    }
   }
 
   return (
     <>
       <Cabecalho titulo={existente ? `Editar pedido ${numeroPedido(existente)}` : 'Novo pedido'} voltarPara={existente ? `/pedidos/${existente.id}` : '/pedidos'} />
       <form id="form-pedido" className={ui.form} onSubmit={salvar} noValidate>
+        <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
         <section className={ui.campo} data-tour="pedido-cliente">
           <label className={ui.campo}>
             <span className={ui.rotulo}>Cliente</span>

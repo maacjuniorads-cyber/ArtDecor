@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BadgeStatus } from '@/components/Badge';
 import { Cabecalho } from '@/components/Cabecalho';
@@ -30,6 +31,23 @@ export function ClienteForm() {
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
 
+  const rascunho = useRascunho(
+    `cliente:${id ?? 'novo'}`,
+    { nome, telefone, whatsIgual, whatsapp, endereco, semVeiculo, tipo, modelo, cor, placa },
+    (v) => {
+      setNome(v.nome);
+      setTelefone(v.telefone);
+      setWhatsIgual(v.whatsIgual);
+      setWhatsapp(v.whatsapp);
+      setEndereco(v.endereco);
+      setSemVeiculo(v.semVeiculo);
+      setTipo(v.tipo);
+      setModelo(v.modelo);
+      setCor(v.cor);
+      setPlaca(v.placa);
+    },
+  );
+
   if (id && !existente) {
     return (
       <>
@@ -59,13 +77,17 @@ export function ClienteForm() {
       veiculo: semVeiculo ? null : { tipo, modelo: modelo.trim(), cor: cor.trim(), placa: placa.trim().toUpperCase() },
     });
     setSalvando(false);
-    if (ok) navigate(-1);
+    if (ok) {
+      rascunho.limpar();
+      navigate(-1);
+    }
   }
 
   return (
     <>
       <Cabecalho titulo={existente ? 'Editar cliente' : 'Novo cliente'} voltarPara="/clientes" />
       <form id="form-cliente" className={ui.form} onSubmit={salvar} noValidate>
+        <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
         <label className={ui.campo}>
           <span className={ui.rotulo}>Nome</span>
           <input className={ui.input} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" autoComplete="off" />
@@ -173,7 +195,10 @@ export function ClienteForm() {
             confirmacao={`Excluir ${existente.nome}? O cadastro some da lista, mas continua aparecendo nos pedidos antigos.`}
             bloqueio={motivoBloqueio(pedidosDoCliente.filter(emAndamento).map(numeroPedido), 'este cliente')}
             onConfirmar={async () => {
-              if (await removerCliente(existente.id)) navigate('/clientes', { replace: true });
+              if (await removerCliente(existente.id)) {
+                rascunho.limpar();
+                navigate('/clientes', { replace: true });
+              }
             }}
           />
         )}

@@ -54,3 +54,11 @@ h3 {
   outline: 3px solid var(--azul);
   outline-offset: 2px;
 }
+
+/* Em formulários: sem "puxar para atualizar" do navegador (evita recarregar sem querer). */
+html[data-formulario] {
+  overscroll-behavior-y: contain;
+}
+html[data-formulario] body {
+  overscroll-behavior-y: contain;
+}

@@ -24,6 +24,8 @@ export function PuxarParaAtualizar() {
     const comecar = (e: TouchEvent) => {
       // Só a partir do topo da tela, com um dedo, e fora de janelas por cima (tutorial etc.).
       if (window.scrollY > 0 || e.touches.length !== 1 || atualizando) return;
+      // Em formulários fica desligado: recarregar sem querer apagaria o que está sendo digitado.
+      if (document.documentElement.dataset.formulario) return;
       const t = e.touches[0];
       inicio.current = { x: t.clientX, y: t.clientY };
     };

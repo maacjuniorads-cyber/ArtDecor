@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsuario } from '@/components/Autenticacao';
 import { Cabecalho } from '@/components/Cabecalho';
@@ -57,6 +58,11 @@ export function Conferencia() {
   const [observacao, setObservacao] = useState(pedido?.conferencia?.observacao ?? '');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+
+  const rascunho = useRascunho(`conferencia:${id}`, { estados, observacao }, (v) => {
+    setEstados(v.estados);
+    setObservacao(v.observacao);
+  });
 
   if (!pedido) {
     return (
@@ -159,6 +165,7 @@ export function Conferencia() {
     }
 
     setSalvando(false);
+    rascunho.limpar();
     navigate(`/pedidos/${p.id}`, { replace: true });
   }
 
@@ -167,6 +174,7 @@ export function Conferencia() {
       <Cabecalho titulo={`Conferir devolução ${numeroPedido(pedido)}`} voltarPara={`/pedidos/${pedido.id}`} />
 
       <div className={styles.conteudo}>
+        <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
         <p className={styles.intro}>
           Confira o que <b>{cliente?.nome.split(' ')[0] ?? 'o cliente'}</b> devolveu, peça por peça. Toque em <b>Voltou ok</b> ou em{' '}
           <b>Teve problema</b>.

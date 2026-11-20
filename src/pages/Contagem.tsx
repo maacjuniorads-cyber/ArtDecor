@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSemPuxarParaAtualizar } from '@/components/Rascunho';
 import { Link } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
@@ -24,6 +25,7 @@ function filaInicial(itens: Item[]): string[] {
 /** Contagem rápida: uma peça "falta contar" por vez — foto, quantidade, valor e próxima. */
 export function Contagem() {
   const { itens } = useDados();
+  useSemPuxarParaAtualizar();
   // A fila é fixada ao abrir: as peças salvas não "pulam" da tela enquanto ela conta.
   const [fila, setFila] = useState(() => filaInicial(itens));
   const [posicao, setPosicao] = useState(0);
