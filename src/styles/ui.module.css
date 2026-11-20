@@ -212,7 +212,8 @@ textarea.input {
   justify-content: center;
   gap: 8px;
   height: 54px;
-  padding: 3px 18px 0;
+  padding: 3px 14px 0;
+  white-space: nowrap;
   border-radius: var(--raio-botao);
   font-family: var(--fonte-titulo);
   font-weight: 700;
@@ -432,7 +433,15 @@ textarea.input {
   justify-content: center;
   text-decoration: none;
   line-height: 1.3;
-  padding: 4px;
+  padding: 4px 2px;
+  white-space: nowrap;
+}
+
+/* Telas estreitas (ex.: Galaxy S10, 360px) */
+@media (max-width: 380px) {
+  .segmento {
+    font-size: 13px;
+  }
 }
 
 .segmento[aria-selected='true'],
