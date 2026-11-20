@@ -212,3 +212,31 @@
 .valorFalta {
   color: var(--vinho);
 }
+
+.conferencia {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.problemas {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--status-alerta-fg);
+}
+
+.problemas li + li {
+  margin-top: 4px;
+}
+
+.obsConferencia {
+  font-size: 14px;
+  color: var(--texto-medio);
+  font-style: italic;
+}
+
+.refazer {
+  align-self: flex-start;
+  padding: 0;
+}

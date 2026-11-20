@@ -53,6 +53,7 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
       devolucao: d(3),
       status: 'reservado',
       pagamentos: [{ id: 'exemplo-pg-1', valor: 50, data: d(-2), forma: 'Pix' }],
+      cobrancas: [],
     },
     {
       id: 'exemplo-ped-joao',
@@ -68,6 +69,7 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
       devolucao: d(0),
       status: 'rua',
       pagamentos: [{ id: 'exemplo-pg-2', valor: 30, data: d(-3), forma: 'Dinheiro' }],
+      cobrancas: [],
     },
   ];
 

@@ -1,0 +1,169 @@
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.intro {
+  margin: 0;
+  font-size: 15px;
+  color: var(--texto-medio);
+  line-height: 1.45;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lista > li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.lista > li[data-decisao='ok'] {
+  border-color: var(--status-devolvido-bg);
+}
+
+.lista > li[data-decisao='problema'] {
+  border-color: var(--rosa);
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nome {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.escolha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.opcao {
+  height: 46px;
+  border-radius: var(--raio-botao);
+  border: 1.5px solid var(--borda-campo);
+  background: var(--superficie);
+  color: var(--texto-medio);
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.opcao[data-tom='ok'][aria-pressed='true'] {
+  background: var(--status-devolvido-bg);
+  border-color: var(--status-devolvido-fg);
+  color: var(--status-devolvido-fg);
+}
+
+.opcao[data-tom='problema'][aria-pressed='true'] {
+  background: var(--status-alerta-bg);
+  border-color: var(--status-alerta-fg);
+  color: var(--status-alerta-fg);
+}
+
+.problema {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divisor);
+}
+
+.contador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rotuloContador {
+  font-size: 15px;
+  color: var(--texto);
+}
+
+.botoesContador {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.botoesContador b {
+  min-width: 28px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.botoesContador button {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--borda-campo);
+  background: var(--superficie);
+  color: var(--vinho);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botoesContador button:disabled {
+  color: var(--borda-campo);
+  cursor: default;
+}
+
+.semBorda {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  background: transparent;
+}
+
+.dica {
+  display: block;
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+.texto {
+  height: auto;
+  min-height: 64px;
+  padding-top: 12px;
+  resize: vertical;
+  font: inherit;
+}
+
+.barra {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progresso {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.barra > * {
+  flex: none;
+}

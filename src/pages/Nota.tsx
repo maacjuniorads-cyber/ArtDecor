@@ -165,6 +165,14 @@ export function Nota() {
                 <td>{numeroBR(i.quantidade * i.valorUnitario)}</td>
               </tr>
             ))}
+            {pedido.cobrancas.map((c) => (
+              <tr key={c.id}>
+                <td>Cobrança — {c.descricao}</td>
+                <td>1</td>
+                <td>{numeroBR(c.valor)}</td>
+                <td>{numeroBR(c.valor)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 

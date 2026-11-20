@@ -202,20 +202,31 @@ export const passos: Passo[] = [
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
     titulo: 'Como o lembrete chega no cliente',
-    texto: 'Ao tocar no botão, abre o SEU WhatsApp já na conversa do cliente, com o texto pronto. É só tocar na setinha verde de enviar. A mensagem chega como “Lembrete automático” do sistema da ArtDecor — você não precisa escrever nada, e fica claro para o cliente que é um aviso do sistema. Veja um exemplo:',
+    texto: 'Ao tocar no botão, abre o SEU WhatsApp já na conversa do cliente, com o texto pronto. É só tocar na setinha verde de enviar. A mensagem chega como “Lembrete automático” do sistema da ArtDecor — você não precisa escrever nada, e fica claro para o cliente que é um aviso do sistema.\n\nA saudação se ajusta sozinha ao horário em que você envia: de manhã sai “Bom dia”, à tarde “Boa tarde” e à noite “Boa noite”. Vale para todas as mensagens do app. Veja um exemplo:',
     previa: 'lembrete',
   },
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
     alvo: 'pedido-acao',
     titulo: 'Botão principal',
-    texto: 'Quando o cliente buscar: “Marcar como retirado”. Quando devolver: “Marcar como devolvido”. O ícone de documento ao lado abre a nota.',
+    texto: 'Quando o cliente buscar: “Marcar como retirado”. Quando ele devolver: “Conferir devolução” — já te explico essa parte. O ícone de documento ao lado abre a nota.',
   },
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
     alvo: 'pedido-pagamento',
     titulo: 'Pagamentos',
     texto: 'Veja o que já foi pago e o que falta. “+ Registrar pagamento” já vem com o valor que falta — escolha Pix, dinheiro ou cartão. Lançou errado? Toque no ×.',
+  },
+  {
+    rota: fixo('/pedidos/exemplo-ped-joao/conferir'),
+    alvo: 'conferencia-lista',
+    titulo: 'Conferir a devolução',
+    texto: 'Quando o cliente devolve, o app abre esta conferência. Olhe peça por peça e toque em “Voltou ok” ou em “Teve problema”. Voltou tudo certo? Toque em “Marcar o resto como ok” e depois em “Concluir devolução”.',
+  },
+  {
+    rota: fixo('/pedidos/exemplo-ped-joao/conferir'),
+    titulo: 'Peça quebrada ou faltando',
+    texto: 'Em “Teve problema” você diz quantas voltaram estragadas e quantas não voltaram, anota o que aconteceu e, se quiser, o valor a cobrar. Esse valor entra no total do pedido, em “Falta receber”.\n\nO app também pode tirar a peça do estoque, para ninguém reservar algo quebrado, e anota o problema na ficha da peça. Se consertar, é só aumentar a quantidade de novo.',
   },
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}/nota` : null),

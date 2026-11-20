@@ -53,6 +53,8 @@ create table if not exists public.pedidos (
   devolucao      date not null,
   status         text not null check (status in ('reservado', 'rua', 'devolvido', 'cancelado')),
   pagamentos     jsonb not null default '[]',   -- [{ id, valor, data, forma }]
+  conferencia    jsonb,                          -- { data, por, problemas: [{ itemId, avariadas, faltando, obs, descontado }], observacao }
+  cobrancas      jsonb not null default '[]',   -- [{ id, descricao, valor, itemId? }]
   criado_em      timestamptz not null default now(),
   atualizado_em  timestamptz not null default now(),
   check (devolucao >= retirada)

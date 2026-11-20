@@ -1,7 +1,18 @@
 import type { DataISO, Item, Pedido } from '@/types';
 
-export function totalPedido(pedido: Pedido): number {
+/** Só o aluguel das peças. */
+export function totalItens(pedido: Pedido): number {
   return pedido.itens.reduce((soma, i) => soma + i.quantidade * i.valorUnitario, 0);
+}
+
+/** Valores extras (avarias etc.). */
+export function totalCobrancas(pedido: Pedido): number {
+  return (pedido.cobrancas ?? []).reduce((soma, c) => soma + c.valor, 0);
+}
+
+/** Aluguel + cobranças extras. */
+export function totalPedido(pedido: Pedido): number {
+  return totalItens(pedido) + totalCobrancas(pedido);
 }
 
 export function totalPago(pedido: Pedido): number {

@@ -84,6 +84,36 @@ export interface ItemPedido {
   valorUnitario: number;
 }
 
+/** Peça que voltou com problema na devolução. */
+export interface ProblemaDevolucao {
+  itemId: string;
+  /** Unidades que voltaram quebradas/estragadas. */
+  avariadas: number;
+  /** Unidades que não voltaram. */
+  faltando: number;
+  obs?: string;
+  /** Quantas unidades foram tiradas do estoque por causa disso. */
+  descontado: number;
+}
+
+/** Conferência feita quando o cliente devolve. Sem problemas = voltou tudo certo. */
+export interface Conferencia {
+  data: DataISO;
+  /** Nome de quem conferiu. */
+  por: string;
+  problemas: ProblemaDevolucao[];
+  observacao?: string;
+}
+
+/** Valor extra cobrado no pedido (ex.: peça quebrada na devolução). */
+export interface Cobranca {
+  id: string;
+  descricao: string;
+  valor: number;
+  /** Peça a que se refere, quando veio da conferência. */
+  itemId?: string;
+}
+
 export interface Pedido {
   id: string;
   numero: number;
@@ -96,4 +126,8 @@ export interface Pedido {
   status: StatusPedido;
   /** Sinal e demais pagamentos recebidos. */
   pagamentos: Pagamento[];
+  /** Conferência da devolução (quando já foi feita). */
+  conferencia?: Conferencia | null;
+  /** Valores extras cobrados (avarias etc.). Entram no total. */
+  cobrancas: Cobranca[];
 }

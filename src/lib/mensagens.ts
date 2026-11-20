@@ -103,6 +103,7 @@ export function resumoPedido(pedido: Pedido, cliente: Cliente | undefined, nomeI
     `Muito obrigado por escolher a ${empresa.nome}! Segue o resumo do seu pedido (a nota vai junto):`,
     '',
     ...pedido.itens.map((i) => `• ${i.quantidade}× ${nomeItem(i.itemId)} — ${formatarMoeda(i.quantidade * i.valorUnitario)}`),
+    ...(pedido.cobrancas ?? []).map((c) => `• Cobrança: ${c.descricao} — ${formatarMoeda(c.valor)}`),
     '',
     `Retirada: ${dataBR(pedido.retirada)}`,
     `Devolução: ${dataBR(pedido.devolucao)}`,
@@ -141,6 +142,7 @@ export function exemploNota(): { texto: string; arquivo: string } {
     devolucao: somarDias(hoje, 5),
     status: 'reservado',
     pagamentos: [{ id: 'p', valor: 50, data: hoje, forma: 'Pix' }],
+    cobrancas: [],
   };
   const cliente: Cliente = { id: 'exemplo', nome: 'Silvia Exemplo', telefone: '', veiculo: null };
   return {
@@ -162,6 +164,7 @@ export function exemploLembrete(): string {
     devolucao: somarDias(hoje, 1),
     status: 'rua',
     pagamentos: [{ id: 'p', valor: 80, data: hoje, forma: 'Pix' }],
+    cobrancas: [],
   };
   return lembreteDevolucao(pedido, { id: 'exemplo', nome: 'Silvia Exemplo', telefone: '', veiculo: null });
 }

@@ -77,6 +77,8 @@ export const dePedido = (r: Linha): Pedido => ({
   devolucao: r.devolucao,
   status: r.status,
   pagamentos: r.pagamentos ?? [],
+  conferencia: r.conferencia ?? null,
+  cobrancas: r.cobrancas ?? [],
 });
 
 /** Pedido novo vai sem número: o banco gera o próximo (evita repetir entre dois celulares). */
@@ -91,4 +93,6 @@ export const paraPedido = (p: Pedido): Linha => ({
   devolucao: p.devolucao,
   status: p.status,
   pagamentos: p.pagamentos,
+  conferencia: p.conferencia ?? null,
+  cobrancas: p.cobrancas ?? [],
 });

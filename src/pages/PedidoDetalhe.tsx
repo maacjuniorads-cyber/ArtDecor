@@ -8,7 +8,8 @@ import { lerValor, linkWhatsApp, valorParaCampo } from '@/lib/contato';
 import { deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
 import { conflitosDoItem, livresNoPeriodo } from '@/lib/estoque';
 import { lembreteDevolucao, lembreteRetirada } from '@/lib/mensagens';
-import { faltaReceber, numeroPedido, totalPago, totalPedido } from '@/lib/pedidos';
+import { descreverProblema } from '@/lib/conferencia';
+import { faltaReceber, numeroPedido, totalItens, totalPago, totalPedido } from '@/lib/pedidos';
 import { FORMAS_PAGAMENTO, type FormaPagamento, type Pedido, type StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './PedidoDetalhe.module.css';
@@ -198,6 +199,37 @@ export function PedidoDetalhe() {
           </div>
         </section>
 
+        {pedido.conferencia && (
+          <section data-tour="pedido-conferencia">
+            <h2 className={ui.secao}>Devolução</h2>
+            <div className={`${ui.cartao} ${styles.conferencia}`}>
+              <span className={ui.detalhe}>
+                Conferida por {pedido.conferencia.por} em{' '}
+                {deISO(pedido.conferencia.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+              </span>
+              {pedido.conferencia.problemas.length === 0 ? (
+                <b className={styles.quitado}>✓ Tudo voltou certinho</b>
+              ) : (
+                <ul className={styles.problemas}>
+                  {pedido.conferencia.problemas.map((p) => (
+                    <li key={p.itemId}>
+                      <b>{itens.find((i) => i.id === p.itemId)?.nome ?? 'Item removido'}</b>: {descreverProblema(p)}
+                      {p.obs && ` — ${p.obs}`}
+                      {p.descontado > 0 && <span className={ui.detalhe}> (tirada do estoque)</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {pedido.conferencia.observacao && <span className={styles.obsConferencia}>{pedido.conferencia.observacao}</span>}
+              {pedido.status === 'devolvido' && (
+                <Link to={`/pedidos/${pedido.id}/conferir`} className={`${ui.botaoTexto} ${styles.refazer}`}>
+                  Corrigir conferência
+                </Link>
+              )}
+            </div>
+          </section>
+        )}
+
         <Pagamentos pedido={pedido} onSalvar={salvarPedido} />
 
         {pedido.status === 'reservado' && (
@@ -214,7 +246,12 @@ export function PedidoDetalhe() {
         <Link to={`/pedidos/${pedido.id}/nota`} className={ui.botaoIcone} aria-label="Ver nota do pedido">
           <Icon name="documento" />
         </Link>
-        {acao ? (
+        {pedido.status === 'rua' ? (
+          // Devolução passa pela conferência peça por peça.
+          <Link to={`/pedidos/${pedido.id}/conferir`} className={ui.botaoPrimario}>
+            Conferir devolução
+          </Link>
+        ) : acao ? (
           <button type="button" className={ui.botaoPrimario} onClick={() => mudarStatus(pedido.id, acao.para)}>
             {acao.texto}
           </button>
@@ -249,6 +286,10 @@ function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido
     if (ok) setAberto(false);
   }
 
+  function removerCobranca(cobrancaId: string) {
+    onSalvar({ ...pedido, cobrancas: pedido.cobrancas.filter((c) => c.id !== cobrancaId) });
+  }
+
   function remover(pagamentoId: string) {
     onSalvar({ ...pedido, pagamentos: pedido.pagamentos.filter((p) => p.id !== pagamentoId) });
   }
@@ -258,9 +299,27 @@ function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido
       <h2 className={ui.secao}>Pagamento</h2>
       <div className={`${ui.cartao} ${styles.totais}`}>
         <div>
-          <span className={ui.detalhe}>Total do pedido</span>
-          <b className={styles.total}>{formatarMoeda(totalPedido(pedido))}</b>
+          <span className={ui.detalhe}>{pedido.cobrancas.length > 0 ? 'Aluguel das peças' : 'Total do pedido'}</span>
+          <b className={pedido.cobrancas.length > 0 ? undefined : styles.total}>{formatarMoeda(pedido.cobrancas.length > 0 ? totalItens(pedido) : totalPedido(pedido))}</b>
         </div>
+
+        {pedido.cobrancas.map((c) => (
+          <div key={c.id} className={styles.pagamento}>
+            <span className={ui.detalhe}>Cobrança · {c.descricao}</span>
+            <span className={styles.pagamentoValor}>
+              <span>{formatarMoeda(c.valor)}</span>
+              <button type="button" className={styles.removerPagamento} onClick={() => removerCobranca(c.id)} aria-label={`Remover cobrança de ${formatarMoeda(c.valor)}`}>
+                ×
+              </button>
+            </span>
+          </div>
+        ))}
+        {pedido.cobrancas.length > 0 && (
+          <div>
+            <span className={ui.detalhe}>Total do pedido</span>
+            <b className={styles.total}>{formatarMoeda(totalPedido(pedido))}</b>
+          </div>
+        )}
 
         {pedido.pagamentos.map((p, i) => (
           <div key={p.id} className={styles.pagamento}>

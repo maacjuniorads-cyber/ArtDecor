@@ -128,6 +128,7 @@ export function PedidoForm() {
       ...comum,
       status: 'reservado',
       pagamentos: valorSinal > 0 ? [{ id: novoId(), valor: valorSinal, data: hoje, forma }] : [],
+      cobrancas: [],
     });
     setSalvando(false);
     if (ok) navigate(`/pedidos/${novo}`, { replace: true });
