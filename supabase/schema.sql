@@ -113,9 +113,12 @@ insert into storage.buckets (id, name, public)
 values ('fotos', 'fotos', true)
 on conflict (id) do nothing;
 
+drop policy if exists "fotos: equipe consulta" on storage.objects;
 drop policy if exists "fotos: equipe envia" on storage.objects;
 drop policy if exists "fotos: equipe altera" on storage.objects;
 drop policy if exists "fotos: equipe apaga" on storage.objects;
+-- "consulta" é exigida pelo Storage ao enviar/substituir arquivos pela API.
+create policy "fotos: equipe consulta" on storage.objects for select to authenticated using (bucket_id = 'fotos');
 create policy "fotos: equipe envia"  on storage.objects for insert to authenticated with check (bucket_id = 'fotos');
 create policy "fotos: equipe altera" on storage.objects for update to authenticated using (bucket_id = 'fotos');
 create policy "fotos: equipe apaga"  on storage.objects for delete to authenticated using (bucket_id = 'fotos');

@@ -72,7 +72,8 @@ async function buscarTudo(): Promise<Dados> {
 async function enviarFoto(itemId: string, dataUrl: string): Promise<string> {
   const blob = await (await fetch(dataUrl)).blob();
   const caminho = `itens/${itemId}-${Date.now()}.jpg`;
-  const { error } = await supabase.storage.from('fotos').upload(caminho, blob, { contentType: 'image/jpeg', upsert: true });
+  // Nome único por envio: nunca substitui arquivo (upsert exigiria permissões extras).
+  const { error } = await supabase.storage.from('fotos').upload(caminho, blob, { contentType: 'image/jpeg', upsert: false });
   if (error) throw new Error(error.message);
   return supabase.storage.from('fotos').getPublicUrl(caminho).data.publicUrl;
 }
