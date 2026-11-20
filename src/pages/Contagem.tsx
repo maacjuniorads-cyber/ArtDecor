@@ -11,6 +11,8 @@ import { CATEGORIAS, type Item, type TipoItem } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Contagem.module.css';
 
+type Resultado = 'contou' | 'pulou' | 'semContagem';
+
 /** Peças sem contagem, na ordem das categorias (Painéis, Cilindros…) e por nome. */
 function filaInicial(itens: Item[]): string[] {
   return itensSemContagem(itens)
@@ -31,13 +33,21 @@ export function Contagem() {
   const item = itens.find((i) => i.id === fila[posicao]);
   const terminou = posicao >= fila.length;
 
-  function avancar(salvou: boolean) {
+  /**
+   * contou: salvou com quantidade. pulou: deixou como estava.
+   * semContagem: salvou com 0 — a peça volta para "falta contar" e fica entre as puladas.
+   */
+  function avancar(resultado: Resultado) {
     const id = fila[posicao];
-    if (salvou) {
+    const pular = () => setPuladas((p) => (p.includes(id) ? p : [...p, id]));
+    if (resultado === 'contou') {
       setContadas((c) => (c.includes(id) ? c : [...c, id]));
       setPuladas((p) => p.filter((x) => x !== id));
+    } else if (resultado === 'semContagem') {
+      setContadas((c) => c.filter((x) => x !== id));
+      pular();
     } else if (!contadas.includes(id)) {
-      setPuladas((p) => (p.includes(id) ? p : [...p, id]));
+      pular();
     }
     setPosicao((n) => n + 1);
     window.scrollTo(0, 0);
@@ -116,7 +126,7 @@ export function Contagem() {
       ) : (
         <div className={styles.fim}>
           <p className={ui.detalhe}>Esta peça foi excluída do estoque.</p>
-          <button type="button" className={ui.botaoPrimario} onClick={() => avancar(false)}>
+          <button type="button" className={ui.botaoPrimario} onClick={() => avancar('pulou')}>
             Próxima
           </button>
         </div>
@@ -134,7 +144,7 @@ function Ficha({
   item: Item;
   podeVoltar: boolean;
   onVoltar: () => void;
-  onPronto: (salvou: boolean) => void;
+  onPronto: (resultado: Resultado) => void;
 }) {
   const { temas, salvarItem } = useDados();
   const [tipo, setTipo] = useState<TipoItem>(item.tipo);
@@ -146,6 +156,8 @@ function Ficha({
 
   const tema = temas.find((t) => t.id === item.temaId)?.nome;
   const qtd = Number(quantidade);
+  // 0 na contagem = "ainda não contei": a peça volta para "falta contar".
+  const zero = tipo === 'varios' && quantidade.trim() !== '' && qtd === 0;
 
   async function escolherFoto(arquivo?: File) {
     if (!arquivo) return;
@@ -174,12 +186,12 @@ function Ficha({
     const ok = await salvarItem({
       ...item,
       tipo,
-      quantidadeTotal: tipo === 'unica' ? 1 : qtd,
+      quantidadeTotal: tipo === 'unica' ? 1 : zero ? null : qtd,
       valorAluguel: valorNum,
       fotoUrl,
     });
     setSalvando(false);
-    if (ok) onPronto(true);
+    if (ok) onPronto(zero ? 'semContagem' : 'contou');
   }
 
   return (
@@ -241,6 +253,11 @@ function Ficha({
                 +
               </button>
             </div>
+            {zero && (
+              <span className={styles.avisoZero} role="status">
+                Com 0, a peça volta para “falta contar” e continua na lista para contar depois.
+              </span>
+            )}
           </div>
         ) : (
           <p className={styles.unica}>Peça única: a quantidade é sempre 1.</p>
@@ -269,11 +286,11 @@ function Ficha({
       </div>
 
       <div className={ui.barraAcao}>
-        <button type="button" className={ui.botaoSecundario} onClick={() => onPronto(false)} disabled={salvando}>
+        <button type="button" className={ui.botaoSecundario} onClick={() => onPronto('pulou')} disabled={salvando}>
           Pular
         </button>
         <button type="button" className={ui.botaoPrimario} onClick={salvar} disabled={salvando}>
-          {salvando ? 'Salvando…' : 'Salvar e próxima'}
+          {salvando ? 'Salvando…' : zero ? 'Deixar sem contagem' : 'Salvar e próxima'}
         </button>
       </div>
     </>

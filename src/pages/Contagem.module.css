@@ -159,3 +159,14 @@
   font-size: 22px;
   font-weight: 700;
 }
+
+.avisoZero {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--rosa);
+  color: var(--status-alerta-fg);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
