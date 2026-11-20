@@ -1,7 +1,7 @@
 # Avisos no celular da equipe do ArtDecor (notificações push).
 #
-# - De manhã (~8h de Brasília): resumo do dia + devoluções que atrasaram ontem.
-# - No fim da tarde (~18h): retiradas de amanhã.
+# - De manhã (~7h40 de Brasília): resumo do dia + devoluções que atrasaram ontem.
+# - No fim da tarde (~17h40): retiradas de amanhã.
 # - Botão "Run workflow" no GitHub: escolha "teste" para mandar um aviso de teste.
 #
 # Os avisos vão SÓ para os celulares da equipe que ativaram em "Avisos" no app.
