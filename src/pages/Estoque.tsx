@@ -4,7 +4,7 @@ import { Badge } from '@/components/Badge';
 import { Icon } from '@/components/Icon';
 import { Thumb } from '@/components/Thumb';
 import { useDados } from '@/data/store';
-import { itensDoTema, situacaoItem, situacaoTema } from '@/lib/estoque';
+import { itensAtivos, itensDoTema, situacaoItem, situacaoTema } from '@/lib/estoque';
 import { deISO, formatarMoeda } from '@/lib/formato';
 import { CATEGORIAS } from '@/types';
 import ui from '@/styles/ui.module.css';
@@ -39,7 +39,7 @@ function ListaItens() {
 
   const termo = normalizar(busca.trim());
   const nomeTema = (id?: string) => temas.find((t) => t.id === id)?.nome;
-  const visiveis = itens
+  const visiveis = itensAtivos(itens)
     .filter((i) => categoria === 'Todos' || i.categoria === categoria)
     .filter((i) => !termo || normalizar(`${i.nome} ${nomeTema(i.temaId) ?? ''}`).includes(termo))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));

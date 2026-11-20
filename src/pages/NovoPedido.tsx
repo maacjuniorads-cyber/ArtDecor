@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { novoId, useDados } from '@/data/store';
 import { lerValor } from '@/lib/contato';
-import { itensDoTema, livresAgora } from '@/lib/estoque';
+import { itensAtivos, itensDoTema, livresAgora } from '@/lib/estoque';
 import { formatarMoeda, hojeISO, somarDias } from '@/lib/formato';
 import type { ItemPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
@@ -25,7 +25,7 @@ export function NovoPedido() {
 
   const item = (id: string) => itens.find((i) => i.id === id);
   const temasComPecas = temas.filter((t) => itensDoTema(t, itens).length > 0);
-  const disponiveisParaAdicionar = itens
+  const disponiveisParaAdicionar = itensAtivos(itens)
     .filter((i) => !linhas.some((l) => l.itemId === i.id))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 

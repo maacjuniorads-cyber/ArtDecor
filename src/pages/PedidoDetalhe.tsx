@@ -21,6 +21,12 @@ const proximaAcao: Record<StatusPedido, { para: StatusPedido; texto: string } | 
   devolvido: null,
 };
 
+const voltarAcao: Record<StatusPedido, { para: StatusPedido; texto: string } | null> = {
+  reservado: null,
+  rua: { para: 'reservado', texto: 'Voltar para Reservado' },
+  devolvido: { para: 'rua', texto: 'Voltar para Na rua' },
+};
+
 function dataComDia(iso: string) {
   return `${rotuloDia(iso)} ${deISO(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`;
 }
@@ -42,6 +48,7 @@ export function PedidoDetalhe() {
   const cliente = clientes.find((c) => c.id === pedido.clienteId);
   const etapaAtual = etapas.findIndex((e) => e.status === pedido.status);
   const acao = proximaAcao[pedido.status];
+  const voltar = voltarAcao[pedido.status];
   const nomesTemas = pedido.temaIds.map((t) => temas.find((x) => x.id === t)?.nome).filter(Boolean);
   const veiculo = cliente?.veiculo;
 
@@ -58,6 +65,11 @@ export function PedidoDetalhe() {
             </li>
           ))}
         </ol>
+        {voltar && (
+          <button type="button" className={`${ui.botaoTexto} ${styles.voltarStatus}`} onClick={() => mudarStatus(pedido.id, voltar.para)}>
+            ← {voltar.texto}
+          </button>
+        )}
 
         <section>
           <h2 className={ui.secao}>Cliente</h2>

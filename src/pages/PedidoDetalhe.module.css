@@ -12,6 +12,12 @@
   gap: 6px;
 }
 
+.voltarStatus {
+  align-self: flex-start;
+  margin-top: -10px;
+  padding: 0;
+}
+
 .etapa {
   display: flex;
   flex-direction: column;

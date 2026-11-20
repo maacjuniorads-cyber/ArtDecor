@@ -36,6 +36,8 @@ export interface Item {
   valorAluguel: number;
   fotoUrl?: string;
   observacoes?: string;
+  /** Excluído do estoque. Fica guardado só para o histórico dos pedidos antigos. */
+  removido?: boolean;
 }
 
 export const TIPOS_VEICULO = ['Carro', 'Moto', 'Caminhonete', 'Van / Kombi', 'Outro'] as const;

@@ -16,6 +16,7 @@ interface Dados {
 
 interface Api extends Dados {
   salvarItem: (item: Item) => void;
+  removerItem: (itemId: string) => void;
   salvarTema: (tema: Tema) => void;
   salvarCliente: (cliente: Cliente) => void;
   salvarPedido: (pedido: Pedido) => void;
@@ -73,6 +74,8 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     () => ({
       ...dados,
       salvarItem: (item) => setDados((d) => ({ ...d, itens: upsert(d.itens, item) })),
+      removerItem: (itemId) =>
+        setDados((d) => ({ ...d, itens: d.itens.map((i) => (i.id === itemId ? { ...i, removido: true } : i)) })),
       salvarTema: (tema) => setDados((d) => ({ ...d, temas: upsert(d.temas, tema) })),
       salvarCliente: (cliente) => setDados((d) => ({ ...d, clientes: upsert(d.clientes, cliente) })),
       salvarPedido: (pedido) => setDados((d) => ({ ...d, pedidos: upsert(d.pedidos, pedido) })),

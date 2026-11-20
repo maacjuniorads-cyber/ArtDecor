@@ -272,6 +272,46 @@ textarea.input {
   text-decoration: none;
 }
 
+/* Ações destrutivas (excluir) */
+.botaoPerigo,
+.botaoPerigoCheio {
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.botaoPerigo {
+  border: 1px solid #e3b9c6;
+  background: var(--superficie);
+  color: var(--status-alerta-fg);
+}
+
+.botaoPerigoCheio {
+  border: 0;
+  background: var(--status-alerta-fg);
+  color: #fff;
+}
+
+.zonaPerigo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--borda);
+}
+
+.zonaPerigo > div {
+  display: flex;
+  gap: 10px;
+}
+
+.zonaPerigo > div > * {
+  flex: 1;
+}
+
 /* Barra de ação fixa no rodapé (telas sem menu) */
 .barraAcao {
   position: fixed;

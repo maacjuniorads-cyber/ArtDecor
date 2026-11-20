@@ -38,5 +38,5 @@ export function proximosCompromissos(pedidos: Pedido[], hoje: DataISO, limite = 
 }
 
 export function itensSemContagem(itens: Item[]): Item[] {
-  return itens.filter((i) => i.quantidadeTotal === null);
+  return itens.filter((i) => i.quantidadeTotal === null && !i.removido);
 }
