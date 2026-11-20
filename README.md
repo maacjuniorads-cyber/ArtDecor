@@ -31,6 +31,26 @@ Ele substitui o caderno e as conversas soltas no WhatsApp: mostra o que está em
 
 Só usuários cadastrados entram, porque o cadastro público fica desligado. Todas as tabelas exigem login.
 
+## Capacidade
+
+O projeto roda no **plano gratuito** do Supabase. Os limites dele, comparados com o uso medido em 20/11/2026:
+
+| Recurso | Limite (plano gratuito) | Uso em 20/11/2026 | Quanto cabe, na prática |
+|---|---|---|---|
+| Dados (peças, temas, clientes, pedidos) | 500 MB | 160 kB (66 peças, 13 temas, 1 cliente) | ~2 kB por registro, ou seja, **mais de 200 mil registros** |
+| Fotos das peças | 1 GB | 83 kB (2 fotos) | ~100 kB por foto (800 px), ou seja, **cerca de 10 mil fotos** |
+| Tráfego para os celulares | 5 GB por mês | baixo | as fotos ficam em cache no aparelho depois da primeira vez |
+
+Exemplo: 5 mil peças, 3 mil clientes e 20 mil pedidos ocupariam menos de 15% do espaço de dados.
+
+Pontos de atenção:
+
+- **Pausa por inatividade:** projetos gratuitos são pausados depois de 7 dias sem acesso. Isso não acontece aqui porque o backup diário e os avisos (duas vezes por dia) acessam o banco todo dia.
+- **Velocidade antes de espaço:** o app baixa todas as tabelas ao abrir. Com alguns milhares de pedidos, vale passar a carregar só os pedidos recentes e os em andamento, e buscar os antigos sob demanda.
+- **Se passar do limite:** o plano Pro do Supabase (US$ 25 por mês) sobe para 8 GB de dados e 100 GB de arquivos.
+
+Os limites são os do plano gratuito em novembro de 2026; confira em [supabase.com/pricing](https://supabase.com/pricing).
+
 ## Rodando no computador
 
 ```bash
