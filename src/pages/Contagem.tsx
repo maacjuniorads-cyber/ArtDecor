@@ -9,7 +9,8 @@ import { useDados } from '@/data/store';
 import { lerValor, valorParaCampo } from '@/lib/contato';
 import { reduzirImagem } from '@/lib/imagem';
 import { itensSemContagem } from '@/lib/pedidos';
-import { CATEGORIAS, type Item, type TipoItem } from '@/types';
+import { ordemCategoria } from '@/lib/categorias';
+import type { Item, TipoItem } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Contagem.module.css';
 
@@ -19,7 +20,7 @@ type Resultado = 'contou' | 'pulou' | 'semContagem';
 function filaInicial(itens: Item[]): string[] {
   return itensSemContagem(itens)
     .filter((i) => !ehExemplo(i.id))
-    .sort((a, b) => CATEGORIAS.indexOf(a.categoria) - CATEGORIAS.indexOf(b.categoria) || a.nome.localeCompare(b.nome, 'pt-BR'))
+    .sort((a, b) => ordemCategoria(a.categoria) - ordemCategoria(b.categoria) || a.nome.localeCompare(b.nome, 'pt-BR'))
     .map((i) => i.id);
 }
 

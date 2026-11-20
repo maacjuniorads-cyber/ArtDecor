@@ -10,9 +10,13 @@ import { pedidosAtivosComItem } from '@/lib/estoque';
 import { reduzirImagem } from '@/lib/imagem';
 import { numeroPedido } from '@/lib/pedidos';
 import { motivoBloqueio, ZonaExclusao } from '@/components/ZonaExclusao';
-import { CATEGORIAS, type Categoria, type TipoItem } from '@/types';
+import { listaCategorias, nomeCategoria } from '@/lib/categorias';
+import type { TipoItem } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './ItemForm.module.css';
+
+/** Valor da opção "+ Nova categoria…" no select (não é uma categoria). */
+const NOVA = '__nova__';
 
 export function ItemForm() {
   const { id } = useParams();
@@ -21,7 +25,10 @@ export function ItemForm() {
   const existente = itens.find((i) => i.id === id);
 
   const [nome, setNome] = useState(existente?.nome ?? '');
-  const [categoria, setCategoria] = useState<Categoria>(existente?.categoria ?? 'Painéis');
+  const [categoria, setCategoria] = useState(existente?.categoria ?? 'Painéis');
+  // "+ Nova categoria…": em vez da lista, um campo para digitar o nome.
+  const [criandoCategoria, setCriandoCategoria] = useState(false);
+  const [novaCategoria, setNovaCategoria] = useState('');
   const [temaId, setTemaId] = useState(existente?.temaId ?? '');
   const [tipo, setTipo] = useState<TipoItem>(existente?.tipo ?? 'varios');
   const [semContagem, setSemContagem] = useState(existente ? existente.quantidadeTotal === null : false);
@@ -34,10 +41,12 @@ export function ItemForm() {
 
   const rascunho = useRascunho(
     `item:${id ?? 'novo'}`,
-    { nome, categoria, temaId, tipo, semContagem, quantidade, valor, observacoes, fotoUrl },
+    { nome, categoria, criandoCategoria, novaCategoria, temaId, tipo, semContagem, quantidade, valor, observacoes, fotoUrl },
     (v) => {
       setNome(v.nome);
       setCategoria(v.categoria);
+      setCriandoCategoria(v.criandoCategoria ?? false);
+      setNovaCategoria(v.novaCategoria ?? '');
       setTemaId(v.temaId);
       setTipo(v.tipo);
       setSemContagem(v.semContagem);
@@ -47,6 +56,8 @@ export function ItemForm() {
       setFotoUrl(v.fotoUrl);
     },
   );
+  // As padrão + as que a equipe criou (e a desta peça, mesmo que seja a única com ela).
+  const categorias = listaCategorias(itens, categoria);
 
   if (id && (!existente || existente.removido)) {
     return (
@@ -72,6 +83,8 @@ export function ItemForm() {
     const valorNum = lerValor(valor);
     const qtd = Number(quantidade);
     if (!nome.trim()) return setErro('Dê um nome ao item.');
+    const categoriaFinal = criandoCategoria ? nomeCategoria(novaCategoria, categorias) : categoria;
+    if (!categoriaFinal) return setErro('Escreva o nome da nova categoria.');
     if (valorNum === null) return setErro('Informe o valor do aluguel (ex.: 15,00).');
     if (tipo === 'varios' && !semContagem && (!Number.isInteger(qtd) || qtd < 0 || quantidade === '')) {
       return setErro('Informe a quantidade ou marque "Ainda não contei".');
@@ -82,7 +95,7 @@ export function ItemForm() {
     const ok = await salvarItem({
       id: existente?.id ?? novoId(),
       nome: nome.trim(),
-      categoria,
+      categoria: categoriaFinal,
       temaId: temaId || undefined,
       tipo,
       quantidadeTotal: tipo === 'unica' ? 1 : semContagem || zero ? null : qtd,
@@ -117,10 +130,24 @@ export function ItemForm() {
         <div className={ui.grade2}>
           <label className={ui.campo}>
             <span className={ui.rotulo}>Categoria</span>
-            <select className={ui.input} value={categoria} onChange={(e) => setCategoria(e.target.value as Categoria)}>
-              {CATEGORIAS.map((c) => (
-                <option key={c}>{c}</option>
+            <select
+              className={ui.input}
+              value={criandoCategoria ? NOVA : categoria}
+              onChange={(e) => {
+                if (e.target.value === NOVA) {
+                  setCriandoCategoria(true);
+                } else {
+                  setCriandoCategoria(false);
+                  setCategoria(e.target.value);
+                }
+              }}
+            >
+              {categorias.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
+              <option value={NOVA}>+ Nova categoria…</option>
             </select>
           </label>
           <label className={ui.campo}>
@@ -135,6 +162,33 @@ export function ItemForm() {
             </select>
           </label>
         </div>
+
+        {criandoCategoria && (
+          <div className={`${ui.cartao} ${styles.novaCategoria}`}>
+            <label className={ui.campo}>
+              <span className={ui.rotulo}>Nome da nova categoria</span>
+              <input
+                className={ui.input}
+                value={novaCategoria}
+                onChange={(e) => setNovaCategoria(e.target.value)}
+                placeholder="Ex: Bandejas"
+                maxLength={30}
+                autoFocus
+              />
+            </label>
+            <span className={styles.dicaCategoria}>Depois de salvar, ela aparece na lista e no filtro do Estoque para todo mundo.</span>
+            <button
+              type="button"
+              className={ui.botaoTexto}
+              onClick={() => {
+                setCriandoCategoria(false);
+                setNovaCategoria('');
+              }}
+            >
+              Escolher uma da lista
+            </button>
+          </div>
+        )}
 
         <div className={ui.campo} data-tour="item-tipo">
           <span className={ui.rotulo} id="rotulo-tipo">Tipo de item</span>

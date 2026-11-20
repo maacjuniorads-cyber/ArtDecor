@@ -1,6 +1,7 @@
 /** Datas no formato ISO "AAAA-MM-DD" (sem hora). */
 export type DataISO = string;
 
+/** Categorias que sempre aparecem. A equipe pode criar outras no cadastro da peça (ver lib/categorias). */
 export const CATEGORIAS = [
   'Painéis',
   'Cilindros e mesas',
@@ -14,7 +15,8 @@ export const CATEGORIAS = [
   'Balões',
 ] as const;
 
-export type Categoria = (typeof CATEGORIAS)[number];
+/** Uma das padrão ou uma criada pela equipe. */
+export type Categoria = string;
 
 export interface Tema {
   id: string;

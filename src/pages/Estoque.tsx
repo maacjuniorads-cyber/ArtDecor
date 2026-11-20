@@ -8,7 +8,7 @@ import { itensAtivos, itensDoTema, situacaoItem, situacaoTema } from '@/lib/esto
 import { itensSemContagem } from '@/lib/pedidos';
 import { ehExemplo } from '@/data/exemploTour';
 import { deISO, formatarMoeda } from '@/lib/formato';
-import { CATEGORIAS } from '@/types';
+import { listaCategorias } from '@/lib/categorias';
 import ui from '@/styles/ui.module.css';
 import styles from './Estoque.module.css';
 
@@ -67,7 +67,7 @@ function ListaItens() {
         <input type="search" placeholder="Buscar item ou tema" value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Buscar item ou tema" />
       </label>
       <div className={`${ui.chips} ${styles.chips}`}>
-        {['Todos', ...CATEGORIAS].map((c) => (
+        {['Todos', ...listaCategorias(itens)].map((c) => (
           <button key={c} type="button" className={ui.chip} aria-pressed={categoria === c} onClick={() => setCategoria(c)}>
             {c}
           </button>

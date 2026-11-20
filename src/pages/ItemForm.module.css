@@ -23,3 +23,20 @@
   font-weight: 700;
   line-height: 1.4;
 }
+
+/* "+ Nova categoria…": campo para digitar o nome. */
+.novaCategoria {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dicaCategoria {
+  font-size: 13px;
+  color: var(--texto-suave);
+  line-height: 1.4;
+}
+
+.novaCategoria > button {
+  align-self: flex-start;
+}
