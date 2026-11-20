@@ -69,6 +69,12 @@ drop trigger if exists pedidos_atualizado_em on public.pedidos;
 create trigger pedidos_atualizado_em before update on public.pedidos
   for each row execute function public.tocar_atualizado_em();
 
+-- Acesso pela API: só o papel "authenticated" (usuário logado) ----------
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.temas, public.itens, public.clientes, public.pedidos to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+revoke all on public.temas, public.itens, public.clientes, public.pedidos from anon;
+
 -- Segurança: só usuários logados leem e gravam ------------------------
 -- (O cadastro público de usuários deve ficar DESLIGADO no painel:
 --  Authentication → Sign In / Providers → "Allow new users to sign up".)
