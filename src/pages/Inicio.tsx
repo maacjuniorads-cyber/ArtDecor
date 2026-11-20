@@ -132,6 +132,10 @@ export function Inicio() {
           <span className={styles.avisoAcao}>Conferir</span>
         </Link>
       )}
+
+      <Link to="/backup" className={styles.linkBackup}>
+        Cópia de segurança dos dados
+      </Link>
     </>
   );
 }

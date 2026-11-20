@@ -51,20 +51,30 @@ export function novoId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+/** Busca a tabela inteira em partes (o Supabase devolve no máximo 1000 linhas por vez). */
+export async function buscarTabela(tabela: string): Promise<Linha[]> {
+  const PARTE = 1000;
+  const todas: Linha[] = [];
+  for (let inicio = 0; ; inicio += PARTE) {
+    const { data, error } = await supabase
+      .from(tabela)
+      .select('*')
+      .order('criado_em', { ascending: true })
+      .order('id', { ascending: true })
+      .range(inicio, inicio + PARTE - 1);
+    if (error) throw new Error(error.message);
+    todas.push(...(data ?? []));
+    if (!data || data.length < PARTE) return todas;
+  }
+}
+
 async function buscarTudo(): Promise<Dados> {
-  const [temas, itens, clientes, pedidos] = await Promise.all([
-    supabase.from('temas').select('*'),
-    supabase.from('itens').select('*'),
-    supabase.from('clientes').select('*'),
-    supabase.from('pedidos').select('*'),
-  ]);
-  const falha = [temas, itens, clientes, pedidos].find((r) => r.error);
-  if (falha?.error) throw new Error(falha.error.message);
+  const [temas, itens, clientes, pedidos] = await Promise.all(['temas', 'itens', 'clientes', 'pedidos'].map(buscarTabela));
   return {
-    temas: (temas.data ?? []).map(deTema),
-    itens: (itens.data ?? []).map(deItem),
-    clientes: (clientes.data ?? []).map(deCliente),
-    pedidos: (pedidos.data ?? []).map(dePedido),
+    temas: temas.map(deTema),
+    itens: itens.map(deItem),
+    clientes: clientes.map(deCliente),
+    pedidos: pedidos.map(dePedido),
   };
 }
 

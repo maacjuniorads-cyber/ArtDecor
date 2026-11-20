@@ -232,6 +232,16 @@ header {
   color: #5e4a55;
 }
 
+.linkBackup {
+  display: block;
+  margin-top: 24px;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
 .avisoAcao {
   font-weight: 700;
   font-size: 14px;

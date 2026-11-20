@@ -1,0 +1,84 @@
+# Cópia de segurança diária do banco do ArtDecor (Supabase).
+#
+# - Roda todo dia de manhã (e também pelo botão "Run workflow" no GitHub).
+# - Entra com o login de backup, baixa todas as tabelas, CRIPTOGRAFA com a
+#   senha BACKUP_CHAVE e guarda como "artifact" por 90 dias.
+# - A visita diária ao banco também evita que o Supabase (plano grátis) pause.
+# - Se falhar, o GitHub manda e-mail para o dono do repositório.
+#
+# Segredos necessários (Settings → Secrets and variables → Actions):
+#   BACKUP_EMAIL  — e-mail do usuário de backup criado no Supabase
+#   BACKUP_SENHA  — senha desse usuário
+#   BACKUP_CHAVE  — senha usada para criptografar (guarde! sem ela não dá para abrir as cópias)
+#
+# Como abrir uma cópia: veja docs/BACKUP.md
+
+name: Cópia de segurança diária
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # todo dia, ~06:17 no horário de Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write # só para o passo "manter ativo" (ramo keepalive)
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Baixar os dados do Supabase
+        env:
+          SUPABASE_URL: https://lfzixpurwimjdrtllaoc.supabase.co
+          SUPABASE_KEY: sb_publishable_BU11Ist9fIwP21T05z1Ksw_6zimhwf9 # chave pública (a mesma que vai no app)
+          BACKUP_EMAIL: ${{ secrets.BACKUP_EMAIL }}
+          BACKUP_SENHA: ${{ secrets.BACKUP_SENHA }}
+        run: node scripts/backup.mjs backup.json
+
+      - name: Criptografar
+        env:
+          BACKUP_CHAVE: ${{ secrets.BACKUP_CHAVE }}
+        run: |
+          if [ -z "$BACKUP_CHAVE" ]; then echo "ERRO: falta o segredo BACKUP_CHAVE"; exit 1; fi
+          NOME="artdecor-$(TZ=America/Sao_Paulo date +%Y-%m-%d)"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in backup.json -out "$NOME.json.enc" -pass env:BACKUP_CHAVE
+          shred -u backup.json 2>/dev/null || rm -f backup.json
+          echo "NOME=$NOME" >> "$GITHUB_ENV"
+
+      - name: Guardar a cópia (90 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NOME }}
+          path: ${{ env.NOME }}.json.enc
+          retention-days: 90
+          if-no-files-found: error
+
+      # Em repositório público o GitHub desliga tarefas agendadas após 60 dias
+      # sem nenhum commit. Se faz 45 dias sem commits, registra um commit vazio
+      # no ramo "keepalive" (não mexe no app; a Vercel ignora esse ramo).
+      - name: Manter as tarefas agendadas ativas
+        if: github.event_name == 'schedule'
+        run: |
+          ULTIMO=$(git log -1 --all --format=%ct)
+          DIAS=$(( ( $(date +%s) - ULTIMO ) / 86400 ))
+          echo "Dias desde o último commit: $DIAS"
+          if [ "$DIAS" -ge 45 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -B keepalive
+            git commit --allow-empty -m "Mantém a cópia de segurança diária ativa"
+            git push -f origin keepalive
+          fi

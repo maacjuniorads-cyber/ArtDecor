@@ -15,6 +15,7 @@ import { Nota } from '@/pages/Nota';
 import { Clientes } from '@/pages/Clientes';
 import { ClienteForm } from '@/pages/ClienteForm';
 import { EmBreve } from '@/pages/EmBreve';
+import { Backup } from '@/pages/Backup';
 
 export function App() {
   return (
@@ -42,6 +43,7 @@ export function App() {
               <Route path="pedidos/:id/nota" element={<Nota />} />
               <Route path="clientes/novo" element={<ClienteForm />} />
               <Route path="clientes/:id" element={<ClienteForm />} />
+              <Route path="backup" element={<Backup />} />
             </Route>
           </Routes>
           </TourProvider>
