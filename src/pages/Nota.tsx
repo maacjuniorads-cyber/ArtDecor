@@ -6,6 +6,7 @@ import { useDados } from '@/data/store';
 import { linkWhatsApp } from '@/lib/contato';
 import { empresa } from '@/lib/empresa';
 import { deISO, formatarMoeda, hojeISO } from '@/lib/formato';
+import { resumoPedido } from '@/lib/mensagens';
 import { baixarArquivo, gerarPdfNota, podeCompartilharArquivo } from '@/lib/notaPdf';
 import { faltaReceber, totalPago, totalPedido } from '@/lib/pedidos';
 import ui from '@/styles/ui.module.css';
@@ -75,23 +76,7 @@ export function Nota() {
   const nomesTemas = pedido.temaIds.map((t) => temas.find((x) => x.id === t)?.nome).filter(Boolean);
   const evento = [pedido.evento, nomesTemas.length ? `tema ${nomesTemas.join(', ')}` : ''].filter(Boolean).join(' · ');
 
-  const mensagem = [
-    `Olá${cliente ? `, ${cliente.nome.split(' ')[0]}` : ''}! Segue o resumo do seu pedido nº ${numero} na ${empresa.nome}:`,
-    '',
-    ...pedido.itens.map((i) => `• ${i.quantidade}× ${nomeItem(i.itemId)} — ${formatarMoeda(i.quantidade * i.valorUnitario)}`),
-    '',
-    `Retirada: ${dataCurta(pedido.retirada)}`,
-    `Devolução: ${dataCurta(pedido.devolucao)}`,
-    '',
-    `Total: ${formatarMoeda(total)}`,
-    pago > 0 ? `Já pago: ${formatarMoeda(pago)}` : '',
-    `A pagar: ${formatarMoeda(falta)}`,
-    '',
-    `Pagamento em Pix, dinheiro ou cartão.`,
-    `Pix: ${empresa.pixChave} (${empresa.pixTitular})`,
-  ]
-    .filter((linha, i, arr) => linha !== '' || arr[i - 1] !== '')
-    .join('\n');
+  const mensagem = resumoPedido(pedido, cliente, nomeItem);
 
   const telefoneWhats = cliente ? cliente.whatsapp ?? cliente.telefone : '';
 
