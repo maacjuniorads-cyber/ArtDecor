@@ -152,10 +152,38 @@ function limparNome(texto: string): string {
     .replace(/\b(tel|cel|celular|fone|telefone|whats|whatsapp|zap|n[uú]mero)\b\.?:?/gi, ' ')
     .replace(/[\s\-–—:,;|•*·.]+$/g, '')
     .replace(/^[\s\-–—:,;|•*·.]+/g, '')
+    .replace(/\[\s*\]|\(\s*\)/g, ' ') // colchete ou parêntese que ficou vazio
     .replace(/\s+/g, ' ')
     .trim();
-  // Frase comprida não é nome (ex.: mensagem inteira colada junto).
+  // Sem nenhuma letra ou número não é nome; frase comprida também não (ex.: mensagem inteira colada junto).
+  if (!/[\p{L}\p{N}]/u.test(nome)) return '';
   return nome.length > 50 ? '' : nome;
+}
+
+function telefonesDaLinha(linha: string): string[] {
+  return [...linha.matchAll(TRECHO_TELEFONE)]
+    .map((m) => m[0].trim())
+    .filter((t) => {
+      const n = t.replace(/\D/g, '').length;
+      return n >= 8 && n <= 15;
+    });
+}
+
+const ROTULO_NOME = /^(nome|name|nome completo|apelido)$/i;
+const ROTULO_TELEFONE = /(cel|fone|tel|m[oó]vel|mobile|phone|whats|zap|residencial|comercial|trabalho|casa)/i;
+
+/**
+ * Linha com etiqueta, como o app Contatos (Samsung e outros) manda ao compartilhar:
+ * "[Nome] Maria", "[Celular] +55 53 99133-3075", "[E-mail] …" — ou "Nome: Maria", "Celular: …".
+ * Com dois-pontos só vale etiqueta conhecida (senão "Maria: 53 9…" seria lida como etiqueta).
+ */
+function lerRotulo(linha: string): { tipo: 'nome' | 'telefone' | 'outro'; valor: string } | null {
+  const tipoDe = (r: string) => (ROTULO_NOME.test(r.trim()) ? 'nome' : ROTULO_TELEFONE.test(r) ? 'telefone' : null);
+  const colchete = linha.match(/^\[([^\]]{1,30})\]\s*(.*)$/);
+  if (colchete) return { tipo: tipoDe(colchete[1]) ?? 'outro', valor: colchete[2] };
+  const doisPontos = linha.match(/^([\p{L}][\p{L} .]{1,24}):\s*(.+)$/u);
+  const tipo = doisPontos && tipoDe(doisPontos[1]);
+  return doisPontos && tipo ? { tipo, valor: doisPontos[2] } : null;
 }
 
 /**
@@ -176,14 +204,29 @@ export function lerTexto(texto: string, { soComTelefone = false } = {}): Contato
     if (nomeSolto && !soComTelefone) contatos.push({ nome: nomeSolto, telefones: [] });
     nomeSolto = null;
   };
+  // Contato montado por etiquetas ("[Nome] …" + "[Celular] …").
+  let rotulado: ContatoBruto | null = null;
+  const fecharRotulado = () => {
+    if (rotulado && (rotulado.nome || rotulado.telefones.length > 0)) contatos.push(rotulado);
+    rotulado = null;
+  };
 
   for (const linha of linhas) {
-    const telefones = [...linha.matchAll(TRECHO_TELEFONE)]
-      .map((m) => m[0].trim())
-      .filter((t) => {
-        const n = t.replace(/\D/g, '').length;
-        return n >= 8 && n <= 15;
-      });
+    const rotulo = lerRotulo(linha);
+    if (rotulo) {
+      soltar();
+      if (rotulo.tipo === 'nome') {
+        fecharRotulado(); // "[Nome]" começa um contato novo
+        rotulado = { nome: limparNome(rotulo.valor), telefones: [] };
+      } else if (rotulo.tipo === 'telefone') {
+        rotulado ??= { nome: '', telefones: [] };
+        rotulado.telefones.push(...telefonesDaLinha(rotulo.valor));
+      }
+      continue; // e-mail, endereço, empresa…: ignora
+    }
+    fecharRotulado();
+
+    const telefones = telefonesDaLinha(linha);
     let resto = linha;
     for (const t of telefones) resto = resto.replace(t, ' ');
     let nome = limparNome(resto);
@@ -202,6 +245,7 @@ export function lerTexto(texto: string, { soComTelefone = false } = {}): Contato
     if (nome) contatos.push({ nome, telefones });
     else for (const t of telefones) contatos.push({ nome: '', telefones: [t] }); // vários números soltos: um contato cada
   }
+  fecharRotulado();
   soltar();
   return contatos;
 }
