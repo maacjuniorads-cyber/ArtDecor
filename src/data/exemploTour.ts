@@ -41,6 +41,7 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
     {
       id: PEDIDO_EXEMPLO_TOUR,
       numero: 101,
+      codigo: 'A40517',
       clienteId: 'exemplo-cli-silvia',
       evento: 'Aniversário de 7 anos',
       temaIds: ['exemplo-tema-unicornio'],
@@ -58,6 +59,7 @@ export function dadosDeExemplo(): { temas: Tema[]; itens: Item[]; clientes: Clie
     {
       id: 'exemplo-ped-joao',
       numero: 102,
+      codigo: 'A73208',
       clienteId: 'exemplo-cli-joao',
       evento: 'Jantar de família',
       temaIds: [],

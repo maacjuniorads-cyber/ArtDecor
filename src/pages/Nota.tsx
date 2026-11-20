@@ -8,7 +8,7 @@ import { empresa } from '@/lib/empresa';
 import { deISO, formatarMoeda, hojeISO } from '@/lib/formato';
 import { resumoPedido } from '@/lib/mensagens';
 import { baixarArquivo, gerarPdfNota, podeCompartilharArquivo } from '@/lib/notaPdf';
-import { faltaReceber, totalPago, totalPedido } from '@/lib/pedidos';
+import { codigoPedido, faltaReceber, totalPago, totalPedido } from '@/lib/pedidos';
 import ui from '@/styles/ui.module.css';
 import styles from './Nota.module.css';
 
@@ -28,7 +28,7 @@ export function Nota() {
   const [gerando, setGerando] = useState(false);
   const [aviso, setAviso] = useState('');
 
-  const numeroArquivo = pedido ? String(pedido.numero).padStart(4, '0') : '';
+  const numeroArquivo = pedido ? codigoPedido(pedido) : '';
   const nomeArquivo = `Nota ArtDecor ${numeroArquivo}${cliente ? ` - ${cliente.nome}` : ''}.pdf`;
   // Se o pedido mudar (ex.: pagamento registrado em outro celular), o PDF é refeito.
   const versao = pedido ? JSON.stringify([pedido, cliente?.nome, cliente?.telefone, cliente?.endereco, itens.length]) : '';

@@ -116,7 +116,10 @@ export interface Cobranca {
 
 export interface Pedido {
   id: string;
+  /** Número interno, só para ordenar. Não aparece no app. */
   numero: number;
+  /** Código que aparece no app e na nota (ex.: A13213). Gerado pelo banco. */
+  codigo: string;
   clienteId: string;
   evento?: string;
   temaIds: string[];

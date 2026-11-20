@@ -11,7 +11,7 @@
  */
 import { empresa } from './empresa';
 import { deISO, formatarMoeda, hojeISO, somarDias } from './formato';
-import { faltaReceber, numeroPedido, totalPago, totalPedido } from './pedidos';
+import { codigoPedido, faltaReceber, totalPago, totalPedido } from './pedidos';
 import type { Cliente, Pedido } from '@/types';
 
 export const RODAPE_AUTOMATICO = `_Mensagem automática do sistema da ${empresa.nome}._`;
@@ -45,7 +45,7 @@ function linhaPagamento(pedido: Pedido): string[] {
 }
 
 function numero(pedido: Pedido): string {
-  return numeroPedido(pedido).slice(1);
+  return codigoPedido(pedido);
 }
 
 function montar(linhas: string[]): string {
@@ -131,6 +131,7 @@ export function exemploNota(): { texto: string; arquivo: string } {
   const pedido: Pedido = {
     id: 'exemplo',
     numero: 12,
+    codigo: 'A48217',
     clienteId: 'exemplo',
     temaIds: [],
     itens: [
@@ -147,7 +148,7 @@ export function exemploNota(): { texto: string; arquivo: string } {
   const cliente: Cliente = { id: 'exemplo', nome: 'Silvia Exemplo', telefone: '', veiculo: null };
   return {
     texto: resumoPedido(pedido, cliente, (id) => nomes[id] ?? 'Item'),
-    arquivo: `Nota ${empresa.nome} 0012 - ${cliente.nome}.pdf`,
+    arquivo: `Nota ${empresa.nome} A48217 - ${cliente.nome}.pdf`,
   };
 }
 
@@ -157,6 +158,7 @@ export function exemploLembrete(): string {
   const pedido: Pedido = {
     id: 'exemplo',
     numero: 12,
+    codigo: 'A48217',
     clienteId: 'exemplo',
     temaIds: [],
     itens: [{ itemId: 'x', quantidade: 1, valorUnitario: 150 }],

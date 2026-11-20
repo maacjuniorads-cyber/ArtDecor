@@ -146,6 +146,7 @@ export function PedidoForm() {
     const ok = await salvarPedido({
       id: novo,
       numero: 0, // o banco gera o número
+      codigo: '', // e o código (A13213)
       ...comum,
       status: 'reservado',
       pagamentos: valorSinal > 0 ? [{ id: novoId(), valor: valorSinal, data: hoje, forma }] : [],

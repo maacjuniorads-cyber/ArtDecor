@@ -50,7 +50,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     i('item-boleira-vidro', 'Boleira de vidro', 'Vidros', 'varios', 5, 12),
     {
       ...i('item-bandeja-espelhada', 'Bandeja espelhada', 'Vidros', 'varios', 11, 6),
-      observacoes: `Pedido #0009 (${d(-4).split('-').reverse().join('/')}): 1 voltou estragada — borda lascada`,
+      observacoes: `Pedido #A64193 (${d(-4).split('-').reverse().join('/')}): 1 voltou estragada — borda lascada`,
     },
     i('item-suqueira-vidro', 'Suqueira de vidro', 'Vidros', 'varios', null, 0),
     i('item-topiaria-buxinho', 'Topiaria (buxinho)', 'Vasos e plantas', 'varios', 4, 18),
@@ -76,6 +76,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     {
       id: 'demo-p12',
       numero: 12,
+      codigo: 'A58340',
       clienteId: 'demo-c1',
       evento: 'Aniversário de 6 anos',
       temaIds: ['tema-herois'],
@@ -95,6 +96,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     {
       id: 'demo-p11',
       numero: 11,
+      codigo: 'A91426',
       clienteId: 'demo-c2',
       evento: 'Chá de bebê',
       temaIds: ['tema-capivara'],
@@ -113,6 +115,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     {
       id: 'demo-p10',
       numero: 10,
+      codigo: 'A27685',
       clienteId: 'demo-c3',
       evento: 'Aniversário de 1 ano',
       temaIds: ['tema-safari'],
@@ -130,6 +133,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     {
       id: 'demo-p09',
       numero: 9,
+      codigo: 'A64193',
       clienteId: 'demo-c4',
       evento: 'Mesa de doces',
       temaIds: [],
@@ -152,6 +156,7 @@ export function dadosDemo(): { temas: Tema[]; itens: Item[]; clientes: Cliente[]
     {
       id: 'demo-p13',
       numero: 13,
+      codigo: 'A35872',
       clienteId: 'demo-c5',
       evento: 'Festa da firma',
       temaIds: [],

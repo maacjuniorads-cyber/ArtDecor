@@ -9,7 +9,7 @@ export function diaBR(agora, dias = 0) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: FUSO, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
 
-const numero = (p) => `#${String(p.numero).padStart(4, '0')}`;
+const numero = (p) => `#${p.codigo ?? String(p.numero).padStart(4, '0')}`;
 const primeiroNome = (nome) => (nome ?? 'Cliente').trim().split(/\s+/)[0];
 const pecas = (p) => (p.itens ?? []).reduce((s, i) => s + (Number(i.quantidade) || 0), 0);
 const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;

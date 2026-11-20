@@ -58,7 +58,7 @@ if (momento === 'teste') {
   avisos = [{ tipo: null, title: 'ArtDecor — teste', body: 'Os avisos automáticos estão funcionando.', url: '/avisos', tag: 'teste' }];
 } else {
   const [pedidos, clientes] = await Promise.all([
-    ler('pedidos?select=id,numero,cliente_id,itens,retirada,devolucao,status&status=in.(reservado,rua)'),
+    ler('pedidos?select=id,numero,codigo,cliente_id,itens,retirada,devolucao,status&status=in.(reservado,rua)'),
     ler('clientes?select=id,nome'),
   ]);
   avisos = montarAvisos(momento, pedidos, clientes, new Date());

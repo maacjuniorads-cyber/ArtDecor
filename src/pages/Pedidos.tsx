@@ -3,7 +3,7 @@ import { Badge } from '@/components/Badge';
 import { Icon } from '@/components/Icon';
 import { useDados } from '@/data/store';
 import { deISO, formatarMoeda, rotuloDia } from '@/lib/formato';
-import { faltaReceber, quantidadeDeItens, totalPago, totalPedido } from '@/lib/pedidos';
+import { faltaReceber, numeroPedido, quantidadeDeItens, totalPago, totalPedido } from '@/lib/pedidos';
 import type { Pedido, StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Pedidos.module.css';
@@ -66,7 +66,7 @@ export function Pedidos() {
                 <Link to={`/pedidos/${p.id}`} className={`${ui.linhaCartao} ${styles.pedido}`}>
                   <span className={styles.topo}>
                     <span className={ui.nome}>{cliente?.nome ?? 'Cliente removido'}</span>
-                    <span className={ui.detalhe}>#{String(p.numero).padStart(4, '0')}</span>
+                    <span className={ui.detalhe}>{numeroPedido(p)}</span>
                   </span>
                   <span className={ui.detalhe}>
                     {p.evento ? `${p.evento} · ` : ''}

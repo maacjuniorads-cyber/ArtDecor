@@ -69,6 +69,7 @@ export const paraCliente = (c: Cliente): Linha => ({
 export const dePedido = (r: Linha): Pedido => ({
   id: r.id,
   numero: r.numero,
+  codigo: r.codigo ?? '',
   clienteId: r.cliente_id,
   evento: r.evento ?? undefined,
   temaIds: r.tema_ids ?? [],
@@ -81,10 +82,11 @@ export const dePedido = (r: Linha): Pedido => ({
   cobrancas: r.cobrancas ?? [],
 });
 
-/** Pedido novo vai sem número: o banco gera o próximo (evita repetir entre dois celulares). */
+/** Pedido novo vai sem número e sem código: o banco gera os dois (evita repetir entre dois celulares). */
 export const paraPedido = (p: Pedido): Linha => ({
   id: p.id,
   ...(p.numero > 0 ? { numero: p.numero } : {}),
+  ...(p.codigo ? { codigo: p.codigo } : {}),
   cliente_id: p.clienteId,
   evento: p.evento ?? null,
   tema_ids: p.temaIds,

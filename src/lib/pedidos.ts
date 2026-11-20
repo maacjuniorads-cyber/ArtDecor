@@ -28,8 +28,14 @@ export function quantidadeDeItens(pedido: Pedido): number {
   return pedido.itens.reduce((soma, i) => soma + i.quantidade, 0);
 }
 
+/** Como o pedido aparece no app: #A13213. */
 export function numeroPedido(pedido: Pedido): string {
-  return `#${String(pedido.numero).padStart(4, '0')}`;
+  return `#${codigoPedido(pedido)}`;
+}
+
+/** Código sem o "#" (nota, nome do arquivo, mensagens). */
+export function codigoPedido(pedido: Pedido): string {
+  return pedido.codigo || String(pedido.numero).padStart(4, '0');
 }
 
 /** Reservado ou na rua: o pedido ainda prende itens e cliente. */
