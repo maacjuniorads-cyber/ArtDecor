@@ -54,6 +54,7 @@ export const deCliente = (r: Linha): Cliente => ({
   endereco: r.endereco ?? undefined,
   veiculo: r.veiculo ?? null,
   removido: r.removido || undefined,
+  importado: r.importado || undefined,
 });
 
 export const paraCliente = (c: Cliente): Linha => ({
@@ -64,6 +65,7 @@ export const paraCliente = (c: Cliente): Linha => ({
   endereco: c.endereco ?? null,
   veiculo: c.veiculo,
   removido: Boolean(c.removido),
+  importado: Boolean(c.importado),
 });
 
 export const dePedido = (r: Linha): Pedido => ({

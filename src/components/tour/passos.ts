@@ -145,6 +145,12 @@ export const passos: Passo[] = [
     titulo: 'Cliente novo',
     texto: 'Cadastre com nome, telefone (com DDD), endereço e o veículo. Se a pessoa não tem carro, é só marcar “Cliente não tem veículo”.',
   },
+  {
+    rota: fixo('/clientes'),
+    alvo: 'clientes-importar',
+    titulo: 'Trazer os clientes da agenda',
+    texto: 'Não precisa digitar um por um: em “Importar contatos” você escolhe na agenda do celular quem é cliente (no iPhone, pelo arquivo de contatos .vcf). Entram nome e telefone, e quem já é cliente não entra de novo.\n\nOs importados aparecem com “Completar cadastro”: o endereço e o carro você preenche quando fizer o pedido.',
+  },
 
   // ---- Novo pedido
   {

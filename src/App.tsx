@@ -22,6 +22,7 @@ import { ClienteForm } from '@/pages/ClienteForm';
 import { EmBreve } from '@/pages/EmBreve';
 import { Backup } from '@/pages/Backup';
 import { Avisos } from '@/pages/Avisos';
+import { ImportarClientes } from '@/pages/ImportarClientes';
 
 export function App() {
   return (
@@ -54,6 +55,7 @@ export function App() {
               <Route path="pedidos/:id/nota" element={<Nota />} />
               <Route path="pedidos/:id/conferir" element={<Conferencia />} />
               <Route path="clientes/novo" element={<ClienteForm />} />
+              <Route path="clientes/importar" element={<ImportarClientes />} />
               <Route path="clientes/:id" element={<ClienteForm />} />
               <Route path="backup" element={<Backup />} />
               <Route path="avisos" element={<Avisos />} />

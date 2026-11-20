@@ -35,6 +35,8 @@ interface Api extends Dados {
   salvarTema: (tema: Tema) => Promise<boolean>;
   removerTema: (temaId: string) => Promise<boolean>;
   salvarCliente: (cliente: Cliente) => Promise<boolean>;
+  /** Vários clientes de uma vez (importação da agenda), numa gravação só. */
+  importarClientes: (clientes: Cliente[]) => Promise<boolean>;
   removerCliente: (clienteId: string) => Promise<boolean>;
   /** Para pedido novo, use numero 0: o banco gera o número. */
   salvarPedido: (pedido: Pedido) => Promise<boolean>;
@@ -118,6 +120,8 @@ function aplicarLocal(d: Dados, op: Operacao): Dados {
       };
     case 'cliente':
       return { ...d, clientes: upsert(d.clientes, op.cliente) };
+    case 'clientes':
+      return { ...d, clientes: op.clientes.reduce(upsert, d.clientes) };
     case 'removerCliente':
       return { ...d, clientes: d.clientes.map((c) => (c.id === op.id ? { ...c, removido: true } : c)) };
     case 'pedido':
@@ -155,6 +159,9 @@ async function enviar(op: Operacao): Promise<Operacao> {
       return op;
     case 'cliente':
       await verificar(supabase.from('clientes').upsert(paraCliente(op.cliente)));
+      return op;
+    case 'clientes':
+      await verificar(supabase.from('clientes').upsert(op.clientes.map(paraCliente)));
       return op;
     case 'removerCliente':
       await verificar(supabase.from('clientes').update({ removido: true }).eq('id', op.id));
@@ -402,6 +409,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       salvarTema: (tema) => executar({ tipo: 'tema', tema }, tema.id),
       removerTema: (id) => executar({ tipo: 'removerTema', id }, id),
       salvarCliente: (cliente) => executar({ tipo: 'cliente', cliente }, cliente.id),
+      importarClientes: (lista) => executar({ tipo: 'clientes', clientes: lista }, 'importacao'),
       removerCliente: (id) => executar({ tipo: 'removerCliente', id }, id),
       salvarPedido: (pedido) => executar({ tipo: 'pedido', pedido }, pedido.id),
       mudarStatus: (id, status) => executar({ tipo: 'status', id, status }, id),

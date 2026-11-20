@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Icon } from '@/components/Icon';
 import { useDados } from '@/data/store';
 import { iniciais } from '@/lib/estoque';
@@ -12,12 +12,14 @@ const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLo
 function textoBusca(c: Cliente): string {
   const v = c.veiculo;
   return normalizar(
-    [c.nome, c.telefone, c.telefone.replace(/\D/g, ''), c.whatsapp ?? '', v ? `${v.tipo} ${v.modelo} ${v.cor} ${v.placa}` : 'sem veiculo'].join(' '),
+    [c.nome, c.telefone, c.telefone.replace(/\D/g, ''), c.whatsapp ?? '', v ? `${v.tipo} ${v.modelo} ${v.cor} ${v.placa}` : c.importado ? 'completar cadastro' : 'sem veiculo'].join(' '),
   );
 }
 
 export function Clientes() {
   const { clientes, pedidos } = useDados();
+  const location = useLocation();
+  const importados = (location.state as { importados?: number } | null)?.importados;
   const [busca, setBusca] = useState('');
   const termo = normalizar(busca.trim());
 
@@ -28,7 +30,18 @@ export function Clientes() {
 
   return (
     <>
-      <h1 className={ui.tituloPagina}>Clientes</h1>
+      <div className={styles.topo}>
+        <h1 className={ui.tituloPagina}>Clientes</h1>
+        <Link to="/clientes/importar" className={styles.importar} data-tour="clientes-importar">
+          <Icon name="baixar" size={18} /> Importar contatos
+        </Link>
+      </div>
+      {importados ? (
+        <p className={styles.importados} role="status">
+          ✓ {importados === 1 ? '1 cliente importado' : `${importados} clientes importados`}. Os marcados com <b>Completar cadastro</b> estão só com nome e
+          telefone: endereço e carro você preenche quando fizer o pedido.
+        </p>
+      ) : null}
       <label className={`${ui.busca} ${styles.busca}`} data-tour="clientes-busca">
         <Icon name="busca" size={20} />
         <input type="search" placeholder="Nome, telefone, carro ou placa" value={busca} onChange={(e) => setBusca(e.target.value)} aria-label="Buscar cliente" />
@@ -50,10 +63,14 @@ export function Clientes() {
                   <span className={ui.texto}>
                     <span className={ui.nome}>{c.nome}</span>
                     <span className={ui.detalhe}>{c.telefone}</span>
-                    <span className={v ? styles.veiculo : styles.semVeiculo}>
-                      <Icon name="veiculo" size={16} />
-                      {v ? `${v.modelo} ${v.cor}${v.placa ? ` · ${v.placa}` : ''}` : 'Sem veículo'}
-                    </span>
+                    {c.importado && !v ? (
+                      <span className={styles.completar}>Completar cadastro</span>
+                    ) : (
+                      <span className={v ? styles.veiculo : styles.semVeiculo}>
+                        <Icon name="veiculo" size={16} />
+                        {v ? `${v.modelo} ${v.cor}${v.placa ? ` · ${v.placa}` : ''}` : 'Sem veículo'}
+                      </span>
+                    )}
                   </span>
                   <span className={styles.pedidos}>
                     {qtd} {qtd === 1 ? 'pedido' : 'pedidos'}

@@ -62,6 +62,8 @@ export interface Cliente {
   veiculo: Veiculo | null;
   /** Excluído. Fica guardado só para o histórico dos pedidos antigos. */
   removido?: boolean;
+  /** Veio da agenda do celular (só nome e telefone): falta completar endereço e veículo. */
+  importado?: boolean;
 }
 
 export type StatusPedido = 'reservado' | 'rua' | 'devolvido' | 'cancelado';

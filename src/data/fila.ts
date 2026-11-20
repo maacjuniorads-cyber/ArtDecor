@@ -14,6 +14,7 @@ export type Operacao =
   | { tipo: 'tema'; tema: Tema }
   | { tipo: 'removerTema'; id: string }
   | { tipo: 'cliente'; cliente: Cliente }
+  | { tipo: 'clientes'; clientes: Cliente[] }
   | { tipo: 'removerCliente'; id: string }
   | { tipo: 'pedido'; pedido: Pedido }
   | { tipo: 'status'; id: string; status: StatusPedido };

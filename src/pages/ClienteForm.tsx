@@ -11,6 +11,7 @@ import { deISO, formatarMoeda } from '@/lib/formato';
 import { emAndamento, numeroPedido, totalPedido } from '@/lib/pedidos';
 import { TIPOS_VEICULO, type TipoVeiculo } from '@/types';
 import ui from '@/styles/ui.module.css';
+import styles from './ClienteForm.module.css';
 
 export function ClienteForm() {
   const { id } = useParams();
@@ -24,7 +25,8 @@ export function ClienteForm() {
   const [whatsIgual, setWhatsIgual] = useState(!existente?.whatsapp);
   const [whatsapp, setWhatsapp] = useState(existente?.whatsapp ?? '');
   const [endereco, setEndereco] = useState(existente?.endereco ?? '');
-  const [semVeiculo, setSemVeiculo] = useState(existente ? !v : false);
+  // Importado da agenda: ainda não sabemos do carro, então não marca "não tem veículo".
+  const [semVeiculo, setSemVeiculo] = useState(existente && !existente.importado ? !v : false);
   const [tipo, setTipo] = useState<TipoVeiculo>(v?.tipo ?? 'Carro');
   const [modelo, setModelo] = useState(v?.modelo ?? '');
   const [cor, setCor] = useState(v?.cor ?? '');
@@ -89,6 +91,11 @@ export function ClienteForm() {
       <Cabecalho titulo={existente ? 'Editar cliente' : 'Novo cliente'} voltarPara="/clientes" />
       <form id="form-cliente" className={ui.form} onSubmit={salvar} noValidate>
         <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
+        {existente?.importado && (
+          <p className={styles.importado}>
+            Veio da agenda do celular, só com nome e telefone. Complete o <b>endereço</b> e o <b>carro</b> (ou marque que não tem) e salve.
+          </p>
+        )}
         <label className={ui.campo}>
           <span className={ui.rotulo}>Nome</span>
           <input className={ui.input} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" autoComplete="off" />

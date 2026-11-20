@@ -1,0 +1,10 @@
+/* Aviso no topo do cadastro importado da agenda. */
+.importado {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--status-alerta-bg);
+  color: var(--status-alerta-fg);
+  font-size: 14px;
+  line-height: 1.4;
+}

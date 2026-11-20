@@ -36,6 +36,7 @@ create table if not exists public.clientes (
   endereco    text,
   veiculo     jsonb,            -- { tipo, modelo, cor, placa } ou null (sem veículo)
   removido    boolean not null default false,
+  importado   boolean not null default false,  -- veio da agenda do celular; falta completar o cadastro
   criado_em   timestamptz not null default now()
 );
 
