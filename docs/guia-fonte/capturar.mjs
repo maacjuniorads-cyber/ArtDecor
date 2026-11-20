@@ -23,6 +23,8 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 async function abrir(url) {
   await page.goto(url, { waitUntil: 'networkidle0' });
   await page.evaluate(() => document.fonts.ready);
+  // Espera a abertura (logo "Carregando…") sumir; no Início ela dura uns 3 segundos.
+  await page.waitForFunction(() => !document.querySelector('[data-rapida]'), { timeout: 10000 });
   await espera(500);
 }
 
