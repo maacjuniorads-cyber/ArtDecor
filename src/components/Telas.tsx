@@ -38,16 +38,22 @@ export function TelaErro({ mensagem, onTentar }: { mensagem: string; onTentar: (
 /** Quanto tempo a abertura fica na tela e quanto leva para sumir (ms). */
 const ABERTURA_MS = 2400;
 const SUMIR_MS = 600;
+/** Abrindo direto em outra tela (aviso, recarregar): só um instante. */
+const ABERTURA_RAPIDA_MS = 250;
+const SUMIR_RAPIDO_MS = 300;
 
 /**
  * Abertura do app: a tela do logo fica uns segundos ao abrir e some suavemente,
  * enquanto o app já carrega por baixo.
  */
 export function Abertura() {
-  const [fase, setFase] = useState<'fonte' | 'mostrando' | 'saindo' | 'fim'>('fonte');
+  // A abertura completa é só para quem abre o app no Início; nas outras telas, um instante.
+  const [completa] = useState(() => window.location.pathname === '/');
+  const [fase, setFase] = useState<'fonte' | 'mostrando' | 'saindo' | 'fim'>(completa ? 'fonte' : 'mostrando');
 
   // Espera a letra do logo (cursiva) carregar, para não aparecer numa letra comum e trocar.
   useEffect(() => {
+    if (!completa) return;
     let ativo = true;
     const pronto = () => ativo && setFase((f) => (f === 'fonte' ? 'mostrando' : f));
     const limite = window.setTimeout(pronto, 1200);
@@ -56,23 +62,25 @@ export function Abertura() {
       ativo = false;
       window.clearTimeout(limite);
     };
-  }, []);
+  }, [completa]);
 
   // Depois que o logo aparece: fica um tempo e some (não depende das fases seguintes).
   const logoVisivel = fase !== 'fonte';
   useEffect(() => {
     if (!logoVisivel) return;
-    const sair = window.setTimeout(() => setFase('saindo'), ABERTURA_MS);
-    const fim = window.setTimeout(() => setFase('fim'), ABERTURA_MS + SUMIR_MS);
+    const mostrar = completa ? ABERTURA_MS : ABERTURA_RAPIDA_MS;
+    const sumir = completa ? SUMIR_MS : SUMIR_RAPIDO_MS;
+    const sair = window.setTimeout(() => setFase('saindo'), mostrar);
+    const fim = window.setTimeout(() => setFase('fim'), mostrar + sumir);
     return () => {
       window.clearTimeout(sair);
       window.clearTimeout(fim);
     };
-  }, [logoVisivel]);
+  }, [logoVisivel, completa]);
 
   if (fase === 'fim') return null;
   return (
-    <div className={styles.abertura} data-saindo={fase === 'saindo'} aria-hidden={fase === 'saindo'}>
+    <div className={styles.abertura} data-saindo={fase === 'saindo'} data-rapida={!completa} aria-hidden={fase === 'saindo'}>
       {fase !== 'fonte' && <TelaCarregando />}
     </div>
   );
