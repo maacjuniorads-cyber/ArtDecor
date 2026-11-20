@@ -10,12 +10,16 @@ import styles from './ImportarClientes.module.css';
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
-const MOTIVO: Record<Candidato['situacao'], string> = {
-  novo: '',
-  cadastrado: 'Já é cliente',
-  'sem-telefone': 'Sem telefone do Brasil',
-  'sem-nome': 'Sem nome',
-};
+/** Etiqueta da linha: por que não dá pra marcar, ou o que vai faltar completar. */
+function etiqueta(c: Candidato): { texto: string; aviso: boolean } | null {
+  if (c.situacao === 'cadastrado')
+    return { texto: c.jaCadastradoComo && c.jaCadastradoComo !== c.nome ? `Já é cliente (${c.jaCadastradoComo})` : 'Já é cliente', aviso: false };
+  if (c.situacao === 'vazio') return { texto: 'Sem nome e sem telefone', aviso: false };
+  if (c.falta === 'telefone') return { texto: 'Sem telefone', aviso: true };
+  if (c.falta === 'nome') return { texto: 'Sem nome', aviso: true };
+  if (c.estrangeiro) return { texto: 'Número de fora', aviso: true };
+  return null;
+}
 
 /** Clientes → Importar contatos: escolhe na agenda (Android) ou num arquivo .vcf. */
 export function ImportarClientes() {
@@ -92,7 +96,7 @@ export function ImportarClientes() {
     if (escolhidos.length === 0) return setErro('Marque pelo menos um contato.');
     setSalvando(true);
     const ok = await importarClientes(
-      escolhidos.map((c) => ({ id: novoId(), nome: c.nome, telefone: c.telefone, veiculo: null, importado: true })),
+      escolhidos.map((c) => ({ id: novoId(), nome: c.nome || 'Sem nome', telefone: c.telefone, veiculo: null, importado: true })),
     );
     setSalvando(false);
     if (ok) navigate('/clientes', { replace: true, state: { importados: escolhidos.length } });
@@ -122,7 +126,7 @@ export function ImportarClientes() {
             Traga os clientes direto da agenda do celular, sem digitar um por um. Entram o <b>nome</b> e o <b>telefone</b>; endereço e
             carro você completa depois, quando fizer o pedido.
           </p>
-          <p className={styles.suave}>Quem já é cliente (mesmo telefone) é reconhecido e não entra de novo.</p>
+          <p className={styles.suave}>Basta ter o nome ou o telefone: o que faltar você completa depois. Quem já é cliente é reconhecido e não entra de novo.</p>
         </div>
         {botoes}
 
@@ -150,13 +154,14 @@ export function ImportarClientes() {
   }
 
   // ---------------------------------------------------------------- lista para marcar
-  const novos = lista.filter((c) => c.situacao === 'novo').length;
   const cadastrados = lista.filter((c) => c.situacao === 'cadastrado').length;
-  const invalidos = lista.length - novos - cadastrados;
+  const vazios = lista.filter((c) => c.situacao === 'vazio').length;
+  const incompletos = lista.filter((c) => c.situacao === 'novo' && c.falta).length;
   const resumo = [
     `${lista.length} ${lista.length === 1 ? 'contato' : 'contatos'}`,
     cadastrados ? `${cadastrados} já ${cadastrados === 1 ? 'é cliente' : 'são clientes'}` : '',
-    invalidos ? `${invalidos} sem telefone do Brasil ou sem nome` : '',
+    incompletos ? `${incompletos} sem nome ou sem telefone (dá pra importar e completar depois)` : '',
+    vazios ? `${vazios} ${vazios === 1 ? 'vazio' : 'vazios'}` : '',
     repetidos ? `${repetidos} ${repetidos === 1 ? 'repetido juntado' : 'repetidos juntados'}` : '',
   ]
     .filter(Boolean)
@@ -190,17 +195,20 @@ export function ImportarClientes() {
         <ul className={styles.lista}>
           {visiveis.map((c) => {
             const pode = c.situacao === 'novo';
+            const selo = etiqueta(c);
             return (
               <li key={c.chave}>
                 <label className={styles.contato} data-desligado={!pode}>
                   <input type="checkbox" checked={pode && marcados.has(c.chave)} disabled={!pode} onChange={() => alternar(c.chave)} />
                   <span className={styles.texto}>
-                    <span className={styles.nome}>{c.nome}</span>
-                    <span className={styles.telefone}>{c.telefone}</span>
+                    <span className={styles.nome} data-falta={!c.nome}>
+                      {c.nome || 'Sem nome'}
+                    </span>
+                    <span className={styles.telefone}>{c.telefone || 'Sem telefone'}</span>
                   </span>
-                  {!pode && (
-                    <span className={styles.selo} title={c.jaCadastradoComo}>
-                      {c.situacao === 'cadastrado' && c.jaCadastradoComo && c.jaCadastradoComo !== c.nome ? `Já é cliente (${c.jaCadastradoComo})` : MOTIVO[c.situacao]}
+                  {selo && (
+                    <span className={styles.selo} data-aviso={selo.aviso}>
+                      {selo.texto}
                     </span>
                   )}
                 </label>

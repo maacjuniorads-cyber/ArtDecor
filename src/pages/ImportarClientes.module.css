@@ -179,3 +179,14 @@
   margin: 10px 0 0;
   text-align: center;
 }
+
+/* Falta nome ou telefone: dá pra importar, só avisa (cor de alerta suave). */
+.selo[data-aviso='true'] {
+  background: var(--status-alerta-bg);
+  color: var(--status-alerta-fg);
+}
+
+.nome[data-falta='true'] {
+  font-style: italic;
+  color: var(--texto-suave);
+}

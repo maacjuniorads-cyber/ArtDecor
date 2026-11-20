@@ -4,7 +4,7 @@ import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
 import { ZonaExclusao } from '@/components/ZonaExclusao';
 import { novoId, useDados } from '@/data/store';
-import { lerValor, linkWhatsApp, valorParaCampo } from '@/lib/contato';
+import { lerValor, linkWhatsApp, temTelefone, valorParaCampo } from '@/lib/contato';
 import { deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
 import { conflitosDoItem, livresNoPeriodo } from '@/lib/estoque';
 import { lembreteDevolucao, lembreteRetirada } from '@/lib/mensagens';
@@ -127,11 +127,11 @@ export function PedidoDetalhe() {
             <Link to={cliente && !cliente.removido ? `/clientes/${cliente.id}` : '/clientes'} className={styles.clienteLink}>
               <span className={ui.nome}>{cliente?.nome ?? 'Cliente removido'}</span>
               <span className={ui.detalhe}>
-                {cliente?.telefone}
+                {cliente && !temTelefone(cliente.telefone) ? 'sem telefone' : cliente?.telefone}
                 {veiculo ? ` · ${veiculo.modelo} ${veiculo.cor} ${veiculo.placa}`.trimEnd() : cliente ? ' · sem veículo' : ''}
               </span>
             </Link>
-            {cliente && (
+            {cliente && temTelefone(cliente.whatsapp ?? cliente.telefone) && (
               <a href={linkWhatsApp(cliente.whatsapp ?? cliente.telefone)} target="_blank" rel="noreferrer" className={styles.whats} aria-label={`Chamar ${cliente.nome} no WhatsApp`}>
                 <Icon name="telefone" size={22} />
               </a>

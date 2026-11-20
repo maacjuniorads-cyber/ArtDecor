@@ -1,8 +1,17 @@
-/** Link do WhatsApp para um telefone brasileiro, com mensagem opcional. */
+/** Tem um número de telefone de verdade (cliente importado pode vir sem). */
+export function temTelefone(telefone?: string): boolean {
+  return (telefone ?? '').replace(/\D/g, '').length >= 8;
+}
+
+/**
+ * Link do WhatsApp para um telefone brasileiro, com mensagem opcional.
+ * Sem telefone: abre o WhatsApp com a mensagem pronta para escolher a conversa.
+ */
 export function linkWhatsApp(telefone: string, mensagem?: string): string {
-  let digitos = telefone.replace(/\D/g, '');
-  if (digitos.length <= 11) digitos = '55' + digitos;
   const texto = mensagem ? `?text=${encodeURIComponent(mensagem)}` : '';
+  let digitos = telefone.replace(/\D/g, '');
+  if (!temTelefone(telefone)) return `https://wa.me/${texto}`;
+  if (digitos.length <= 11) digitos = '55' + digitos;
   return `https://wa.me/${digitos}${texto}`;
 }
 

@@ -17,14 +17,22 @@ export interface ContatoBruto {
   telefones: string[];
 }
 
-export type Situacao = 'novo' | 'cadastrado' | 'sem-telefone' | 'sem-nome';
+/** novo: pode importar · cadastrado: já é cliente · vazio: sem nome e sem telefone (não dá pra importar). */
+export type Situacao = 'novo' | 'cadastrado' | 'vazio';
+
+/** O que falta no contato (pode importar mesmo assim e completar depois). */
+export type Falta = 'telefone' | 'nome' | null;
 
 export interface Candidato {
   chave: string;
+  /** Nome para salvar ("" se o contato não tem nome). */
   nome: string;
-  /** Telefone já arrumado: "(53) 99133-3075". */
+  /** Telefone para salvar: "(53) 99133-3075", o número de fora como veio, ou "" se não tem. */
   telefone: string;
   situacao: Situacao;
+  falta: Falta;
+  /** Número de fora do Brasil (fica como está na agenda). */
+  estrangeiro?: boolean;
   /** Nome do cliente que já tem esse telefone. */
   jaCadastradoComo?: string;
 }
@@ -155,17 +163,23 @@ export async function escolherDaAgenda(): Promise<ContatoBruto[]> {
 
 // ------------------------------------------------------------------ lista para marcar
 
+/** Nome sem acento e sem maiúsculas, para comparar. */
+const chaveNome = (nome: string) => nome.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
+
 /**
- * Monta a lista para marcar: arruma o telefone, junta contatos repetidos
- * e marca quem já é cliente (pelo telefone ou WhatsApp).
+ * Monta a lista para marcar. Basta ter nome OU telefone: o que faltar ela completa depois.
+ * Arruma o telefone, junta contatos repetidos e marca quem já é cliente
+ * (pelo telefone; para quem não tem telefone, pelo nome).
  */
 export function montarCandidatos(contatos: ContatoBruto[], clientes: Cliente[]): { candidatos: Candidato[]; repetidos: number } {
-  const jaTem = new Map<string, string>();
+  const porTelefone = new Map<string, string>();
+  const porNome = new Map<string, string>();
   for (const c of clientes) {
     if (c.removido) continue;
+    if (c.nome.trim()) porNome.set(chaveNome(c.nome), c.nome);
     for (const t of [c.telefone, c.whatsapp ?? '']) {
-      const d = t ? digitosTelefone(t) : null;
-      if (d) jaTem.set(d, c.nome);
+      const d = t ? digitosTelefone(t) ?? (t.replace(/\D/g, '').length >= 8 ? t.replace(/\D/g, '') : null) : null;
+      if (d) porTelefone.set(d, c.nome);
     }
   }
 
@@ -173,22 +187,32 @@ export function montarCandidatos(contatos: ContatoBruto[], clientes: Cliente[]):
   const candidatos: Candidato[] = [];
   let repetidos = 0;
   contatos.forEach((c, i) => {
-    const digitos = melhorTelefone(c.telefones);
     const nome = c.nome.replace(/\s+/g, ' ').trim();
-    if (digitos && vistos.has(digitos)) {
+    const digitos = melhorTelefone(c.telefones);
+    // Número de fora do Brasil: guarda como veio (o WhatsApp entende o número internacional).
+    const original = c.telefones.map((t) => t.trim()).find((t) => t.replace(/\D/g, '').length >= 8) ?? '';
+    const estrangeiro = !digitos && original.length > 0;
+    const telefone = digitos ? formatarTelefone(digitos) : original;
+    const chaveTel = digitos ?? (estrangeiro ? original.replace(/\D/g, '') : '');
+
+    const chave = chaveTel ? `tel:${chaveTel}` : nome ? `nome:${chaveNome(nome)}` : `vazio:${i}`;
+    if (vistos.has(chave)) {
       repetidos++;
       return;
     }
-    if (digitos) vistos.add(digitos);
-    const situacao: Situacao = !digitos ? 'sem-telefone' : !nome ? 'sem-nome' : jaTem.has(digitos) ? 'cadastrado' : 'novo';
+    vistos.add(chave);
+
+    const ja = chaveTel ? porTelefone.get(chaveTel) : nome ? porNome.get(chaveNome(nome)) : undefined;
     candidatos.push({
-      chave: digitos ?? `sem-${i}`,
-      nome: nome || 'Sem nome',
-      telefone: digitos ? formatarTelefone(digitos) : c.telefones[0] ?? 'sem telefone',
-      situacao,
-      jaCadastradoComo: digitos ? jaTem.get(digitos) : undefined,
+      chave,
+      nome,
+      telefone,
+      situacao: !nome && !telefone ? 'vazio' : ja ? 'cadastrado' : 'novo',
+      falta: !telefone ? 'telefone' : !nome ? 'nome' : null,
+      estrangeiro: estrangeiro || undefined,
+      jaCadastradoComo: ja,
     });
   });
-  candidatos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  candidatos.sort((a, b) => (a.nome || '￿').localeCompare(b.nome || '￿', 'pt-BR'));
   return { candidatos, repetidos };
 }

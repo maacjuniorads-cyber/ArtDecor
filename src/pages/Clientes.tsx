@@ -62,7 +62,7 @@ export function Clientes() {
                   </span>
                   <span className={ui.texto}>
                     <span className={ui.nome}>{c.nome}</span>
-                    <span className={ui.detalhe}>{c.telefone}</span>
+                    <span className={ui.detalhe}>{c.telefone || 'Sem telefone'}</span>
                     {c.importado && !v ? (
                       <span className={styles.completar}>Completar cadastro</span>
                     ) : (
