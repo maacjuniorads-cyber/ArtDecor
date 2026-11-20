@@ -3,6 +3,7 @@ import { AppLayout, TelaCheiaLayout } from '@/components/AppLayout';
 import { ComLogin } from '@/components/Autenticacao';
 import { Abertura } from '@/components/Telas';
 import { RolarParaTopo } from '@/components/RolarParaTopo';
+import { PuxarParaAtualizar } from '@/components/PuxarParaAtualizar';
 import { DadosProvider } from '@/data/store';
 import { TourProvider } from '@/components/tour/Tour';
 import { Inicio } from '@/pages/Inicio';
@@ -26,6 +27,7 @@ export function App() {
   return (
     <>
     <Abertura />
+    <PuxarParaAtualizar />
     <ComLogin>
       <DadosProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL}>

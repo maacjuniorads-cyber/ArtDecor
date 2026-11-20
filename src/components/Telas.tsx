@@ -48,7 +48,16 @@ const SUMIR_RAPIDO_MS = 300;
  */
 export function Abertura() {
   // A abertura completa é só para quem abre o app no Início; nas outras telas, um instante.
-  const [completa] = useState(() => window.location.pathname === '/');
+  const [completa] = useState(() => {
+    let atualizando = false;
+    try {
+      atualizando = sessionStorage.getItem('artdecor:atualizando') === '1';
+      sessionStorage.removeItem('artdecor:atualizando');
+    } catch {
+      // sem sessionStorage
+    }
+    return window.location.pathname === '/' && !atualizando;
+  });
   const [fase, setFase] = useState<'fonte' | 'mostrando' | 'saindo' | 'fim'>(completa ? 'fonte' : 'mostrando');
 
   // Espera a letra do logo (cursiva) carregar, para não aparecer numa letra comum e trocar.

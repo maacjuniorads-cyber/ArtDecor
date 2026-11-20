@@ -4,6 +4,7 @@
  * O celular se inscreve aqui; a tarefa agendada no GitHub (scripts/avisos.mjs)
  * lê as inscrições e manda os avisos nos horários combinados.
  */
+import { appInstalado, ehIphone } from './aparelho';
 import { supabase } from './supabase';
 
 /** Chave PÚBLICA dos avisos (a privada fica só nos segredos do GitHub). */
@@ -22,14 +23,11 @@ export const TIPOS_PADRAO: TiposAviso = { manha: true, vespera: true, atraso: tr
 
 export type Suporte = 'ok' | 'instalar-iphone' | 'sem-suporte';
 
-const ehIphone = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
-const instalado = () =>
-  window.matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
 
 export function suporteAvisos(): Suporte {
   const temApi = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   // No iPhone os avisos só funcionam com o app instalado na tela de início.
-  if (ehIphone() && !instalado()) return 'instalar-iphone';
+  if (ehIphone() && !appInstalado()) return 'instalar-iphone';
   return temApi ? 'ok' : 'sem-suporte';
 }
 
