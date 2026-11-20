@@ -5,6 +5,7 @@
  */
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import * as exemplo from './exemplo';
+import { hojeISO } from '@/lib/formato';
 import type { Cliente, Item, Pedido, StatusPedido, Tema } from '@/types';
 
 interface Dados {
@@ -18,7 +19,9 @@ interface Api extends Dados {
   salvarItem: (item: Item) => void;
   removerItem: (itemId: string) => void;
   salvarTema: (tema: Tema) => void;
+  removerTema: (temaId: string) => void;
   salvarCliente: (cliente: Cliente) => void;
+  removerCliente: (clienteId: string) => void;
   salvarPedido: (pedido: Pedido) => void;
   mudarStatus: (pedidoId: string, status: StatusPedido) => void;
   proximoNumeroPedido: () => number;
@@ -36,10 +39,26 @@ function dadosDeExemplo(): Dados {
   };
 }
 
+/** Atualiza dados salvos por versões antigas do app. */
+function migrar(dados: Dados): Dados {
+  return {
+    ...dados,
+    pedidos: dados.pedidos.map((p) => {
+      if (Array.isArray(p.pagamentos)) return p;
+      // Versão antiga: só tinha o campo `sinal`.
+      const { sinal, ...resto } = p as Pedido & { sinal?: number };
+      return {
+        ...resto,
+        pagamentos: sinal && sinal > 0 ? [{ id: novoId(), valor: sinal, data: hojeISO(), forma: 'Pix' as const }] : [],
+      };
+    }),
+  };
+}
+
 function carregar(): Dados {
   try {
     const salvo = localStorage.getItem(CHAVE);
-    if (salvo) return JSON.parse(salvo) as Dados;
+    if (salvo) return migrar(JSON.parse(salvo) as Dados);
   } catch {
     // localStorage indisponível ou corrompido: segue com o exemplo
   }
@@ -50,6 +69,10 @@ function upsert<T extends { id: string }>(lista: T[], registro: T): T[] {
   return lista.some((r) => r.id === registro.id)
     ? lista.map((r) => (r.id === registro.id ? registro : r))
     : [...lista, registro];
+}
+
+function marcarRemovido<T extends { id: string; removido?: boolean }>(lista: T[], id: string): T[] {
+  return lista.map((r) => (r.id === id ? { ...r, removido: true } : r));
 }
 
 /** Id único. Não usa crypto.randomUUID porque ele não existe em http pela rede local. */
@@ -74,10 +97,17 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     () => ({
       ...dados,
       salvarItem: (item) => setDados((d) => ({ ...d, itens: upsert(d.itens, item) })),
-      removerItem: (itemId) =>
-        setDados((d) => ({ ...d, itens: d.itens.map((i) => (i.id === itemId ? { ...i, removido: true } : i)) })),
+      removerItem: (itemId) => setDados((d) => ({ ...d, itens: marcarRemovido(d.itens, itemId) })),
       salvarTema: (tema) => setDados((d) => ({ ...d, temas: upsert(d.temas, tema) })),
+      removerTema: (temaId) =>
+        setDados((d) => ({
+          ...d,
+          temas: marcarRemovido(d.temas, temaId),
+          // As peças continuam no estoque, só deixam de pertencer ao tema.
+          itens: d.itens.map((i) => (i.temaId === temaId ? { ...i, temaId: undefined } : i)),
+        })),
       salvarCliente: (cliente) => setDados((d) => ({ ...d, clientes: upsert(d.clientes, cliente) })),
+      removerCliente: (clienteId) => setDados((d) => ({ ...d, clientes: marcarRemovido(d.clientes, clienteId) })),
       salvarPedido: (pedido) => setDados((d) => ({ ...d, pedidos: upsert(d.pedidos, pedido) })),
       mudarStatus: (pedidoId, status) =>
         setDados((d) => ({

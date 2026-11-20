@@ -1,19 +1,20 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Badge, rotuloStatus } from '@/components/Badge';
+import { BadgeStatus } from '@/components/Badge';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
+import { motivoBloqueio, ZonaExclusao } from '@/components/ZonaExclusao';
 import { novoId, useDados } from '@/data/store';
 import { deISO, formatarMoeda } from '@/lib/formato';
-import { totalPedido } from '@/lib/pedidos';
+import { emAndamento, numeroPedido, totalPedido } from '@/lib/pedidos';
 import { TIPOS_VEICULO, type TipoVeiculo } from '@/types';
 import ui from '@/styles/ui.module.css';
 
 export function ClienteForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { clientes, pedidos, salvarCliente } = useDados();
-  const existente = clientes.find((c) => c.id === id);
+  const { clientes, pedidos, salvarCliente, removerCliente } = useDados();
+  const existente = clientes.find((c) => c.id === id && !c.removido);
   const v = existente?.veiculo;
 
   const [nome, setNome] = useState(existente?.nome ?? '');
@@ -143,11 +144,11 @@ export function ClienteForm() {
                     <Link to={`/pedidos/${p.id}`} className={ui.linhaCartao}>
                       <span className={ui.texto}>
                         <span className={ui.nome}>
-                          #{String(p.numero).padStart(4, '0')} · {deISO(p.retirada).toLocaleDateString('pt-BR')}
+                          {numeroPedido(p)} · {deISO(p.retirada).toLocaleDateString('pt-BR')}
                         </span>
                         <span className={ui.detalhe}>{formatarMoeda(totalPedido(p))}</span>
                       </span>
-                      <Badge tom={p.status === 'rua' ? 'rua' : p.status === 'devolvido' ? 'devolvido' : 'reservado'}>{rotuloStatus[p.status]}</Badge>
+                      <BadgeStatus status={p.status} />
                     </Link>
                   </li>
                 ))}
@@ -160,6 +161,18 @@ export function ClienteForm() {
           <p className={ui.erro} role="alert">
             {erro}
           </p>
+        )}
+
+        {existente && (
+          <ZonaExclusao
+            rotulo="Excluir cliente"
+            confirmacao={`Excluir ${existente.nome}? O cadastro some da lista, mas continua aparecendo nos pedidos antigos.`}
+            bloqueio={motivoBloqueio(pedidosDoCliente.filter(emAndamento).map(numeroPedido), 'este cliente')}
+            onConfirmar={() => {
+              removerCliente(existente.id);
+              navigate('/clientes', { replace: true });
+            }}
+          />
         )}
       </form>
 

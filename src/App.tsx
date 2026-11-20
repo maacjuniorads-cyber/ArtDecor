@@ -7,7 +7,7 @@ import { ItemForm } from '@/pages/ItemForm';
 import { TemaForm } from '@/pages/TemaForm';
 import { Pedidos } from '@/pages/Pedidos';
 import { PedidoDetalhe } from '@/pages/PedidoDetalhe';
-import { NovoPedido } from '@/pages/NovoPedido';
+import { PedidoForm } from '@/pages/PedidoForm';
 import { Nota } from '@/pages/Nota';
 import { Clientes } from '@/pages/Clientes';
 import { ClienteForm } from '@/pages/ClienteForm';
@@ -30,8 +30,9 @@ export function App() {
             <Route path="estoque/:id" element={<ItemForm />} />
             <Route path="temas/novo" element={<TemaForm />} />
             <Route path="temas/:id" element={<TemaForm />} />
-            <Route path="pedidos/novo" element={<NovoPedido />} />
+            <Route path="pedidos/novo" element={<PedidoForm />} />
             <Route path="pedidos/:id" element={<PedidoDetalhe />} />
+            <Route path="pedidos/:id/editar" element={<PedidoForm />} />
             <Route path="pedidos/:id/nota" element={<Nota />} />
             <Route path="clientes/novo" element={<ClienteForm />} />
             <Route path="clientes/:id" element={<ClienteForm />} />

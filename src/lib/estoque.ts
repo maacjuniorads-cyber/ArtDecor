@@ -41,7 +41,7 @@ export function itensDoTema(tema: Tema, itens: Item[]): Item[] {
 
 /** Pedidos ainda em andamento (reservado ou na rua) que usam o item. */
 export function pedidosAtivosComItem(itemId: string, pedidos: Pedido[]): Pedido[] {
-  return pedidos.filter((p) => p.status !== 'devolvido' && p.itens.some((i) => i.itemId === itemId));
+  return pedidos.filter((p) => (p.status === 'reservado' || p.status === 'rua') && p.itens.some((i) => i.itemId === itemId));
 }
 
 export type SituacaoTema = { tipo: 'livre' } | { tipo: 'rua'; pedido: Pedido } | { tipo: 'reservado'; pedido: Pedido };

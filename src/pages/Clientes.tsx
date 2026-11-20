@@ -21,7 +21,8 @@ export function Clientes() {
   const [busca, setBusca] = useState('');
   const termo = normalizar(busca.trim());
 
-  const visiveis = clientes
+  const ativos = clientes.filter((c) => !c.removido);
+  const visiveis = ativos
     .filter((c) => !termo || textoBusca(c).includes(termo))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
@@ -34,7 +35,7 @@ export function Clientes() {
       </label>
 
       {visiveis.length === 0 ? (
-        <p className={ui.vazio}>{clientes.length === 0 ? 'Nenhum cliente cadastrado ainda.' : 'Nenhum cliente encontrado.'}</p>
+        <p className={ui.vazio}>{ativos.length === 0 ? 'Nenhum cliente cadastrado ainda.' : 'Nenhum cliente encontrado.'}</p>
       ) : (
         <ul className={ui.lista}>
           {visiveis.map((c) => {

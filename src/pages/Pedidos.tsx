@@ -3,7 +3,7 @@ import { Badge } from '@/components/Badge';
 import { Icon } from '@/components/Icon';
 import { useDados } from '@/data/store';
 import { deISO, formatarMoeda, rotuloDia } from '@/lib/formato';
-import { faltaReceber, quantidadeDeItens, totalPedido } from '@/lib/pedidos';
+import { faltaReceber, quantidadeDeItens, totalPago, totalPedido } from '@/lib/pedidos';
 import type { Pedido, StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './Pedidos.module.css';
@@ -20,22 +20,27 @@ function dataComDia(iso: string) {
 }
 
 function SituacaoPagamento({ pedido }: { pedido: Pedido }) {
+  if (pedido.status === 'cancelado') return <Badge tom="cancelado">Cancelado</Badge>;
   const falta = faltaReceber(pedido);
   if (falta === 0) return <Badge tom="devolvido">Pago</Badge>;
-  if (pedido.sinal === 0) return <Badge tom="alerta">Sem sinal</Badge>;
+  if (totalPago(pedido) === 0) return <Badge tom="alerta">Sem sinal</Badge>;
   return <Badge tom="reservado">Falta {formatarMoeda(falta)}</Badge>;
 }
 
 export function Pedidos() {
   const { pedidos, clientes } = useDados();
   const [params, setParams] = useSearchParams();
-  const status = (abas.find((a) => a.status === params.get('status'))?.status ?? 'reservado') as StatusPedido;
+  const pedido = params.get('status');
+  const status: StatusPedido = pedido === 'cancelado' ? 'cancelado' : (abas.find((a) => a.status === pedido)?.status ?? 'reservado');
+  const qtdCancelados = pedidos.filter((p) => p.status === 'cancelado').length;
 
   const daAba = pedidos
     .filter((p) => p.status === status)
-    .sort((a, b) =>
-      status === 'devolvido' ? b.devolucao.localeCompare(a.devolucao) : (status === 'rua' ? a.devolucao : a.retirada).localeCompare(status === 'rua' ? b.devolucao : b.retirada),
-    );
+    .sort((a, b) => {
+      if (status === 'rua') return a.devolucao.localeCompare(b.devolucao);
+      if (status === 'reservado') return a.retirada.localeCompare(b.retirada);
+      return b.retirada.localeCompare(a.retirada); // devolvidos e cancelados: mais recentes primeiro
+    });
 
   return (
     <>
@@ -47,6 +52,8 @@ export function Pedidos() {
           </button>
         ))}
       </div>
+
+      {status === 'cancelado' && <h2 className={`${ui.secao} ${styles.tituloCancelados}`}>Pedidos cancelados</h2>}
 
       {daAba.length === 0 ? (
         <p className={ui.vazio}>Nenhum pedido aqui.</p>
@@ -80,6 +87,12 @@ export function Pedidos() {
             );
           })}
         </ul>
+      )}
+
+      {status !== 'cancelado' && qtdCancelados > 0 && (
+        <button type="button" className={`${ui.botaoTexto} ${styles.verCancelados}`} onClick={() => setParams({ status: 'cancelado' }, { replace: true })}>
+          Ver pedidos cancelados ({qtdCancelados})
+        </button>
       )}
 
       <Link to="/pedidos/novo" className={ui.fab} aria-label="Novo pedido">

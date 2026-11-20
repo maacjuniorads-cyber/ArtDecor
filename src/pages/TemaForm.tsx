@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Thumb } from '@/components/Thumb';
+import { ZonaExclusao } from '@/components/ZonaExclusao';
 import { novoId, useDados } from '@/data/store';
 import { itensDoTema } from '@/lib/estoque';
 import ui from '@/styles/ui.module.css';
@@ -12,8 +13,8 @@ const CORES = ['#3D6A96', '#8A6FB0', '#B07A4F', '#2E2638', '#5E8C4A', '#C9A23A',
 export function TemaForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { temas, itens, salvarTema } = useDados();
-  const existente = temas.find((t) => t.id === id);
+  const { temas, itens, salvarTema, removerTema } = useDados();
+  const existente = temas.find((t) => t.id === id && !t.removido);
   const [nome, setNome] = useState(existente?.nome ?? '');
   const [cor, setCor] = useState(existente?.cor ?? CORES[0]);
   const [erro, setErro] = useState('');
@@ -83,6 +84,17 @@ export function TemaForm() {
           <p className={ui.erro} role="alert">
             {erro}
           </p>
+        )}
+
+        {existente && (
+          <ZonaExclusao
+            rotulo="Excluir tema"
+            confirmacao={`Excluir o tema “${existente.nome}”? As peças continuam no estoque, só deixam de fazer parte deste kit.`}
+            onConfirmar={() => {
+              removerTema(existente.id);
+              navigate('/estoque?aba=temas', { replace: true });
+            }}
+          />
         )}
       </form>
       <div className={ui.barraAcao}>

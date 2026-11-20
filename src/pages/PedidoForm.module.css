@@ -93,6 +93,17 @@
   background: transparent;
 }
 
+.forma {
+  width: 140px;
+  height: 44px;
+}
+
+.nota {
+  margin: 0;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
 .falta {
   padding-top: 10px;
   border-top: 1px solid var(--divisor);

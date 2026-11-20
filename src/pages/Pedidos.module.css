@@ -2,6 +2,14 @@
   margin: 14px 0 12px;
 }
 
+.tituloCancelados {
+  margin-bottom: 10px;
+}
+
+.verCancelados {
+  margin-top: 12px;
+}
+
 .pedido {
   flex-direction: column;
   align-items: stretch;

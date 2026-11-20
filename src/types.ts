@@ -20,6 +20,8 @@ export interface Tema {
   id: string;
   nome: string;
   cor: string;
+  /** Excluído. Fica guardado só para o histórico dos pedidos antigos. */
+  removido?: boolean;
 }
 
 /** "varios" = tem quantidade (cilindros, toalhas); "unica" = peça única (painel, cômoda). */
@@ -58,9 +60,22 @@ export interface Cliente {
   whatsapp?: string;
   endereco?: string;
   veiculo: Veiculo | null;
+  /** Excluído. Fica guardado só para o histórico dos pedidos antigos. */
+  removido?: boolean;
 }
 
-export type StatusPedido = 'reservado' | 'rua' | 'devolvido';
+export type StatusPedido = 'reservado' | 'rua' | 'devolvido' | 'cancelado';
+
+export const FORMAS_PAGAMENTO = ['Pix', 'Dinheiro', 'Cartão'] as const;
+
+export type FormaPagamento = (typeof FORMAS_PAGAMENTO)[number];
+
+export interface Pagamento {
+  id: string;
+  valor: number;
+  data: DataISO;
+  forma: FormaPagamento;
+}
 
 export interface ItemPedido {
   itemId: string;
@@ -79,5 +94,6 @@ export interface Pedido {
   retirada: DataISO;
   devolucao: DataISO;
   status: StatusPedido;
-  sinal: number;
+  /** Sinal e demais pagamentos recebidos. */
+  pagamentos: Pagamento[];
 }

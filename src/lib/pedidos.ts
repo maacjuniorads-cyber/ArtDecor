@@ -4,12 +4,26 @@ export function totalPedido(pedido: Pedido): number {
   return pedido.itens.reduce((soma, i) => soma + i.quantidade * i.valorUnitario, 0);
 }
 
+export function totalPago(pedido: Pedido): number {
+  return pedido.pagamentos.reduce((soma, p) => soma + p.valor, 0);
+}
+
 export function faltaReceber(pedido: Pedido): number {
-  return Math.max(0, totalPedido(pedido) - pedido.sinal);
+  if (pedido.status === 'cancelado') return 0;
+  return Math.max(0, totalPedido(pedido) - totalPago(pedido));
 }
 
 export function quantidadeDeItens(pedido: Pedido): number {
   return pedido.itens.reduce((soma, i) => soma + i.quantidade, 0);
+}
+
+export function numeroPedido(pedido: Pedido): string {
+  return `#${String(pedido.numero).padStart(4, '0')}`;
+}
+
+/** Reservado ou na rua: o pedido ainda prende itens e cliente. */
+export function emAndamento(pedido: Pedido): boolean {
+  return pedido.status === 'reservado' || pedido.status === 'rua';
 }
 
 export type TipoCompromisso = 'sai' | 'volta' | 'atrasado';

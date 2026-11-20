@@ -5,7 +5,7 @@ import { useDados } from '@/data/store';
 import { linkWhatsApp } from '@/lib/contato';
 import { empresa } from '@/lib/empresa';
 import { deISO, formatarMoeda, hojeISO } from '@/lib/formato';
-import { faltaReceber, totalPedido } from '@/lib/pedidos';
+import { faltaReceber, totalPago, totalPedido } from '@/lib/pedidos';
 import ui from '@/styles/ui.module.css';
 import styles from './Nota.module.css';
 
@@ -32,6 +32,8 @@ export function Nota() {
   const numero = String(pedido.numero).padStart(4, '0');
   const total = totalPedido(pedido);
   const falta = faltaReceber(pedido);
+  const pago = totalPago(pedido);
+  const formasUsadas = [...new Set(pedido.pagamentos.map((p) => p.forma))].join(', ');
   const nomeItem = (itemId: string) => itens.find((i) => i.id === itemId)?.nome ?? 'Item';
   const nomesTemas = pedido.temaIds.map((t) => temas.find((x) => x.id === t)?.nome).filter(Boolean);
   const evento = [pedido.evento, nomesTemas.length ? `tema ${nomesTemas.join(', ')}` : ''].filter(Boolean).join(' · ');
@@ -45,9 +47,10 @@ export function Nota() {
     `Devolução: ${dataCurta(pedido.devolucao)}`,
     '',
     `Total: ${formatarMoeda(total)}`,
-    pedido.sinal > 0 ? `Sinal pago: ${formatarMoeda(pedido.sinal)}` : '',
+    pago > 0 ? `Já pago: ${formatarMoeda(pago)}` : '',
     `A pagar: ${formatarMoeda(falta)}`,
     '',
+    `Pagamento em Pix, dinheiro ou cartão.`,
     `Pix: ${empresa.pixChave} (${empresa.pixTitular})`,
   ]
     .filter((linha, i, arr) => linha !== '' || arr[i - 1] !== '')
@@ -115,22 +118,23 @@ export function Nota() {
             <span>Total</span>
             <b>{formatarMoeda(total)}</b>
           </div>
-          {pedido.sinal > 0 && (
+          {pago > 0 && (
             <div className={styles.pago}>
-              <span>Sinal pago</span>
-              <b>− {formatarMoeda(pedido.sinal)}</b>
+              <span>Já pago{formasUsadas ? ` (${formasUsadas})` : ''}</span>
+              <b>− {formatarMoeda(pago)}</b>
             </div>
           )}
           <div className={styles.aPagar}>
-            <b>A pagar na retirada</b>
+            <b>{falta === 0 ? 'Pedido pago' : 'A pagar'}</b>
             <b>{formatarMoeda(falta)}</b>
           </div>
         </div>
 
         <div className={styles.pix}>
-          <div className={styles.rotuloPix}>Pagamento via Pix</div>
+          <div className={styles.rotuloPix}>Formas de pagamento</div>
+          <div className={styles.pequeno}>Pix, dinheiro ou cartão</div>
           <div className={styles.pequeno}>
-            <b>{empresa.pixChave}</b> · {empresa.pixTitular}
+            Pix: <b>{empresa.pixChave}</b> · {empresa.pixTitular}
           </div>
         </div>
 

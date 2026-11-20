@@ -3,10 +3,13 @@
  * As datas são relativas a hoje para a tela sempre ter algo para mostrar.
  */
 import { hojeISO, somarDias } from '@/lib/formato';
-import type { Cliente, Item, Pedido, Tema } from '@/types';
+import type { Cliente, Item, Pagamento, Pedido, Tema } from '@/types';
 
 const hoje = hojeISO();
 const d = (dias: number) => somarDias(hoje, dias);
+let seq = 0;
+/** Um pagamento (sinal) via Pix feito há uma semana, ou nenhum se o valor for 0. */
+const pg = (valor: number): Pagamento[] => (valor > 0 ? [{ id: `pg${++seq}`, valor, data: d(-7), forma: 'Pix' }] : []);
 
 export const temas: Tema[] = [
   { id: 'herois', nome: 'Heróis', cor: '#3D6A96' },
@@ -54,7 +57,7 @@ export const pedidos: Pedido[] = [
       { itemId: 'carrinho-roda', quantidade: 1, valorUnitario: 90 },
       { itemId: 'vaso-cristal', quantidade: 2, valorUnitario: 20 },
     ],
-    retirada: d(-3), devolucao: d(0), status: 'rua', sinal: 226,
+    retirada: d(-3), devolucao: d(0), status: 'rua', pagamentos: pg(226),
   },
   {
     id: 'p140', numero: 140, clienteId: 'c5', evento: 'Aniversário 70 anos', temaIds: [],
@@ -62,7 +65,7 @@ export const pedidos: Pedido[] = [
       { itemId: 'mesa-ferro', quantidade: 3, valorUnitario: 25 },
       { itemId: 'toalha-vermelha', quantidade: 10, valorUnitario: 8 },
     ],
-    retirada: d(-2), devolucao: d(1), status: 'rua', sinal: 100,
+    retirada: d(-2), devolucao: d(1), status: 'rua', pagamentos: pg(100),
   },
   {
     id: 'p142', numero: 142, clienteId: 'c1', evento: 'Aniversário', temaIds: ['capivara'],
@@ -73,7 +76,7 @@ export const pedidos: Pedido[] = [
       { itemId: 'boleira', quantidade: 2, valorUnitario: 8 },
       { itemId: 'carrinho-roda', quantidade: 1, valorUnitario: 90 },
     ],
-    retirada: d(2), devolucao: d(4), status: 'reservado', sinal: 150,
+    retirada: d(2), devolucao: d(4), status: 'reservado', pagamentos: pg(150),
   },
   {
     id: 'p143', numero: 143, clienteId: 'c4', evento: 'Formatura', temaIds: ['formatura'],
@@ -81,11 +84,11 @@ export const pedidos: Pedido[] = [
       { itemId: 'neon-formei', quantidade: 1, valorUnitario: 70 },
       { itemId: 'muro-ingles', quantidade: 2, valorUnitario: 80 },
     ],
-    retirada: d(3), devolucao: d(5), status: 'reservado', sinal: 0,
+    retirada: d(3), devolucao: d(5), status: 'reservado', pagamentos: pg(0),
   },
   {
     id: 'p131', numero: 131, clienteId: 'c3', evento: 'Chá de bebê', temaIds: [],
     itens: [{ itemId: 'cilindro-colorido', quantidade: 3, valorUnitario: 15 }],
-    retirada: d(-12), devolucao: d(-10), status: 'devolvido', sinal: 45,
+    retirada: d(-12), devolucao: d(-10), status: 'devolvido', pagamentos: pg(45),
   },
 ];

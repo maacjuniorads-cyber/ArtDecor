@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icon } from '@/components/Icon';
-import { useDados } from '@/data/store';
-import { linkWhatsApp } from '@/lib/contato';
-import { deISO, formatarMoeda, rotuloDia } from '@/lib/formato';
-import { faltaReceber, totalPedido } from '@/lib/pedidos';
-import type { StatusPedido } from '@/types';
+import { ZonaExclusao } from '@/components/ZonaExclusao';
+import { novoId, useDados } from '@/data/store';
+import { lerValor, linkWhatsApp, valorParaCampo } from '@/lib/contato';
+import { deISO, formatarMoeda, hojeISO, rotuloDia } from '@/lib/formato';
+import { faltaReceber, numeroPedido, totalPago, totalPedido } from '@/lib/pedidos';
+import { FORMAS_PAGAMENTO, type FormaPagamento, type Pedido, type StatusPedido } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './PedidoDetalhe.module.css';
 
@@ -15,16 +17,20 @@ const etapas: { status: StatusPedido; rotulo: string }[] = [
   { status: 'devolvido', rotulo: 'Devolvido' },
 ];
 
-const proximaAcao: Record<StatusPedido, { para: StatusPedido; texto: string } | null> = {
+type Acao = { para: StatusPedido; texto: string } | null;
+
+const proximaAcao: Record<StatusPedido, Acao> = {
   reservado: { para: 'rua', texto: 'Marcar como retirado' },
   rua: { para: 'devolvido', texto: 'Marcar como devolvido' },
   devolvido: null,
+  cancelado: { para: 'reservado', texto: 'Reativar pedido' },
 };
 
-const voltarAcao: Record<StatusPedido, { para: StatusPedido; texto: string } | null> = {
+const voltarAcao: Record<StatusPedido, Acao> = {
   reservado: null,
   rua: { para: 'reservado', texto: 'Voltar para Reservado' },
   devolvido: { para: 'rua', texto: 'Voltar para Na rua' },
+  cancelado: null,
 };
 
 function dataComDia(iso: string) {
@@ -33,7 +39,7 @@ function dataComDia(iso: string) {
 
 export function PedidoDetalhe() {
   const { id } = useParams();
-  const { pedidos, clientes, itens, temas, mudarStatus } = useDados();
+  const { pedidos, clientes, itens, temas, mudarStatus, salvarPedido } = useDados();
   const pedido = pedidos.find((p) => p.id === id);
 
   if (!pedido) {
@@ -46,35 +52,55 @@ export function PedidoDetalhe() {
   }
 
   const cliente = clientes.find((c) => c.id === pedido.clienteId);
+  const cancelado = pedido.status === 'cancelado';
   const etapaAtual = etapas.findIndex((e) => e.status === pedido.status);
   const acao = proximaAcao[pedido.status];
   const voltar = voltarAcao[pedido.status];
   const nomesTemas = pedido.temaIds.map((t) => temas.find((x) => x.id === t)?.nome).filter(Boolean);
   const veiculo = cliente?.veiculo;
+  const podeEditar = pedido.status === 'reservado' || pedido.status === 'rua';
 
   return (
     <>
-      <Cabecalho titulo={`Pedido #${String(pedido.numero).padStart(4, '0')}`} voltarPara="/pedidos" />
+      <Cabecalho
+        titulo={`Pedido ${numeroPedido(pedido)}`}
+        voltarPara="/pedidos"
+        extra={
+          podeEditar && (
+            <Link to={`/pedidos/${pedido.id}/editar`} className={ui.botaoTexto}>
+              Editar
+            </Link>
+          )
+        }
+      />
 
       <div className={styles.conteudo}>
-        <ol className={`${ui.cartao} ${styles.etapas}`} aria-label="Andamento do pedido">
-          {etapas.map((e, i) => (
-            <li key={e.status} className={styles.etapa} data-feita={i <= etapaAtual} data-tom={pedido.status} aria-current={i === etapaAtual ? 'step' : undefined}>
-              <span className={styles.barraEtapa} />
-              {e.rotulo}
-            </li>
-          ))}
-        </ol>
-        {voltar && (
-          <button type="button" className={`${ui.botaoTexto} ${styles.voltarStatus}`} onClick={() => mudarStatus(pedido.id, voltar.para)}>
-            ← {voltar.texto}
-          </button>
+        {cancelado ? (
+          <p className={styles.cancelado} role="status">
+            Pedido cancelado. Os itens não estão reservados.
+          </p>
+        ) : (
+          <>
+            <ol className={`${ui.cartao} ${styles.etapas}`} aria-label="Andamento do pedido">
+              {etapas.map((e, i) => (
+                <li key={e.status} className={styles.etapa} data-feita={i <= etapaAtual} data-tom={pedido.status} aria-current={i === etapaAtual ? 'step' : undefined}>
+                  <span className={styles.barraEtapa} />
+                  {e.rotulo}
+                </li>
+              ))}
+            </ol>
+            {voltar && (
+              <button type="button" className={`${ui.botaoTexto} ${styles.voltarStatus}`} onClick={() => mudarStatus(pedido.id, voltar.para)}>
+                ← {voltar.texto}
+              </button>
+            )}
+          </>
         )}
 
         <section>
           <h2 className={ui.secao}>Cliente</h2>
           <div className={`${ui.cartao} ${styles.cliente}`}>
-            <Link to={cliente ? `/clientes/${cliente.id}` : '/clientes'} className={styles.clienteLink}>
+            <Link to={cliente && !cliente.removido ? `/clientes/${cliente.id}` : '/clientes'} className={styles.clienteLink}>
               <span className={ui.nome}>{cliente?.nome ?? 'Cliente removido'}</span>
               <span className={ui.detalhe}>
                 {cliente?.telefone}
@@ -120,20 +146,16 @@ export function PedidoDetalhe() {
           </div>
         </section>
 
-        <section className={`${ui.cartao} ${styles.totais}`}>
-          <div>
-            <span className={ui.detalhe}>Total</span>
-            <b className={styles.total}>{formatarMoeda(totalPedido(pedido))}</b>
-          </div>
-          <div>
-            <span className={ui.detalhe}>Sinal pago</span>
-            <span className={styles.pago}>{formatarMoeda(pedido.sinal)}</span>
-          </div>
-          <div className={styles.falta}>
-            <b>Falta receber</b>
-            <b className={styles.valorFalta}>{formatarMoeda(faltaReceber(pedido))}</b>
-          </div>
-        </section>
+        <Pagamentos pedido={pedido} onSalvar={salvarPedido} />
+
+        {pedido.status === 'reservado' && (
+          <ZonaExclusao
+            rotulo="Cancelar pedido"
+            confirmacao="Cancelar este pedido? Os itens voltam a ficar livres. Dá pra reativar depois, se precisar."
+            textoConfirmar="Sim, cancelar"
+            onConfirmar={() => mudarStatus(pedido.id, 'cancelado')}
+          />
+        )}
       </div>
 
       <div className={ui.barraAcao}>
@@ -151,5 +173,105 @@ export function PedidoDetalhe() {
         )}
       </div>
     </>
+  );
+}
+
+function Pagamentos({ pedido, onSalvar }: { pedido: Pedido; onSalvar: (p: Pedido) => void }) {
+  const falta = faltaReceber(pedido);
+  const [aberto, setAberto] = useState(false);
+  const [valor, setValor] = useState('');
+  const [forma, setForma] = useState<FormaPagamento>('Pix');
+  const [erro, setErro] = useState('');
+
+  function abrir() {
+    setValor(valorParaCampo(falta));
+    setForma('Pix');
+    setErro('');
+    setAberto(true);
+  }
+
+  function registrar() {
+    const n = lerValor(valor);
+    if (n === null || n <= 0) return setErro('Informe um valor válido (ex.: 85,00).');
+    onSalvar({ ...pedido, pagamentos: [...pedido.pagamentos, { id: novoId(), valor: n, data: hojeISO(), forma }] });
+    setAberto(false);
+  }
+
+  function remover(pagamentoId: string) {
+    onSalvar({ ...pedido, pagamentos: pedido.pagamentos.filter((p) => p.id !== pagamentoId) });
+  }
+
+  return (
+    <section>
+      <h2 className={ui.secao}>Pagamento</h2>
+      <div className={`${ui.cartao} ${styles.totais}`}>
+        <div>
+          <span className={ui.detalhe}>Total do pedido</span>
+          <b className={styles.total}>{formatarMoeda(totalPedido(pedido))}</b>
+        </div>
+
+        {pedido.pagamentos.map((p, i) => (
+          <div key={p.id} className={styles.pagamento}>
+            <span className={ui.detalhe}>
+              {i === 0 ? 'Sinal' : 'Pagamento'} · {p.forma} · {deISO(p.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+            </span>
+            <span className={styles.pagamentoValor}>
+              <span className={styles.pago}>{formatarMoeda(p.valor)}</span>
+              <button type="button" className={styles.removerPagamento} onClick={() => remover(p.id)} aria-label={`Remover pagamento de ${formatarMoeda(p.valor)}`}>
+                ×
+              </button>
+            </span>
+          </div>
+        ))}
+        {pedido.pagamentos.length === 0 && <span className={ui.detalhe}>Nenhum pagamento ainda.</span>}
+
+        <div className={styles.falta}>
+          <b>{pedido.status === 'cancelado' ? 'Pago' : 'Falta receber'}</b>
+          <b className={styles.valorFalta}>{formatarMoeda(pedido.status === 'cancelado' ? totalPago(pedido) : falta)}</b>
+        </div>
+
+        {pedido.status !== 'cancelado' && falta > 0 && !aberto && (
+          <button type="button" className={ui.botaoSecundario} onClick={abrir}>
+            + Registrar pagamento
+          </button>
+        )}
+        {pedido.status !== 'cancelado' && falta === 0 && pedido.pagamentos.length > 0 && <span className={styles.quitado}>✓ Pedido pago</span>}
+
+        {aberto && (
+          <div className={styles.novoPagamento}>
+            <div className={ui.grade2}>
+              <label className={ui.campo}>
+                <span className={ui.rotulo}>Valor</span>
+                <span className={`${ui.input} ${ui.prefixo}`}>
+                  <span>R$</span>
+                  <input className={styles.semBorda} inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} />
+                </span>
+              </label>
+              <label className={ui.campo}>
+                <span className={ui.rotulo}>Forma</span>
+                <select className={ui.input} value={forma} onChange={(e) => setForma(e.target.value as FormaPagamento)}>
+                  {FORMAS_PAGAMENTO.map((f) => (
+                    <option key={f}>{f}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            {erro && (
+              <p className={ui.erro} role="alert">
+                {erro}
+              </p>
+            )}
+            <div className={styles.botoesPagamento}>
+              <button type="button" className={ui.botaoSecundario} onClick={() => setAberto(false)}>
+                Cancelar
+              </button>
+              <button type="button" className={ui.botaoPrimario} onClick={registrar}>
+                Registrar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

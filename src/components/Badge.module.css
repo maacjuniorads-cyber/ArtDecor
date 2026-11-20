@@ -22,6 +22,11 @@
   color: var(--status-devolvido-fg);
 }
 
+.cancelado {
+  background: #eeebec;
+  color: #5a5560;
+}
+
 .alerta {
   background: var(--status-alerta-bg);
   color: var(--status-alerta-fg);

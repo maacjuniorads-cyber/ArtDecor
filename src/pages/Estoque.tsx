@@ -38,7 +38,7 @@ function ListaItens() {
   const [categoria, setCategoria] = useState<string>('Todos');
 
   const termo = normalizar(busca.trim());
-  const nomeTema = (id?: string) => temas.find((t) => t.id === id)?.nome;
+  const nomeTema = (id?: string) => temas.find((t) => t.id === id && !t.removido)?.nome;
   const visiveis = itensAtivos(itens)
     .filter((i) => categoria === 'Todos' || i.categoria === categoria)
     .filter((i) => !termo || normalizar(`${i.nome} ${nomeTema(i.temaId) ?? ''}`).includes(termo))
@@ -109,15 +109,16 @@ function ListaItens() {
 function ListaTemas() {
   const { itens, temas, pedidos } = useDados();
   const dataCurta = (iso: string) => deISO(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const ativos = temas.filter((t) => !t.removido);
 
   return (
     <>
       <p className={styles.dica}>Cada tema junta as peças que saem juntas. No pedido, é só escolher o tema.</p>
-      {temas.length === 0 ? (
+      {ativos.length === 0 ? (
         <p className={ui.vazio}>Nenhum tema cadastrado.</p>
       ) : (
         <ul className={ui.lista}>
-          {[...temas]
+          {ativos
             .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
             .map((tema) => {
               const pecas = itensDoTema(tema, itens);

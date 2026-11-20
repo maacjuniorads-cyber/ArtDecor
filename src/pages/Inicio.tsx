@@ -25,7 +25,7 @@ export function Inicio() {
   const reservados = pedidos.filter((p) => p.status === 'reservado');
   const voltamHoje = naRua.filter((p) => p.devolucao <= hoje);
   const aReceber = pedidos
-    .filter((p) => p.status !== 'devolvido')
+    .filter((p) => p.status === 'reservado' || p.status === 'rua')
     .reduce((soma, p) => soma + faltaReceber(p), 0);
   const agenda = proximosCompromissos(pedidos, hoje);
   const semContagem = itensSemContagem(itens);

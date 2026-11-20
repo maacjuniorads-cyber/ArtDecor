@@ -6,50 +6,9 @@ import { novoId, useDados } from '@/data/store';
 import { lerValor, valorParaCampo } from '@/lib/contato';
 import { pedidosAtivosComItem } from '@/lib/estoque';
 import { reduzirImagem } from '@/lib/imagem';
-import { CATEGORIAS, type Categoria, type Pedido, type TipoItem } from '@/types';
-
-interface ExcluirProps {
-  bloqueadoPor: Pedido[];
-  confirmando: boolean;
-  onPedir: () => void;
-  onCancelar: () => void;
-  onExcluir: () => void;
-}
-
-function ExcluirItem({ bloqueadoPor, confirmando, onPedir, onCancelar, onExcluir }: ExcluirProps) {
-  if (bloqueadoPor.length > 0) {
-    const lista = bloqueadoPor.map((p) => `#${String(p.numero).padStart(4, '0')}`).join(', ');
-    return (
-      <div className={ui.zonaPerigo}>
-        <p className={ui.detalhe}>
-          Não dá pra excluir agora: este item está {bloqueadoPor.length === 1 ? 'no pedido' : 'nos pedidos'} {lista}, ainda em andamento.
-        </p>
-      </div>
-    );
-  }
-  if (!confirmando) {
-    return (
-      <div className={ui.zonaPerigo}>
-        <button type="button" className={ui.botaoPerigo} onClick={onPedir}>
-          Excluir item do estoque
-        </button>
-      </div>
-    );
-  }
-  return (
-    <div className={ui.zonaPerigo} role="alert">
-      <p className={ui.erro}>Excluir este item? Ele some do estoque, mas continua aparecendo nos pedidos antigos.</p>
-      <div>
-        <button type="button" className={ui.botaoPerigo} onClick={onCancelar}>
-          Cancelar
-        </button>
-        <button type="button" className={ui.botaoPerigoCheio} onClick={onExcluir}>
-          Sim, excluir
-        </button>
-      </div>
-    </div>
-  );
-}
+import { numeroPedido } from '@/lib/pedidos';
+import { motivoBloqueio, ZonaExclusao } from '@/components/ZonaExclusao';
+import { CATEGORIAS, type Categoria, type TipoItem } from '@/types';
 import ui from '@/styles/ui.module.css';
 import styles from './ItemForm.module.css';
 
@@ -69,7 +28,6 @@ export function ItemForm() {
   const [observacoes, setObservacoes] = useState(existente?.observacoes ?? '');
   const [fotoUrl, setFotoUrl] = useState(existente?.fotoUrl);
   const [erro, setErro] = useState('');
-  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
 
   if (id && (!existente || existente.removido)) {
     return (
@@ -151,7 +109,7 @@ export function ItemForm() {
             <span className={ui.rotulo}>Tema</span>
             <select className={ui.input} value={temaId} onChange={(e) => setTemaId(e.target.value)}>
               <option value="">Nenhum</option>
-              {temas.map((t) => (
+              {temas.filter((t) => !t.removido || t.id === temaId).map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.nome}
                 </option>
@@ -220,12 +178,11 @@ export function ItemForm() {
         )}
 
         {existente && (
-          <ExcluirItem
-            bloqueadoPor={pedidosAtivosComItem(existente.id, pedidos)}
-            confirmando={confirmarExclusao}
-            onPedir={() => setConfirmarExclusao(true)}
-            onCancelar={() => setConfirmarExclusao(false)}
-            onExcluir={() => {
+          <ZonaExclusao
+            rotulo="Excluir item do estoque"
+            confirmacao="Excluir este item? Ele some do estoque, mas continua aparecendo nos pedidos antigos."
+            bloqueio={motivoBloqueio(pedidosAtivosComItem(existente.id, pedidos).map(numeroPedido), 'este item')}
+            onConfirmar={() => {
               removerItem(existente.id);
               navigate('/estoque', { replace: true });
             }}
