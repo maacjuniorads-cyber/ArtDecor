@@ -12,6 +12,7 @@ import { Pedidos } from '@/pages/Pedidos';
 import { PedidoDetalhe } from '@/pages/PedidoDetalhe';
 import { PedidoForm } from '@/pages/PedidoForm';
 import { Conferencia } from '@/pages/Conferencia';
+import { Contagem } from '@/pages/Contagem';
 import { Nota } from '@/pages/Nota';
 import { Clientes } from '@/pages/Clientes';
 import { ClienteForm } from '@/pages/ClienteForm';
@@ -35,6 +36,7 @@ export function App() {
             </Route>
             <Route element={<TelaCheiaLayout />}>
               <Route path="estoque/novo" element={<ItemForm />} />
+              <Route path="estoque/contar" element={<Contagem />} />
               <Route path="estoque/:id" element={<ItemForm />} />
               <Route path="temas/novo" element={<TemaForm />} />
               <Route path="temas/:id" element={<TemaForm />} />

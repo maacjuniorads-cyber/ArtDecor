@@ -98,7 +98,7 @@
       <div><b>2</b> Tela de Início</div>
       <div><b>3</b> Agenda</div>
       <div><b>4</b> Estoque</div>
-      <div><b>5</b> Completar um item</div>
+      <div><b>5</b> Completar o estoque</div>
       <div><b>6</b> Temas (kits)</div>
       <div><b>7</b> Clientes</div>
       <div><b>8</b> Novo pedido</div>
@@ -214,7 +214,7 @@
   <h2><span class="num">5</span> Completar um item</h2>
   <div class="duas">
     <div>
-      <p class="intro">Muitos itens já foram cadastrados, mas estão como <span class="selo contar">Falta contar</span> e com valor <b>R$ 0</b>. Para completar cada um:</p>
+      <p class="intro">Muitos itens já foram cadastrados, mas estão como <span class="selo contar">Falta contar</span> e com valor <b>R$ 0</b>. Para completar um de cada vez pela ficha (ou vários em sequência pela <b>contagem rápida</b>, na próxima página):</p>
       <ol class="passos">
         <li>No Estoque, toque no item.</li>
         <li><b>Foto (opcional):</b> toque no quadro de cima para tirar uma foto ou escolher da galeria.</li>
@@ -231,6 +231,32 @@
     </div>
     <div>
       <div class="cel"><img src="prints/06-item.png" alt="Editar item"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5b. CONTAGEM RÁPIDA ============ -->
+<section class="pagina">
+  <h2><span class="num">5</span> Contagem rápida <span class="novo">NOVO</span></h2>
+  <div class="duas">
+    <div>
+      <p class="intro">O jeito mais rápido de completar as peças <span class="selo contar">Falta contar</span>: o app mostra <b>uma de cada vez</b>, em sequência, sem precisar abrir e fechar cada uma.</p>
+      <h3>Onde fica</h3>
+      <p>Enquanto houver peças sem contagem, aparece a faixa rosa <b>“Contagem rápida”</b> no alto do <b>Estoque</b>, e o aviso <b>“itens sem contagem”</b> no Início. Toque em <span class="botao">Contar</span>.</p>
+      <h3>Para cada peça</h3>
+      <ol class="passos">
+        <li><b>Foto</b> (opcional): toque no quadro para fotografar.</li>
+        <li><b>Tenho vários</b> ou <b>Peça única</b>.</li>
+        <li><b>Quantas tem?</b> Use <b>−</b> e <b>+</b> ou digite o número.</li>
+        <li><b>Valor do aluguel</b> de uma unidade. Não sabe agora? Pode deixar em branco.</li>
+        <li>Toque em <span class="botao">Salvar e próxima</span>.</li>
+      </ol>
+      <p>Não dá pra contar alguma agora (está na rua, guardada longe…)? Toque em <span class="botao claro">Pular</span>. Errou a anterior? <b>“← Peça anterior”</b>.</p>
+      <div class="dica"><b>No fim</b> o app mostra quantas foram contadas e oferece <b>“Contar as puladas”</b>. Pode parar a qualquer hora: o que foi salvo fica salvo, e na próxima vez a contagem mostra só as que faltam.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/06b-contagem.png" alt="Contagem rápida"></div>
+      <div class="legenda">Uma peça de cada vez</div>
     </div>
   </div>
 </section>
@@ -482,7 +508,7 @@
 
   <h3>Para começar bem</h3>
   <ol class="passos">
-    <li>Vá completando o estoque aos poucos: quantidade, valor e foto. O aviso <b>“itens sem contagem”</b> no Início mostra quantos faltam.</li>
+    <li>Complete o estoque com a <b>contagem rápida</b>: quantidade, valor e foto. O aviso <b>“itens sem contagem”</b> no Início mostra quantos faltam.</li>
     <li>Cadastre os clientes conforme forem fazendo pedidos.</li>
     <li>Use o app em todo pedido e em toda devolução — assim o Início e a Agenda sempre mostram o que sai e o que volta.</li>
   </ol>

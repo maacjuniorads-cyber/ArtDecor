@@ -7,6 +7,7 @@ Ele substitui o caderno e as conversas soltas no WhatsApp: mostra o que está em
 ## O que ele faz
 
 - **Estoque:** peças com foto, categoria, quantidade e valor do aluguel. Mostra quantas estão livres agora.
+- **Contagem rápida:** completa o estoque passando pelas peças sem contagem uma de cada vez (foto, quantidade, valor e a próxima).
 - **Temas (kits):** as peças que saem juntas, como o painel, as capas de cilindro e os enfeites de um tema. No pedido, um toque coloca o kit inteiro.
 - **Clientes:** nome, telefone e endereço. Também guarda o veículo (modelo, cor e placa), porque muitas vezes é pelo carro que se reconhece quem chegou.
 - **Pedidos:** passam por *reservado → na rua → devolvido*. Têm sinal e pagamentos (Pix, dinheiro ou cartão), edição, cancelamento e reativação.

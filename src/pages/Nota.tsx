@@ -122,6 +122,11 @@ export function Nota() {
           <div>
             <div className={styles.logo}>{empresa.nome}</div>
             <div className={styles.miudo}>{empresa.descricao}</div>
+            {empresa.endereco.map((linha) => (
+              <div key={linha} className={styles.miudo}>
+                {linha}
+              </div>
+            ))}
             <div className={styles.miudo}>{empresa.telefone}</div>
           </div>
           <div className={styles.direita}>

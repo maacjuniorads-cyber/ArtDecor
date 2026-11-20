@@ -120,15 +120,15 @@ export function Inicio() {
       </section>
 
       {semContagem.length > 0 && (
-        <Link to="/estoque" className={styles.aviso}>
+        <Link to="/estoque/contar" className={styles.aviso}>
           <Icon name="estoque" className={styles.avisoIcone} />
           <span className={styles.linhaTexto}>
             <span className={styles.linhaNome}>
               {semContagem.length} {semContagem.length === 1 ? 'item sem contagem' : 'itens sem contagem'}
             </span>
-            <span className={styles.avisoDetalhe}>Cadastrados sem quantidade definida</span>
+            <span className={styles.avisoDetalhe}>Conte uma por uma na contagem rápida</span>
           </span>
-          <span className={styles.avisoAcao}>Conferir</span>
+          <span className={styles.avisoAcao}>Contar</span>
         </Link>
       )}
 

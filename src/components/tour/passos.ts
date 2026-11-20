@@ -96,6 +96,12 @@ export const passos: Passo[] = [
     texto: 'Este botão + cadastra uma peça nova. Ele aparece também em Clientes e Pedidos.',
   },
   {
+    rota: fixo('/estoque'),
+    alvo: 'contagem-rapida',
+    titulo: 'Contagem rápida',
+    texto: 'Enquanto houver peças “falta contar”, aparece esta faixa no alto do Estoque (e um aviso no Início). Ela abre as peças sem contagem uma de cada vez: tire a foto, diga quantas tem e o valor, e toque em “Salvar e próxima”. Não dá pra contar alguma agora? Toque em “Pular” e conte outro dia.',
+  },
+  {
     rota: (c) => (c.primeiroItem ? `/estoque/${c.primeiroItem.id}` : null),
     alvo: 'item-foto',
     titulo: 'Editando um item',

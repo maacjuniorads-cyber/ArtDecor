@@ -5,6 +5,8 @@ import { Icon } from '@/components/Icon';
 import { Thumb } from '@/components/Thumb';
 import { useDados } from '@/data/store';
 import { itensAtivos, itensDoTema, situacaoItem, situacaoTema } from '@/lib/estoque';
+import { itensSemContagem } from '@/lib/pedidos';
+import { ehExemplo } from '@/data/exemploTour';
 import { deISO, formatarMoeda } from '@/lib/formato';
 import { CATEGORIAS } from '@/types';
 import ui from '@/styles/ui.module.css';
@@ -44,8 +46,21 @@ function ListaItens() {
     .filter((i) => !termo || normalizar(`${i.nome} ${nomeTema(i.temaId) ?? ''}`).includes(termo))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
+  const semContagem = itensSemContagem(itens).filter((i) => !ehExemplo(i.id)).length;
+
   return (
     <>
+      {semContagem > 0 && (
+        <Link to="/estoque/contar" className={styles.contagem} data-tour="contagem-rapida">
+          <span className={styles.contagemTexto}>
+            <b>Contagem rápida</b>
+            <span>
+              {semContagem === 1 ? '1 peça sem contagem' : `${semContagem} peças sem contagem`} · uma de cada vez
+            </span>
+          </span>
+          <span className={styles.contagemAcao}>Contar</span>
+        </Link>
+      )}
       <div data-tour="estoque-filtros">
       <label className={`${ui.busca} ${styles.busca}`}>
         <Icon name="busca" size={20} />

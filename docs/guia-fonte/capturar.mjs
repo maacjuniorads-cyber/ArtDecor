@@ -114,6 +114,13 @@ await abrir(`${DEMO}/estoque/item-bandeja-espelhada`);
 await rolarAte('Categoria');
 await print('06-item');
 
+await abrir(`${DEMO}/estoque/contar`);
+await clicarTexto('+', 'button');
+await clicarTexto('+', 'button');
+await digitar('input[inputmode="decimal"]', '12,00');
+await rolar(0);
+await print('06b-contagem');
+
 await abrir(`${DEMO}/clientes`);
 await print('07-clientes');
 

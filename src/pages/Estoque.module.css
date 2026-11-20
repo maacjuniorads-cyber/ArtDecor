@@ -63,3 +63,38 @@
   background: var(--fundo);
   color: var(--texto-medio);
 }
+
+.contagem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: var(--raio);
+  background: var(--rosa);
+  color: var(--status-alerta-fg);
+  text-decoration: none;
+}
+
+.contagemTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.contagemTexto b {
+  font-size: 16px;
+}
+
+.contagemAcao {
+  flex-shrink: 0;
+  padding: 8px 14px 6px;
+  border-radius: 10px;
+  background: var(--vinho);
+  color: #fff;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 15px;
+}
