@@ -344,7 +344,12 @@ export function DadosProvider({ children }: { children: ReactNode }) {
         return false;
       }
       if (MODO_DEMO) {
-        setDados((d) => aplicarLocal(d, op));
+        // Demonstração: sem banco, então o código do pedido novo é inventado aqui.
+        const local: Operacao =
+          op.tipo === 'pedido' && !op.pedido.codigo
+            ? { ...op, pedido: { ...op.pedido, codigo: `A${10000 + Math.floor(Math.random() * 90000)}` } }
+            : op;
+        setDados((d) => aplicarLocal(d, local));
         return true;
       }
       // Sem internet: vai direto para a fila.

@@ -208,10 +208,10 @@ export function TourProvider({ children }: { children: ReactNode }) {
                 <div className={`${styles.previa} ${styles.exemploConflito}`} aria-label="Exemplo do aviso de conflito">
                   <span className={styles.exemploNome}>Painel redondo Unicórnio</span>
                   <span className={styles.exemploDetalhe}>Peça única · R$ 60,00</span>
-                  <span className={styles.exemploAviso}>Já reservado nessas datas — #0012 Ana (21/11–23/11)</span>
+                  <span className={styles.exemploAviso}>Já reservado nessas datas — #A48217 Ana (21/11–23/11)</span>
                   <span className={styles.exemploNome}>Cilindro rosa</span>
                   <span className={styles.exemploDetalhe}>3 × R$ 15,00 = R$ 45,00</span>
-                  <span className={styles.exemploAviso}>Só 1 livres nessas datas — #0012 Ana (21/11–23/11, 2 un.)</span>
+                  <span className={styles.exemploAviso}>Só 1 livres nessas datas — #A48217 Ana (21/11–23/11, 2 un.)</span>
                 </div>
               )}
               {passo.previa === 'nota' && (

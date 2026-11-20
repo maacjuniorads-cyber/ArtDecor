@@ -128,7 +128,7 @@ await abrir(`${DEMO}/clientes/novo`);
 await rolarAte('Veículo');
 await print('08-cliente-veiculo');
 
-// Novo pedido com o kit Heróis nas mesmas datas do pedido #0012 (mostra o aviso)
+// Novo pedido com o kit Heróis nas mesmas datas do pedido #A58340 (mostra o aviso)
 await abrir(`${DEMO}/pedidos/novo`);
 await page.select('select', 'demo-c5');
 await digitar('input[placeholder^="Ex: Anivers"]', 'Aniversário de 8 anos');

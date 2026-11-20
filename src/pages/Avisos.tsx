@@ -25,13 +25,13 @@ const OPCOES: { chave: keyof TiposAviso; titulo: string; quando: string; exemplo
     chave: 'vespera',
     titulo: 'Retiradas de amanhã',
     quando: 'No fim da tarde, por volta das 18h',
-    exemplo: 'Amanhã a Fernanda retira o pedido #0012 — 7 peças pra separar.',
+    exemplo: 'Amanhã a Fernanda retira o pedido #A58340 — 7 peças pra separar.',
   },
   {
     chave: 'atraso',
     titulo: 'Devolução atrasada',
     quando: 'Na manhã seguinte ao dia combinado',
-    exemplo: 'O Carlos devia ter devolvido o pedido #0011 ontem.',
+    exemplo: 'O Carlos devia ter devolvido o pedido #A91426 ontem.',
   },
 ];
 
