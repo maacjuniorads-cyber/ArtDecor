@@ -3,6 +3,16 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles/global.css';
 
+// Service worker: necessário para "Instalar app" no Android. Só em produção,
+// para não atrapalhar a atualização automática durante o desenvolvimento.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // sem service worker o app continua funcionando normalmente
+    });
+  });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
