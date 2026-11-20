@@ -199,7 +199,7 @@ export function ImportarClientes() {
           rows={5}
           value={textoColado}
           onChange={(e) => setTextoColado(e.target.value)}
-          placeholder={['Maria Souza 53 99133-3075', '53 98111-2233', 'João Pereira'].join('\n')}
+          placeholder={['Juliana Souza 53 99133-3075', '53 98111-2233', 'João Pereira'].join('\n')}
           autoFocus
         />
       </label>
