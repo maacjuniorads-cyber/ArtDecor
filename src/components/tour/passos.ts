@@ -17,6 +17,8 @@ export interface Passo {
   alvo?: string;
   titulo: string | ((c: ContextoTour) => string);
   texto: string;
+  /** Mostra um exemplo de mensagem do WhatsApp dentro do balão. */
+  previa?: 'lembrete';
 }
 
 const fixo = (r: string) => () => r;
@@ -180,7 +182,13 @@ export const passos: Passo[] = [
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
     alvo: 'pedido-lembrete',
     titulo: 'Lembrete pelo WhatsApp',
-    texto: 'Um toque abre o WhatsApp do cliente com a mensagem pronta: lembrete da retirada (pedido reservado) ou da devolução (pedido na rua), com o valor que falta, se houver.',
+    texto: 'Este botão lembra o cliente da retirada (pedido reservado) ou da devolução (pedido na rua). A mensagem já vem pronta, com a data e o valor que falta, se houver.',
+  },
+  {
+    rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
+    titulo: 'Como o lembrete chega no cliente',
+    texto: 'Ao tocar no botão, abre o SEU WhatsApp já na conversa do cliente, com o texto pronto. É só tocar na setinha verde de enviar. A mensagem chega como “Lembrete automático” do sistema da ArtDecor — você não precisa escrever nada, e fica claro para o cliente que é um aviso do sistema. Veja um exemplo:',
+    previa: 'lembrete',
   },
   {
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}` : null),
@@ -198,7 +206,7 @@ export const passos: Passo[] = [
     rota: (c) => (c.primeiroPedido ? `/pedidos/${c.primeiroPedido.id}/nota` : null),
     alvo: 'nota-acoes',
     titulo: 'Nota para o cliente',
-    texto: '“Baixar PDF” abre a impressão — escolha “Salvar como PDF”. “WhatsApp” abre a conversa com o resumo do pedido já escrito: é só conferir e enviar.',
+    texto: '“Enviar nota no WhatsApp” abre o Compartilhar do celular: escolha o WhatsApp e depois o cliente — vai a nota em PDF junto com o resumo do pedido. “Só mensagem” abre direto a conversa do cliente, só com o texto. “Baixar PDF” guarda a nota no celular.',
   },
 
   // ---- Fim

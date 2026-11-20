@@ -46,6 +46,15 @@
   transform: translate(-50%, -50%);
 }
 
+.balao {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+.previa {
+  margin-top: 12px;
+}
+
 .progresso {
   display: flex;
   align-items: center;

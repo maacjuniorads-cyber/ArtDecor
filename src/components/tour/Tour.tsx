@@ -1,7 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUsuario } from '@/components/Autenticacao';
+import { MensagemWhatsApp } from '@/components/MensagemWhatsApp';
 import { useDados } from '@/data/store';
+import { exemploLembrete } from '@/lib/mensagens';
 import { passos, type ContextoTour } from './passos';
 import styles from './Tour.module.css';
 
@@ -187,6 +189,11 @@ export function TourProvider({ children }: { children: ReactNode }) {
               <p id="tour-texto" className={styles.texto}>
                 {passo.texto}
               </p>
+              {passo.previa === 'lembrete' && (
+                <div className={styles.previa}>
+                  <MensagemWhatsApp texto={exemploLembrete()} />
+                </div>
+              )}
               <div className={styles.botoes}>
                 {!ultimo && (
                   <button type="button" className={styles.pular} onClick={encerrar}>
