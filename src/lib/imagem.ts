@@ -3,7 +3,7 @@
  * data URL JPEG pequeno (~30–60 KB), que cabe no localStorage.
  * Quando houver back-end, a foto vai para o storage dele.
  */
-export function reduzirImagem(arquivo: File, lado = 480, qualidade = 0.75): Promise<string> {
+export function reduzirImagem(arquivo: File, lado = 800, qualidade = 0.8): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(arquivo);
     const img = new Image();

@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { CampoFoto } from '@/components/CampoFoto';
 import { useSemPuxarParaAtualizar } from '@/components/Rascunho';
 import { Link } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
-import { Icon } from '@/components/Icon';
 import { ehExemplo } from '@/data/exemploTour';
 import { useDados } from '@/data/store';
 import { lerValor, valorParaCampo } from '@/lib/contato';
@@ -199,17 +199,7 @@ function Ficha({
   return (
     <>
       <div className={ui.form}>
-        <label className={styles.foto}>
-          {fotoUrl ? (
-            <img src={fotoUrl} alt={`Foto: ${item.nome}`} />
-          ) : (
-            <>
-              <Icon name="camera" size={30} strokeWidth={1.8} />
-              Tirar foto (opcional)
-            </>
-          )}
-          <input type="file" accept="image/*" onChange={(e) => escolherFoto(e.target.files?.[0])} className={styles.arquivo} />
-        </label>
+        <CampoFoto fotoUrl={fotoUrl} alt={`Foto: ${item.nome}`} convite="Tirar foto (opcional)" onEscolher={escolherFoto} />
 
         <div>
           <h2 className={styles.nome}>{item.nome}</h2>

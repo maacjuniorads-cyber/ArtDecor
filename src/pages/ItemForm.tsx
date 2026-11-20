@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
+import { CampoFoto } from '@/components/CampoFoto';
 import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
-import { Icon } from '@/components/Icon';
 import { novoId, useDados } from '@/data/store';
 import { lerValor, valorParaCampo } from '@/lib/contato';
 import { pedidosAtivosComItem } from '@/lib/estoque';
@@ -101,17 +101,7 @@ export function ItemForm() {
       <Cabecalho titulo={existente ? 'Editar item' : 'Novo item'} voltarPara="/estoque" />
       <form id="form-item" className={ui.form} onSubmit={salvar} noValidate>
         <AvisoRascunho visivel={rascunho.recuperado} onDescartar={rascunho.descartar} />
-        <label className={styles.foto} data-tour="item-foto">
-          {fotoUrl ? (
-            <img src={fotoUrl} alt="Foto do item" />
-          ) : (
-            <>
-              <Icon name="camera" size={32} strokeWidth={1.8} />
-              Tirar foto ou escolher da galeria
-            </>
-          )}
-          <input type="file" accept="image/*" onChange={(e) => escolherFoto(e.target.files?.[0])} className={styles.arquivo} />
-        </label>
+        <CampoFoto fotoUrl={fotoUrl} alt="Foto do item" convite="Tirar foto ou escolher da galeria" onEscolher={escolherFoto} dataTour="item-foto" />
         {fotoUrl && (
           <button type="button" className={ui.botaoTexto} onClick={() => setFotoUrl(undefined)}>
             Remover foto
