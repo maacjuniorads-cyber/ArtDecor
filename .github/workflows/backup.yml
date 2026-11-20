@@ -19,6 +19,11 @@ on:
   schedule:
     - cron: '17 9 * * *' # todo dia, ~06:17 no horário de Brasília
   workflow_dispatch:
+  push: # testa sozinho quando a própria cópia de segurança é alterada
+    branches: [main]
+    paths:
+      - .github/workflows/backup.yml
+      - scripts/backup.mjs
 
 permissions:
   contents: write # só para o passo "manter ativo" (ramo keepalive)
