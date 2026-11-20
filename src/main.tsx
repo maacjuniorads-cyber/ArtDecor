@@ -13,6 +13,11 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   });
 }
 
+// iPhone: o Safari ignora "user-scalable=no"; cancela o gesto de zoom (pinça) direto.
+for (const evento of ['gesturestart', 'gesturechange', 'gestureend']) {
+  document.addEventListener(evento, (e) => e.preventDefault(), { passive: false });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
