@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUsuario } from '@/components/Autenticacao';
+import { ehExemplo } from '@/data/exemploTour';
 import { useDados } from '@/data/store';
 import styles from './PrimeirosPassos.module.css';
 
@@ -8,7 +9,11 @@ const chave = (userId: string) => `artdecor:primeiros-passos-oculto:${userId}`;
 
 /** Lista de tarefas para começar a usar o app. Cada uma se marca sozinha pelos dados. */
 export function PrimeirosPassos() {
-  const { itens, clientes, pedidos } = useDados();
+  const dados = useDados();
+  // Os dados de exemplo do tutorial não contam como tarefa feita.
+  const itens = dados.itens.filter((i) => !ehExemplo(i.id));
+  const clientes = dados.clientes.filter((c) => !ehExemplo(c.id));
+  const pedidos = dados.pedidos.filter((p) => !ehExemplo(p.id));
   const usuario = useUsuario();
   const [oculto, setOculto] = useState(() => {
     try {

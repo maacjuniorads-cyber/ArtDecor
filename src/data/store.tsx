@@ -10,6 +10,7 @@ import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import type { Cliente, Item, Pedido, StatusPedido, Tema } from '@/types';
 import { deCliente, deItem, dePedido, deTema, paraCliente, paraItem, paraPedido, paraTema, type Linha } from './mapeamento';
+import { dadosDeExemplo, ehExemplo } from './exemploTour';
 import { TelaCarregando, TelaErro } from '@/components/Telas';
 import { Aviso } from '@/components/Aviso';
 
@@ -31,6 +32,9 @@ interface Api extends Dados {
   /** Para pedido novo, use numero 0: o banco gera o número. */
   salvarPedido: (pedido: Pedido) => Promise<boolean>;
   mudarStatus: (pedidoId: string, status: StatusPedido) => Promise<boolean>;
+  /** Liga/desliga os dados de exemplo do tutorial (só na tela, nunca gravados). */
+  mostrarExemplo: (ligar: boolean) => void;
+  exemploAtivo: boolean;
 }
 
 const vazio: Dados = { itens: [], temas: [], clientes: [], pedidos: [] };
@@ -95,6 +99,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
   const [carregando, setCarregando] = useState(true);
   const [erroCarga, setErroCarga] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [exemploAtivo, setExemploAtivo] = useState(false);
 
   const recarregar = useCallback(async () => {
     try {
@@ -141,8 +146,24 @@ export function DadosProvider({ children }: { children: ReactNode }) {
   }, [recarregar]);
 
   const api = useMemo<Api>(() => {
+    // Durante o tutorial, os dados de exemplo aparecem junto com os reais (só na tela).
+    const exemplo = exemploAtivo ? dadosDeExemplo() : null;
+    const visiveis: Dados = exemplo
+      ? {
+          temas: [...dados.temas, ...exemplo.temas],
+          itens: [...dados.itens, ...exemplo.itens],
+          clientes: [...dados.clientes, ...exemplo.clientes],
+          pedidos: [...dados.pedidos, ...exemplo.pedidos],
+        }
+      : dados;
+
     /** Roda a gravação; em erro mostra o aviso e devolve false. */
-    async function executar(acao: () => Promise<void>): Promise<boolean> {
+    async function executar(acao: () => Promise<void>, id?: string): Promise<boolean> {
+      // Dados de exemplo do tutorial nunca vão para o banco.
+      if (id && ehExemplo(id)) {
+        setAviso('Isso é só um exemplo do tutorial — não é salvo.');
+        return false;
+      }
       try {
         await acao();
         return true;
@@ -159,7 +180,9 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     }
 
     return {
-      ...dados,
+      ...visiveis,
+      exemploAtivo,
+      mostrarExemplo: setExemploAtivo,
 
       salvarItem: (item) =>
         executar(async () => {
@@ -168,19 +191,19 @@ export function DadosProvider({ children }: { children: ReactNode }) {
           const final = { ...item, fotoUrl };
           await verificar(supabase.from('itens').upsert(paraItem(final)));
           setDados((d) => ({ ...d, itens: upsert(d.itens, final) }));
-        }),
+        }, item.id),
 
       removerItem: (itemId) =>
         executar(async () => {
           await verificar(supabase.from('itens').update({ removido: true }).eq('id', itemId));
           setDados((d) => ({ ...d, itens: d.itens.map((i) => (i.id === itemId ? { ...i, removido: true } : i)) }));
-        }),
+        }, itemId),
 
       salvarTema: (tema) =>
         executar(async () => {
           await verificar(supabase.from('temas').upsert(paraTema(tema)));
           setDados((d) => ({ ...d, temas: upsert(d.temas, tema) }));
-        }),
+        }, tema.id),
 
       removerTema: (temaId) =>
         executar(async () => {
@@ -192,19 +215,19 @@ export function DadosProvider({ children }: { children: ReactNode }) {
             temas: d.temas.map((t) => (t.id === temaId ? { ...t, removido: true } : t)),
             itens: d.itens.map((i) => (i.temaId === temaId ? { ...i, temaId: undefined } : i)),
           }));
-        }),
+        }, temaId),
 
       salvarCliente: (cliente) =>
         executar(async () => {
           await verificar(supabase.from('clientes').upsert(paraCliente(cliente)));
           setDados((d) => ({ ...d, clientes: upsert(d.clientes, cliente) }));
-        }),
+        }, cliente.id),
 
       removerCliente: (clienteId) =>
         executar(async () => {
           await verificar(supabase.from('clientes').update({ removido: true }).eq('id', clienteId));
           setDados((d) => ({ ...d, clientes: d.clientes.map((c) => (c.id === clienteId ? { ...c, removido: true } : c)) }));
-        }),
+        }, clienteId),
 
       salvarPedido: (pedido) =>
         executar(async () => {
@@ -212,15 +235,15 @@ export function DadosProvider({ children }: { children: ReactNode }) {
           if (error) throw new Error(error.message);
           const salvo = dePedido(data);
           setDados((d) => ({ ...d, pedidos: upsert(d.pedidos, salvo) }));
-        }),
+        }, pedido.id),
 
       mudarStatus: (pedidoId, status) =>
         executar(async () => {
           await verificar(supabase.from('pedidos').update({ status }).eq('id', pedidoId));
           setDados((d) => ({ ...d, pedidos: d.pedidos.map((p) => (p.id === pedidoId ? { ...p, status } : p)) }));
-        }),
+        }, pedidoId),
     };
-  }, [dados]);
+  }, [dados, exemploAtivo]);
 
   if (carregando) return <TelaCarregando />;
   if (erroCarga) return <TelaErro mensagem={erroCarga} onTentar={recarregar} />;

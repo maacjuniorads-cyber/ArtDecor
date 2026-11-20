@@ -4,6 +4,7 @@ import { useUsuario } from '@/components/Autenticacao';
 import { MensagemWhatsApp } from '@/components/MensagemWhatsApp';
 import { useDados } from '@/data/store';
 import { exemploLembrete, exemploNota } from '@/lib/mensagens';
+import { ehExemplo, PEDIDO_EXEMPLO_TOUR } from '@/data/exemploTour';
 import { passos, type ContextoTour } from './passos';
 import styles from './Tour.module.css';
 
@@ -32,7 +33,7 @@ const FOLGA = 6;
 /** Tutorial guiado que passa pelas telas do app destacando cada parte. */
 export function TourProvider({ children }: { children: ReactNode }) {
   const usuario = useUsuario();
-  const { itens, pedidos } = useDados();
+  const { itens, pedidos, mostrarExemplo } = useDados();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,30 +47,39 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const contexto: ContextoTour = useMemo(
     () => ({
       nome: usuario.nome,
-      primeiroItem: itens.find((i) => !i.removido),
+      // Prefere as peças/pedido de EXEMPLO (sempre completos e iguais para todo mundo).
+      primeiroItem: itens.find((i) => ehExemplo(i.id) && i.tipo === 'varios') ?? itens.find((i) => !i.removido),
       primeiroPedido:
-        pedidos.find((p) => p.status === 'reservado') ?? pedidos.find((p) => p.status === 'rua') ?? pedidos.find((p) => p.status !== 'cancelado'),
+        pedidos.find((p) => p.id === PEDIDO_EXEMPLO_TOUR) ??
+        pedidos.find((p) => p.status === 'reservado') ??
+        pedidos.find((p) => p.status === 'rua') ??
+        pedidos.find((p) => p.status !== 'cancelado'),
     }),
     [usuario.nome, itens, pedidos],
   );
 
-  const iniciar = useCallback(() => setIndice(0), []);
+  // Durante o tutorial aparecem dados de exemplo (só na tela, nunca gravados).
+  const iniciar = useCallback(() => {
+    mostrarExemplo(true);
+    setIndice(0);
+  }, [mostrarExemplo]);
 
   const encerrar = useCallback(() => {
     setIndice(null);
     setCaixa(null);
     alvoRef.current = null;
+    mostrarExemplo(false);
     usuario.marcarTutorialVisto();
     navigate('/');
-  }, [navigate, usuario]);
+  }, [navigate, usuario, mostrarExemplo]);
 
   // Primeira vez de cada pessoa: abre sozinho.
   useEffect(() => {
     if (usuario.tutorialVisto === false && !jaIniciouAuto.current) {
       jaIniciouAuto.current = true;
-      setIndice(0);
+      iniciar();
     }
-  }, [usuario.tutorialVisto]);
+  }, [usuario.tutorialVisto, iniciar]);
 
   const passo = indice !== null ? passos[indice] : null;
   const rota = passo ? passo.rota(contexto) : null;
