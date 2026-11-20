@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Guia do aplicativo ArtDecor</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Josefin+Sans:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm; }
+  :root {
+    --vinho: #8E2A4E; --rosa: #F9DDE1; --fundo: #F6F1EE; --texto: #2E2638;
+    --medio: #4F4A66; --suave: #6B6378; --azul: #2F5A85; --azul-bg: #E3ECF5;
+    --verde: #2F6B40; --verde-bg: #E6F0E8; --lilas-bg: #ECEAF2; --alerta: #7A2343;
+    --zap: #1F7A55;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: 'Nunito', sans-serif; color: var(--texto); font-size: 13pt; line-height: 1.45; }
+
+  .pagina { page-break-after: always; break-after: page; }
+  .pagina:last-child { page-break-after: auto; break-after: auto; }
+
+  h1, h2, h3 { font-family: 'Josefin Sans', sans-serif; margin: 0; }
+  h2 { font-size: 22pt; color: var(--vinho); display: flex; align-items: center; gap: 12px; margin-bottom: 4mm; padding-top: 2mm; }
+  h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 13mm; height: 13mm; border-radius: 50%; background: var(--vinho); color: #fff; font-size: 17pt; padding-top: 1mm; flex-shrink: 0; }
+  h2 .novo { font-family: 'Nunito', sans-serif; font-size: 10pt; font-weight: 800; background: var(--rosa); color: var(--alerta); border-radius: 99px; padding: 1mm 3mm; }
+  h3 { font-size: 14pt; margin: 4.5mm 0 2mm; color: var(--texto); }
+  p { margin: 0 0 3mm; }
+  .intro { font-size: 13.5pt; color: var(--medio); margin-bottom: 5mm; }
+
+  /* Capa */
+  .capa { height: 255mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--fundo); border-radius: 6mm; border: 1.5mm solid var(--vinho); padding: 18mm; }
+  .capa .logo { font-family: 'Great Vibes', cursive; font-size: 80pt; color: var(--vinho); line-height: 1; }
+  .capa .titulo { font-family: 'Josefin Sans', sans-serif; font-size: 26pt; font-weight: 700; margin-top: 10mm; }
+  .capa .sub { font-size: 15pt; color: var(--medio); margin-top: 4mm; max-width: 130mm; }
+  .capa .indice { margin-top: 14mm; text-align: left; font-size: 13pt; columns: 2; column-gap: 12mm; background: #fff; border-radius: 4mm; padding: 6mm 9mm; }
+  .capa .indice div { break-inside: avoid; padding: 1mm 0; }
+  .capa .indice b { color: var(--vinho); display: inline-block; width: 8mm; }
+  .capa .versao { margin-top: 8mm; font-size: 11pt; color: var(--suave); }
+
+  /* Layout texto + celular */
+  .duas { display: grid; grid-template-columns: 1fr 66mm; gap: 9mm; align-items: start; }
+  .celulares { display: flex; gap: 6mm; justify-content: center; margin: 2mm 0 4mm; }
+  .cel { width: 66mm; border: 2.2mm solid #2E2638; border-radius: 7mm; overflow: hidden; background: var(--fundo); box-shadow: 0 2mm 5mm rgba(46,38,56,.15); flex-shrink: 0; }
+  .cel img { display: block; width: 100%; }
+  .cel.corta-topo { height: 98mm; }
+  .cel.corta-topo img { object-fit: cover; object-position: top; height: 100%; }
+  .cel.baixo { height: 92mm; }
+  .legenda { text-align: center; font-size: 10.5pt; color: var(--suave); margin-top: 1.5mm; }
+
+  /* Passos numerados */
+  ol.passos { list-style: none; counter-reset: p; margin: 0 0 3mm; padding: 0; }
+  ol.passos > li { counter-increment: p; position: relative; padding-left: 11mm; margin-bottom: 2.6mm; }
+  ol.passos > li::before { content: counter(p); position: absolute; left: 0; top: .2mm; width: 7.5mm; height: 7.5mm; border-radius: 50%; background: var(--rosa); color: var(--vinho); font-weight: 800; font-size: 11pt; display: flex; align-items: center; justify-content: center; }
+
+  ul.pontos { margin: 0 0 3mm; padding-left: 6mm; }
+  ul.pontos li { margin-bottom: 1.8mm; }
+
+  .botao { display: inline-block; background: var(--vinho); color: #fff; font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 11pt; padding: 1.2mm 3mm .6mm; border-radius: 2mm; white-space: nowrap; }
+  .botao.claro { background: #fff; color: var(--vinho); border: .35mm solid #DCD2D7; }
+  .botao.zap { background: var(--zap); }
+  .botao.zap-claro { background: #fff; color: var(--zap); border: .35mm solid #DCD2D7; }
+  .selo { display: inline-block; font-weight: 800; font-size: 10.5pt; padding: .6mm 2.6mm; border-radius: 99px; white-space: nowrap; }
+  .selo.livre { background: var(--verde-bg); color: var(--verde); }
+  .selo.rua { background: var(--azul-bg); color: var(--azul); }
+  .selo.contar { background: var(--rosa); color: var(--alerta); }
+  .selo.reservado { background: var(--lilas-bg); color: var(--medio); }
+  .vermelho { color: var(--alerta); font-weight: 700; }
+
+  .dica { background: var(--fundo); border-radius: 3mm; padding: 3.5mm 5mm; margin: 3.5mm 0; font-size: 12.5pt; break-inside: avoid; }
+  .dica b:first-child { color: var(--vinho); }
+  .cuidado { background: var(--rosa); }
+
+  /* Fluxo de status */
+  .fluxo { display: flex; align-items: center; justify-content: center; gap: 3mm; margin: 3mm 0 5mm; }
+  .fluxo .etapa { text-align: center; border-radius: 3mm; padding: 3mm 4mm; min-width: 36mm; }
+  .fluxo .etapa b { display: block; font-family: 'Josefin Sans', sans-serif; font-size: 13pt; }
+  .fluxo .etapa span { font-size: 10.5pt; }
+  .fluxo .seta { font-size: 18pt; color: var(--suave); }
+
+  table.tab { width: 100%; border-collapse: collapse; font-size: 12.5pt; margin: 2mm 0 4mm; }
+  table.tab td { padding: 2.2mm 3mm; border-bottom: .3mm solid #EEE7EA; vertical-align: top; }
+  table.tab td:first-child { width: 38%; font-weight: 700; }
+
+  .rodape-ajuda { break-inside: avoid; margin-top: 4mm; text-align: center; background: var(--vinho); color: #fff; border-radius: 4mm; padding: 4mm 6mm; }
+  .rodape-ajuda .logo { font-family: 'Great Vibes', cursive; font-size: 34pt; line-height: 1; }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA ============ -->
+<section class="pagina">
+  <div class="capa">
+    <div class="logo">ArtDecor</div>
+    <div class="titulo">Guia do aplicativo</div>
+    <div class="sub">Como cuidar do estoque, dos clientes e dos pedidos pelo celular — passo a passo.</div>
+    <div class="indice">
+      <div><b>1</b> Abrindo o app</div>
+      <div><b>2</b> Tela de Início</div>
+      <div><b>3</b> Agenda</div>
+      <div><b>4</b> Estoque</div>
+      <div><b>5</b> Completar um item</div>
+      <div><b>6</b> Temas (kits)</div>
+      <div><b>7</b> Clientes</div>
+      <div><b>8</b> Novo pedido</div>
+      <div><b>9</b> Andamento e lembretes</div>
+      <div><b>10</b> Pagamentos</div>
+      <div><b>11</b> Devolução</div>
+      <div><b>12</b> Nota pro cliente</div>
+      <div><b>★</b> Dicas e dúvidas</div>
+    </div>
+    <div class="versao">Atualizado em novembro de 2026</div>
+  </div>
+</section>
+
+<!-- ============ 1. ABRINDO ============ -->
+<section class="pagina">
+  <h2><span class="num">1</span> Abrindo o app</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">O ArtDecor fica na tela do celular como qualquer outro aplicativo — o ícone tem um <b>“A” rosa no fundo vinho</b>.</p>
+      <h3>Primeira vez: entrar</h3>
+      <ol class="passos">
+        <li>Toque no ícone <b>ArtDecor</b>.</li>
+        <li>Digite o seu <b>e-mail</b> e a sua <b>senha</b>.</li>
+        <li>Toque em <span class="botao">Entrar</span>.</li>
+      </ol>
+      <h3>O tutorial abre sozinho</h3>
+      <p>Na primeira vez, o app mostra um <b>tutorial</b> que passa por todas as telas. Durante ele aparecem alguns <b>dados de exemplo</b> (a cliente “Silvia Exemplo”, o “João Exemplo” e peças com “(exemplo)” no nome). Eles são só para mostrar e <b>somem sozinhos</b> quando o tutorial termina — nada é salvo.</p>
+      <p>Quer ver de novo? Toque em <b>“Ajuda”</b>, no alto da tela de Início.</p>
+      <h3>Depois disso</h3>
+      <p>O app <b>lembra de você</b>: nas próximas vezes já abre direto no Início, sem pedir senha. Para sair, toque em <b>“Sair”</b> no alto da tela de Início.</p>
+      <div class="dica"><b>Importante:</b> o app precisa de <b>internet</b> (Wi-Fi ou dados móveis). Tudo o que você cadastra fica guardado na nuvem e aparece também no celular do Junior e do Maycel.</div>
+    </div>
+    <div>
+      <div class="cel corta-topo"><img src="prints/01-login.png" alt="Tela de login"></div>
+      <div class="legenda">Tela de entrada</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. INÍCIO ============ -->
+<section class="pagina">
+  <h2><span class="num">2</span> Tela de Início</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">É o resumo do dia. Dá pra ver tudo de uma olhada:</p>
+      <table class="tab">
+        <tr><td><span class="botao">+ Novo pedido</span></td><td>Começa um pedido novo (parte 8).</td></tr>
+        <tr><td>Na rua</td><td>Pedidos que estão com os clientes agora.</td></tr>
+        <tr><td>Reservados</td><td>Pedidos combinados que ainda vão ser retirados.</td></tr>
+        <tr><td>Voltam hoje</td><td>O que precisa voltar hoje (ou já está atrasado).</td></tr>
+        <tr><td>A receber</td><td>Quanto ainda falta receber, somando todos os pedidos (inclusive cobranças de peça quebrada).</td></tr>
+        <tr><td>Próximos dias</td><td>O que <span class="selo rua">Sai</span>, o que <span class="selo contar">Volta</span> e o que está <span class="selo contar">Atrasado</span>. Toque num nome para abrir o pedido. <b>“Ver calendário”</b> abre a Agenda.</td></tr>
+        <tr><td>Primeiros passos</td><td>Lista de tarefas para começar. Cada uma se marca sozinha quando você faz. Dá pra recolher a lista.</td></tr>
+        <tr><td>Ajuda · Sair</td><td>No alto: <b>Ajuda</b> abre o tutorial de novo; <b>Sair</b> desconecta.</td></tr>
+      </table>
+      <p>Embaixo de todas as telas fica o <b>menu</b>: <b>Início · Agenda · Estoque · Pedidos · Clientes</b>.</p>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/02-inicio.png" alt="Tela de Início"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. AGENDA ============ -->
+<section class="pagina">
+  <h2><span class="num">3</span> Agenda <span class="novo">NOVO</span></h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Um calendário do mês com <b>o que sai</b> e <b>o que volta</b> em cada dia.</p>
+      <ul class="pontos">
+        <li>Os números pequenos embaixo de cada dia mostram quantos pedidos <b>saem</b> (azul) e quantos <b>voltam</b> (rosa).</li>
+        <li><b>Toque num dia</b> para ver a lista daquele dia logo abaixo do calendário.</li>
+        <li>Toque num pedido da lista para abri-lo.</li>
+        <li>Use as setas <b>‹ ›</b> para trocar de mês e <b>“Hoje”</b> para voltar ao dia de hoje.</li>
+      </ul>
+      <div class="dica"><b>Para que serve:</b> antes de combinar uma festa, olhe a Agenda e veja como está a semana — o que vai estar fora e o que volta a tempo.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/03-agenda.png" alt="Agenda"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. ESTOQUE ============ -->
+<section class="pagina">
+  <h2><span class="num">4</span> Estoque</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Aqui estão todas as peças da loja.</p>
+      <ul class="pontos">
+        <li><b>Buscar:</b> digite o nome do item ou do tema na caixa de busca.</li>
+        <li><b>Filtrar:</b> toque numa categoria (Painéis, Vidros, Toalhas…). Arraste para o lado para ver mais.</li>
+        <li><b>Abrir um item:</b> toque nele para ver e editar.</li>
+        <li><b>Cadastrar item novo:</b> toque no botão redondo <span class="botao">+</span> no canto de baixo.</li>
+      </ul>
+      <h3>O que cada aviso quer dizer</h3>
+      <table class="tab">
+        <tr><td><span class="selo contar">Falta contar</span></td><td>A quantidade ainda não foi preenchida.</td></tr>
+        <tr><td>Barra azul “8 de 12 livres”</td><td>Quantas unidades estão em casa agora, do total.</td></tr>
+        <tr><td><span class="selo livre">Livre</span></td><td>Peça única que está em casa.</td></tr>
+        <tr><td><span class="selo rua">Alugado</span></td><td>Peça única que está com um cliente.</td></tr>
+      </table>
+      <p>No alto da tela, troque entre <b>Itens</b> e <b>Temas</b> (parte 6).</p>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/04-estoque.png" alt="Tela de Estoque"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. ITEM ============ -->
+<section class="pagina">
+  <h2><span class="num">5</span> Completar um item</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Muitos itens já foram cadastrados, mas estão como <span class="selo contar">Falta contar</span> e com valor <b>R$ 0</b>. Para completar cada um:</p>
+      <ol class="passos">
+        <li>No Estoque, toque no item.</li>
+        <li><b>Foto (opcional):</b> toque no quadro de cima para tirar uma foto ou escolher da galeria.</li>
+        <li><b>Tipo de item:</b>
+          <br>• <b>Tenho vários</b> — cilindros, toalhas, bandejas…
+          <br>• <b>Peça única</b> — painel, cômoda, baú… (não precisa contar).</li>
+        <li><b>Quantidade:</b> tire a marca de <b>“Ainda não contei”</b> e digite quantas tem.</li>
+        <li><b>Valor do aluguel:</b> o preço de <b>uma unidade</b>, ex.: <b>15,00</b>.</li>
+        <li>Toque em <span class="botao">Salvar item</span>.</li>
+      </ol>
+      <div class="dica"><b>Tema:</b> se a peça faz parte de um kit (ex.: painel da Capivara), escolha o tema no campo <b>Tema</b>.</div>
+      <div class="dica"><b>Observações:</b> quando uma peça volta quebrada, o app anota sozinho aqui o que aconteceu e em qual pedido (parte 11).</div>
+      <div class="dica cuidado"><b>Excluir:</b> no fim da tela tem <b>“Excluir item do estoque”</b>. O app pede confirmação. Itens que estão em um pedido em andamento não podem ser excluídos.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/06-item.png" alt="Editar item"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. TEMAS ============ -->
+<section class="pagina">
+  <h2><span class="num">6</span> Temas (kits)</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Um <b>tema</b> junta as peças que costumam sair juntas — por exemplo, o kit <b>Heróis</b> tem o painel, as capas dos cilindros, os prédios e os bonecos.</p>
+      <h3>Para que serve</h3>
+      <p>Na hora de fazer o pedido, basta tocar no tema e <b>todas as peças do kit entram de uma vez</b>.</p>
+      <h3>Ver os temas</h3>
+      <p>No <b>Estoque</b>, toque em <b>Temas</b> lá em cima. Cada tema mostra as peças do kit e se está <span class="selo livre">Livre</span>, <span class="selo reservado">Reservado</span> ou <span class="selo rua">Na rua</span>, com a data.</p>
+      <h3>Criar um tema novo</h3>
+      <ol class="passos">
+        <li>Na aba Temas, toque em <span class="botao">+</span>.</li>
+        <li>Digite o nome (ex.: <b>Minecraft</b>), escolha uma cor e salve.</li>
+        <li>Depois, abra cada peça desse tema no Estoque e escolha o tema no campo <b>Tema</b>.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/05-temas.png" alt="Temas"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. CLIENTES ============ -->
+<section class="pagina">
+  <h2><span class="num">7</span> Clientes</h2>
+  <p class="intro">Na aba <b>Clientes</b> ficam todos os clientes. A busca aceita <b>nome, telefone, modelo do carro ou placa</b> — útil quando alguém chega na porta e você só reconhece o carro.</p>
+  <div class="celulares">
+    <div><div class="cel corta-topo"><img src="prints/07-clientes.png" alt="Lista de clientes"></div><div class="legenda">Lista e busca</div></div>
+    <div><div class="cel corta-topo"><img src="prints/08-cliente-veiculo.png" alt="Cadastro de cliente"></div><div class="legenda">Cadastro: parte do veículo</div></div>
+  </div>
+  <h3>Cadastrar um cliente</h3>
+  <ol class="passos">
+    <li>Toque em <span class="botao">+</span> na tela de Clientes.</li>
+    <li>Preencha <b>nome</b> e <b>telefone com DDD</b>. Se o WhatsApp for outro número, tire a marca de “WhatsApp é o mesmo número”.</li>
+    <li><b>Endereço</b> (opcional): rua, número, bairro e cidade.</li>
+    <li><b>Veículo:</b> tipo, modelo, cor e placa. Se a pessoa não tem carro, marque <b>“Cliente não tem veículo”</b>.</li>
+    <li>Toque em <span class="botao">Salvar cliente</span>.</li>
+  </ol>
+  <p>Tocando num cliente você pode <b>editar</b> os dados e ver <b>todos os pedidos</b> dele.</p>
+</section>
+
+<!-- ============ 8. NOVO PEDIDO ============ -->
+<section class="pagina">
+  <h2><span class="num">8</span> Fazendo um pedido</h2>
+  <p class="intro">Toque em <span class="botao">+ Novo pedido</span> no Início (ou no <span class="botao">+</span> da tela de Pedidos).</p>
+  <div class="celulares">
+    <div><div class="cel corta-topo"><img src="prints/09-pedido-topo.png" alt="Novo pedido - topo"></div><div class="legenda">Cliente, evento, datas e kit</div></div>
+    <div><div class="cel corta-topo"><img src="prints/10-pedido-itens.png" alt="Novo pedido - itens"></div><div class="legenda">Itens, avisos e total</div></div>
+  </div>
+  <ol class="passos">
+    <li><b>Cliente:</b> escolha na lista. Se for novo, toque em “+ Cadastrar cliente novo”.</li>
+    <li><b>Evento</b> (opcional) e as datas de <b>retirada</b> e <b>devolução</b>.</li>
+    <li><b>Kit do tema:</b> toque no tema (ex.: <b>+ Heróis</b>) — as peças do kit entram sozinhas.</li>
+    <li><b>Outros itens:</b> “+ Adicionar item avulso”. Use <b>−</b> e <b>+</b> para a quantidade, ou <b>×</b> para tirar.</li>
+    <li><b>Sinal:</b> se o cliente já pagou uma parte, digite o valor e escolha Pix, Dinheiro ou Cartão.</li>
+    <li>Confira o <b>Total</b> e toque em <span class="botao">Reservar pedido</span>.</li>
+  </ol>
+  <div class="dica cuidado"><b>Aviso em vermelho “Já reservado nessas datas”:</b> o app confere sozinho se a peça já está em outro pedido com datas que se cruzam, e diz <b>qual pedido, de quem e em que datas</b>. Se for peça de várias unidades, mostra quantas sobram (“Só 1 livre…”). O que fazer: troque a peça, mude as datas ou fale com o outro cliente. Se tiver certeza (ex.: o outro devolve de manhã e este retira à tarde), toque no botão de novo: ele vira <b>“Salvar mesmo assim”</b>.</div>
+</section>
+
+<!-- ============ 9. ANDAMENTO ============ -->
+<section class="pagina">
+  <h2><span class="num">9</span> Andamento do pedido e lembretes</h2>
+  <p class="intro">Todo pedido passa por três etapas. A barra colorida no topo do pedido mostra em qual ele está:</p>
+  <div class="fluxo">
+    <div class="etapa" style="background:var(--lilas-bg)"><b>Reservado</b><span>combinado, ainda em casa</span></div>
+    <div class="seta">→</div>
+    <div class="etapa" style="background:var(--azul-bg)"><b>Na rua</b><span>cliente retirou</span></div>
+    <div class="seta">→</div>
+    <div class="etapa" style="background:var(--verde-bg)"><b>Devolvido</b><span>voltou e foi conferido</span></div>
+  </div>
+  <div class="duas">
+    <div>
+      <ol class="passos">
+        <li>Na aba <b>Pedidos</b>, escolha <b>Reservados</b>, <b>Na rua</b> ou <b>Devolvidos</b> e toque no pedido.</li>
+        <li>Quando o cliente buscar: <span class="botao">Marcar como retirado</span>.</li>
+        <li>Quando ele devolver: <span class="botao">Conferir devolução</span> (parte 11).</li>
+      </ol>
+      <h3>Lembrete pelo WhatsApp</h3>
+      <p>Logo abaixo do cliente tem o botão <span class="botao zap-claro">Lembrar retirada no WhatsApp</span> (ou <b>devolução</b>, se já está na rua). Ele abre o <b>seu</b> WhatsApp na conversa do cliente com a mensagem pronta — é só tocar em enviar.</p>
+      <p>A mensagem chega como <b>“Lembrete automático — ArtDecor”</b>, então fica claro que é um aviso do sistema. A saudação <b>muda sozinha conforme o horário</b>: “Bom dia”, “Boa tarde” ou “Boa noite”.</p>
+      <h3>Errou? Dá pra voltar</h3>
+      <p>Logo abaixo da barra aparece <b>“← Voltar para…”</b>. É só tocar.</p>
+      <p><b>Editar</b> (canto de cima) troca itens, datas ou cliente. Pedidos reservados têm <b>“Cancelar pedido”</b> no fim da tela — e podem ser <b>reativados</b> depois.</p>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/12-pedido-detalhe.png" alt="Pedido reservado"></div>
+      <div class="legenda">Pedido reservado, com o botão de lembrete</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9b. COMO CHEGA O LEMBRETE ============ -->
+<section class="pagina">
+  <h2><span class="num">9</span> Como o lembrete chega no cliente</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Este é um exemplo do lembrete de <b>devolução</b> que o cliente recebe no WhatsApp (o tutorial do app mostra esta mesma tela).</p>
+      <ul class="pontos">
+        <li>Começa com <b>“Bom dia / Boa tarde / Boa noite”</b> e o primeiro nome do cliente.</li>
+        <li>Diz o número do pedido e a data, por extenso (“amanhã”, “hoje”…).</li>
+        <li>Se ainda falta pagar, lembra o valor e o Pix.</li>
+        <li>Termina com <i>“Mensagem automática do sistema da ArtDecor”</i>.</li>
+      </ul>
+      <p>O lembrete de <b>retirada</b> é parecido: “O grande dia está chegando!”, com a data de retirada.</p>
+      <div class="dica"><b>Sem emoji de propósito:</b> o WhatsApp estragava os emojis vindos do link (chegava um “�”), então as mensagens usam só texto.</div>
+      <div class="dica"><b>Atrasou?</b> Se a devolução já passou, a mensagem muda para um tom gentil, pedindo para combinar a entrega.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/20-tutorial-lembrete.png" alt="Exemplo de lembrete"></div>
+      <div class="legenda">Exemplo de lembrete (tela do tutorial)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. PAGAMENTOS ============ -->
+<section class="pagina">
+  <h2><span class="num">10</span> Pagamentos</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Dentro de cada pedido tem a parte <b>Pagamento</b>, com o total, o que já foi pago e o que falta.</p>
+      <h3>Registrar um pagamento</h3>
+      <ol class="passos">
+        <li>Abra o pedido e role até <b>Pagamento</b>.</li>
+        <li>Toque em <span class="botao claro">+ Registrar pagamento</span>.</li>
+        <li>O valor que falta já vem preenchido. Mude se o cliente pagou só uma parte.</li>
+        <li>Escolha a forma: <b>Pix</b>, <b>Dinheiro</b> ou <b>Cartão</b>.</li>
+        <li>Toque em <span class="botao">Registrar</span>.</li>
+      </ol>
+      <p>Quando estiver tudo pago, aparece <b style="color:var(--verde)">✓ Pedido pago</b>.</p>
+      <div class="dica"><b>Lançou errado?</b> Toque no <b>×</b> ao lado do pagamento para apagar e lance de novo.</div>
+      <div class="dica"><b>Cobranças:</b> se uma peça voltou quebrada e você cobrou (parte 11), a cobrança aparece aqui, soma no total e entra no “Falta receber”. O × também apaga uma cobrança.</div>
+      <p>Na lista de Pedidos, cada pedido mostra se está <span class="selo livre">Pago</span>, <span class="selo contar">Sem sinal</span> ou quanto <span class="selo reservado">Falta</span>.</p>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/13-pagamento.png" alt="Registrar pagamento"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. DEVOLUÇÃO ============ -->
+<section class="pagina">
+  <h2><span class="num">11</span> Devolução: conferir peça por peça <span class="novo">NOVO</span></h2>
+  <p class="intro">Quando o cliente devolve, abra o pedido e toque em <span class="botao">Conferir devolução</span>. Aparece a lista das peças do pedido.</p>
+  <div class="celulares">
+    <div><div class="cel corta-topo"><img src="prints/15-conferencia.png" alt="Conferência"></div><div class="legenda">Uma peça com problema, o resto ok</div></div>
+    <div><div class="cel corta-topo"><img src="prints/16-conferencia-problema.png" alt="Peça com problema"></div><div class="legenda">Detalhes do problema</div></div>
+  </div>
+  <ol class="passos">
+    <li>Para cada peça, toque em <b style="color:var(--verde)">✓ Voltou ok</b> ou em <b class="vermelho">Teve problema</b>. Voltou tudo certo? Toque em <span class="botao claro">✓ Marcar o resto como ok</span>.</li>
+    <li>Em <b>Teve problema</b>, diga quantas <b>voltaram estragadas</b> e quantas <b>não voltaram</b> (peça única: “Voltou estragada” ou “Não voltou”). Anote o que aconteceu, se quiser.</li>
+    <li><b>Cobrar do cliente</b> (opcional): o valor entra no total do pedido, em “Falta receber”.</li>
+    <li><b>Tirar do estoque</b>: já vem marcado, para ninguém reservar uma peça quebrada. Se consertar depois, é só aumentar a quantidade na peça.</li>
+    <li>Toque em <span class="botao">Concluir devolução</span>. O pedido vira <b>Devolvido</b>.</li>
+  </ol>
+</section>
+
+<!-- ============ 11b. DEPOIS DA DEVOLUÇÃO ============ -->
+<section class="pagina">
+  <h2><span class="num">11</span> Depois da conferência</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">No pedido devolvido aparece a parte <b>Devolução</b>, com quem conferiu, quando, e o que voltou com problema.</p>
+      <ul class="pontos">
+        <li><b>“✓ Tudo voltou certinho”</b> quando não teve problema.</li>
+        <li>Se teve, a lista mostra cada peça, o que aconteceu e se foi <b>tirada do estoque</b>.</li>
+        <li>A <b>cobrança</b> aparece em Pagamento, somada ao total. Quando o cliente pagar, registre normalmente.</li>
+        <li>Na ficha da peça (Estoque), o app anota sozinho: <i>“Pedido #0009: 1 voltou estragada — borda lascada”</i>.</li>
+      </ul>
+      <h3>Errou na conferência?</h3>
+      <p>Toque em <b>“Corrigir conferência”</b>. Ela abre do jeito que ficou; mude o que precisar e conclua de novo. O estoque se ajusta sozinho (devolve ou tira só a diferença).</p>
+      <div class="dica"><b>Para que serve:</b> a nota já avisa que <b>itens danificados ou não devolvidos são cobrados</b>. Com a conferência fica tudo registrado: o quê, quando, quem conferiu e quanto foi cobrado.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/17-devolvido.png" alt="Pedido devolvido"></div>
+      <div class="legenda">Pedido devolvido com uma cobrança</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12. NOTA ============ -->
+<section class="pagina">
+  <h2><span class="num">12</span> Nota para o cliente</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">Cada pedido gera uma <b>nota de locação</b> em PDF, com o logo da ArtDecor, os itens, os valores, o Pix, as condições e os nomes do cliente e da Patricia como assinatura.</p>
+      <p>Abra o pedido e toque no ícone de <b>documento</b> (no canto de baixo, ao lado do botão principal). Embaixo da nota ficam três botões:</p>
+      <table class="tab">
+        <tr><td><span class="botao zap">Enviar nota no WhatsApp</span></td><td>Manda o <b>PDF da nota + o resumo</b> do pedido, juntos.</td></tr>
+        <tr><td><span class="botao zap-claro">Só mensagem</span></td><td>Abre direto a conversa do cliente, só com o texto (sem o PDF).</td></tr>
+        <tr><td><span class="botao claro">Baixar PDF</span></td><td>Guarda a nota no celular.</td></tr>
+      </table>
+      <h3>Enviando a nota, passo a passo</h3>
+      <ol class="passos">
+        <li>Toque em <span class="botao zap">Enviar nota no WhatsApp</span>.</li>
+        <li>Abre a tela de compartilhar do celular: toque no <b>WhatsApp</b>.</li>
+        <li>Escolha o cliente (dá para buscar pelo nome) e toque na setinha.</li>
+        <li>Confira e toque em <b>enviar</b>.</li>
+      </ol>
+      <div class="dica"><b>Cliente não aparece na lista?</b> Ele precisa estar salvo nos contatos do seu WhatsApp. Se não estiver, use <b>“Só mensagem”</b>, que abre a conversa pelo número.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/19-nota-botoes.png" alt="Nota do pedido"></div>
+      <div class="legenda">Fim da nota e os três botões</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12b. O QUE O CLIENTE RECEBE ============ -->
+<section class="pagina">
+  <h2><span class="num">12</span> O que o cliente recebe</h2>
+  <div class="duas">
+    <div>
+      <p class="intro">No WhatsApp do cliente chegam, juntos:</p>
+      <ul class="pontos">
+        <li>A <b>nota em PDF</b> — ele toca para abrir.</li>
+        <li>O <b>resumo do pedido</b>: saudação conforme o horário, os itens, as datas de retirada e devolução, o total, o que já foi pago e o que falta, e o Pix.</li>
+        <li>A identificação <i>“Mensagem automática do sistema da ArtDecor”</i> no final.</li>
+      </ul>
+      <p>Assim você não precisa escrever nada: é só conferir e enviar.</p>
+      <div class="dica"><b>Mudou algo no pedido?</b> A nota é sempre gerada na hora com os dados atuais. Se trocou um item ou recebeu um pagamento, é só enviar de novo.</div>
+      <div class="dica"><b>Depois da devolução</b>, se houve cobrança por peça quebrada, ela aparece na nota e no resumo como uma linha <b>“Cobrança”</b>.</div>
+    </div>
+    <div>
+      <div class="cel"><img src="prints/21-tutorial-nota.png" alt="Exemplo do que o cliente recebe"></div>
+      <div class="legenda">Exemplo (tela do tutorial)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DICAS ============ -->
+<section class="pagina">
+  <h2><span class="num">★</span> Dicas e dúvidas</h2>
+  <table class="tab" style="font-size:11.5pt">
+    <tr><td>Apareceu uma faixa vermelha no topo</td><td>Algo não foi salvo (geralmente falta de internet). Confira a conexão e toque em salvar de novo — o que você digitou continua na tela.</td></tr>
+    <tr><td>“Isso é só um exemplo do tutorial”</td><td>Você tentou mudar um dado de exemplo durante o tutorial. Eles não são salvos — termine ou pule o tutorial para usar os dados de verdade.</td></tr>
+    <tr><td>Cadastrei no meu celular, aparece nos outros?</td><td>Sim! Você, o Junior e o Maycel veem tudo igual, na hora.</td></tr>
+    <tr><td>Bom dia ou boa tarde?</td><td>As mensagens do WhatsApp escolhem sozinhas a saudação pelo horário em que você envia.</td></tr>
+    <tr><td>E se o celular quebrar?</td><td>Nada se perde: tudo fica na nuvem, e o sistema faz uma <b>cópia de segurança automática todo dia</b>. No fim do Início também tem “Cópia de segurança dos dados” para baixar planilhas.</td></tr>
+    <tr><td>Excluí sem querer</td><td>Itens e clientes excluídos somem das listas, mas não se perdem dos pedidos antigos. Peça ajuda ao Junior para recuperar.</td></tr>
+    <tr><td>Esqueci a senha</td><td>Fale com o Junior: ele cria uma senha nova.</td></tr>
+    <tr><td>O app está estranho ou desatualizado</td><td>Feche o app e abra de novo.</td></tr>
+  </table>
+
+  <h3>Para começar bem</h3>
+  <ol class="passos">
+    <li>Vá completando o estoque aos poucos: quantidade, valor e foto. O aviso <b>“itens sem contagem”</b> no Início mostra quantos faltam.</li>
+    <li>Cadastre os clientes conforme forem fazendo pedidos.</li>
+    <li>Use o app em todo pedido e em toda devolução — assim o Início e a Agenda sempre mostram o que sai e o que volta.</li>
+  </ol>
+
+  <div class="rodape-ajuda">
+    <div class="logo">ArtDecor</div>
+    <p style="margin:2mm 0 0;font-size:14pt">Qualquer dúvida, é só tocar em <b>Ajuda</b> no app ou chamar o <b>Junior</b>. 💜</p>
+  </div>
+</section>
+
+</body>
+</html>

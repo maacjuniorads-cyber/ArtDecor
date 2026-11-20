@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import { MODO_DEMO } from '@/lib/demo';
 import { supabase, supabaseConfigurado } from '@/lib/supabase';
 import { TelaCarregando, TelaMarca } from './Telas';
 import ui from '@/styles/ui.module.css';
@@ -41,6 +42,24 @@ export function useUsuario(): Usuario {
 
 /** Só mostra o app para quem estiver logado. */
 export function ComLogin({ children }: { children: ReactNode }) {
+  return MODO_DEMO ? <ComUsuarioDemo>{children}</ComUsuarioDemo> : <ComLoginReal>{children}</ComLoginReal>;
+}
+
+/** Modo demonstração (prints do guia): entra direto, sem banco. */
+function ComUsuarioDemo({ children }: { children: ReactNode }) {
+  const [tutorialVisto, setTutorialVisto] = useState(true);
+  const usuario: Usuario = {
+    id: 'demo',
+    email: 'demo@artdecor.local',
+    nome: 'Patricia',
+    tutorialVisto,
+    marcarTutorialVisto: () => setTutorialVisto(true),
+    sair: async () => {},
+  };
+  return <Contexto.Provider value={usuario}>{children}</Contexto.Provider>;
+}
+
+function ComLoginReal({ children }: { children: ReactNode }) {
   const [sessao, setSessao] = useState<Session | null | undefined>(undefined);
   const [perfil, setPerfil] = useState<Perfil | undefined>(undefined);
 

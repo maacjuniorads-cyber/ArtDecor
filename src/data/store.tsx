@@ -11,6 +11,8 @@ import { supabase } from '@/lib/supabase';
 import type { Cliente, Item, Pedido, StatusPedido, Tema } from '@/types';
 import { deCliente, deItem, dePedido, deTema, paraCliente, paraItem, paraPedido, paraTema, type Linha } from './mapeamento';
 import { dadosDeExemplo, ehExemplo } from './exemploTour';
+import { dadosDemo } from './demo';
+import { MODO_DEMO } from '@/lib/demo';
 import { TelaCarregando, TelaErro } from '@/components/Telas';
 import { Aviso } from '@/components/Aviso';
 
@@ -95,8 +97,8 @@ async function enviarFoto(itemId: string, dataUrl: string): Promise<string> {
 const Contexto = createContext<Api | null>(null);
 
 export function DadosProvider({ children }: { children: ReactNode }) {
-  const [dados, setDados] = useState<Dados>(vazio);
-  const [carregando, setCarregando] = useState(true);
+  const [dados, setDados] = useState<Dados>(() => (MODO_DEMO ? dadosDemo() : vazio));
+  const [carregando, setCarregando] = useState(!MODO_DEMO);
   const [erroCarga, setErroCarga] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [exemploAtivo, setExemploAtivo] = useState(false);
@@ -113,6 +115,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (MODO_DEMO) return; // demonstração: dados fictícios, sem banco
     recarregar();
 
     const canal = supabase

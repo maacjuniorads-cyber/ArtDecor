@@ -20,11 +20,11 @@ on conflict (id) do nothing;
 
 -- Clientes
 insert into public.clientes (id, nome, telefone, endereco, veiculo) values
-  ('teste-cli-ana',   'Ana Teste',   '(53) 90000-0001', 'Rua de Teste, 1, Centro, Pelotas',  '{"tipo":"Carro","modelo":"Onix","cor":"prata","placa":"TST1A01"}'),
-  ('teste-cli-bruno', 'Bruno Teste', '(53) 90000-0002', 'Rua de Teste, 2, Fragata, Pelotas', '{"tipo":"Caminhonete","modelo":"Strada","cor":"branca","placa":"TST2B02"}'),
+  ('teste-cli-ana',   'Ana Teste',   '(53) 90000-0001', 'Rua de Teste, 1, Centro, Jaguarão',  '{"tipo":"Carro","modelo":"Onix","cor":"prata","placa":"TST1A01"}'),
+  ('teste-cli-bruno', 'Bruno Teste', '(53) 90000-0002', 'Rua de Teste, 2, Fragata, Jaguarão', '{"tipo":"Caminhonete","modelo":"Strada","cor":"branca","placa":"TST2B02"}'),
   ('teste-cli-carla', 'Carla Teste', '(53) 90000-0003', null,                                null),
   ('teste-cli-diego', 'Diego Teste', '(53) 90000-0004', null,                                '{"tipo":"Moto","modelo":"Fan 160","cor":"preta","placa":"TST4D04"}'),
-  ('teste-cli-elisa', 'Elisa Teste', '(53) 90000-0005', 'Rua de Teste, 5, Areal, Pelotas',   '{"tipo":"Carro","modelo":"HB20","cor":"vermelho","placa":"TST5E05"}')
+  ('teste-cli-elisa', 'Elisa Teste', '(53) 90000-0005', 'Rua de Teste, 5, Areal, Jaguarão',   '{"tipo":"Carro","modelo":"HB20","cor":"vermelho","placa":"TST5E05"}')
 on conflict (id) do nothing;
 
 -- Pedidos (um insert por vez para os números saírem em ordem)
