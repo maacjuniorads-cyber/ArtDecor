@@ -190,3 +190,52 @@
   font-style: italic;
   color: var(--texto-suave);
 }
+
+/* Na lista: botões pequenos para somar mais contatos. */
+.mais {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.botaoMais {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--vinho);
+  background: var(--superficie);
+  color: var(--vinho);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adicionados {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--status-devolvido-bg);
+  color: var(--status-devolvido-fg);
+  font-size: 14px;
+  font-weight: 700;
+  animation: entrar 0.25s ease-out;
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adicionados {
+    animation: none;
+  }
+}

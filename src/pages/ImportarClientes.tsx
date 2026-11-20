@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { ErroFormulario, useErro } from '@/components/ErroFormulario';
 import { Icon } from '@/components/Icon';
+import { AvisoRascunho, useRascunho } from '@/components/Rascunho';
 import { novoId, useDados } from '@/data/store';
 import { agendaDisponivel, escolherDaAgenda, lerVcf, montarCandidatos, type Candidato, type ContatoBruto } from '@/lib/importarContatos';
 import ui from '@/styles/ui.module.css';
@@ -21,31 +22,51 @@ function etiqueta(c: Candidato): { texto: string; aviso: boolean } | null {
   return null;
 }
 
-/** Clientes → Importar contatos: escolhe na agenda (Android) ou num arquivo .vcf. */
+/** Clientes → Importar contatos: escolhe na agenda (Android) ou num arquivo .vcf. Cada escolha SOMA na lista. */
 export function ImportarClientes() {
   const navigate = useNavigate();
   const { clientes, importarClientes } = useDados();
-  const [lista, setLista] = useState<Candidato[] | null>(null);
-  const [repetidos, setRepetidos] = useState(0);
-  const [marcados, setMarcados] = useState<Set<string>>(new Set());
+  // Tudo o que ela já trouxe (agenda e arquivos), na ordem; a lista é montada a partir daqui.
+  const [brutos, setBrutos] = useState<ContatoBruto[]>([]);
+  const [marcadosLista, setMarcadosLista] = useState<string[]>([]);
+  const [adicionados, setAdicionados] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useErro();
   const [salvando, setSalvando] = useState(false);
   const temAgenda = agendaDisponivel();
+  const marcados = useMemo(() => new Set(marcadosLista), [marcadosLista]);
 
-  function carregar(contatos: ContatoBruto[], marcarTodos: boolean) {
+  // Se o app fechar no meio, a lista montada volta.
+  const rascunho = useRascunho('importar-contatos', { brutos, marcados: marcadosLista }, (v) => {
+    setBrutos(v.brutos);
+    setMarcadosLista(v.marcados);
+  });
+
+  const { candidatos, repetidos } = useMemo(() => montarCandidatos(brutos, clientes), [brutos, clientes]);
+  const lista = brutos.length > 0 ? candidatos : null;
+
+  /** Soma os contatos novos na lista (os repetidos se juntam). */
+  function adicionar(contatos: ContatoBruto[], marcarNovos: boolean) {
     if (contatos.length === 0) return setErro('Nenhum contato encontrado.');
-    const { candidatos, repetidos } = montarCandidatos(contatos, clientes);
-    setLista(candidatos);
-    setRepetidos(repetidos);
+    const todos = [...brutos, ...contatos];
+    const antes = new Set(candidatos.map((c) => c.chave));
+    const entraram = montarCandidatos(todos, clientes).candidatos.filter((c) => !antes.has(c.chave));
+    if (entraram.length === 0) return setErro(contatos.length === 1 ? 'Esse contato já está na lista.' : 'Esses contatos já estão na lista.');
+    setBrutos(todos);
     setBusca('');
-    // Da agenda ela já escolheu quem quer; do arquivo vem a agenda inteira, então começa desmarcado.
-    setMarcados(new Set(marcarTodos ? candidatos.filter((c) => c.situacao === 'novo').map((c) => c.chave) : []));
+    // Da agenda ela já escolheu quem quer (entra marcado); do arquivo vem a agenda inteira (entra desmarcado).
+    if (marcarNovos) {
+      const chaves = entraram.filter((c) => c.situacao === 'novo').map((c) => c.chave);
+      setMarcadosLista((m) => [...new Set([...m, ...chaves])]);
+    }
+    setAdicionados(entraram.length === 1 ? `+1 contato na lista: ${entraram[0].nome || entraram[0].telefone}` : `+${entraram.length} contatos na lista`);
+    window.setTimeout(() => setAdicionados(null), 4000);
   }
 
   async function daAgenda() {
     try {
-      carregar(await escolherDaAgenda(), true);
+      const escolhidos = await escolherDaAgenda();
+      if (escolhidos.length > 0) adicionar(escolhidos, true); // fechou a agenda sem escolher: não faz nada
     } catch {
       setErro('Não consegui abrir a agenda. Tente pelo arquivo de contatos.');
     }
@@ -56,10 +77,17 @@ export function ImportarClientes() {
     e.target.value = '';
     if (!arquivo) return;
     try {
-      carregar(lerVcf(await arquivo.text()), false);
+      adicionar(lerVcf(await arquivo.text()), false);
     } catch {
       setErro('Não consegui ler esse arquivo. Ele precisa ser de contatos (.vcf).');
     }
+  }
+
+  function limparLista() {
+    setBrutos([]);
+    setMarcadosLista([]);
+    setBusca('');
+    rascunho.limpar();
   }
 
   const termo = normalizar(busca.trim());
@@ -69,37 +97,30 @@ export function ImportarClientes() {
   );
   const novosVisiveis = visiveis.filter((c) => c.situacao === 'novo');
   const todosVisiveisMarcados = novosVisiveis.length > 0 && novosVisiveis.every((c) => marcados.has(c.chave));
+  // Só conta os marcados que ainda podem entrar (ex.: alguém que virou cliente nesse meio tempo sai da conta).
+  const marcaveis = (lista ?? []).filter((c) => c.situacao === 'novo' && marcados.has(c.chave));
 
   function alternar(chave: string) {
-    setMarcados((m) => {
-      const novo = new Set(m);
-      if (novo.has(chave)) novo.delete(chave);
-      else novo.add(chave);
-      return novo;
-    });
+    setMarcadosLista((m) => (m.includes(chave) ? m.filter((k) => k !== chave) : [...m, chave]));
   }
 
   function alternarTodos() {
-    setMarcados((m) => {
-      const novo = new Set(m);
-      for (const c of novosVisiveis) {
-        if (todosVisiveisMarcados) novo.delete(c.chave);
-        else novo.add(c.chave);
-      }
-      return novo;
-    });
+    const chaves = novosVisiveis.map((c) => c.chave);
+    setMarcadosLista((m) => (todosVisiveisMarcados ? m.filter((k) => !chaves.includes(k)) : [...new Set([...m, ...chaves])]));
   }
 
   async function importar() {
     if (!lista || salvando) return;
-    const escolhidos = lista.filter((c) => c.situacao === 'novo' && marcados.has(c.chave));
-    if (escolhidos.length === 0) return setErro('Marque pelo menos um contato.');
+    if (marcaveis.length === 0) return setErro('Marque pelo menos um contato.');
     setSalvando(true);
     const ok = await importarClientes(
-      escolhidos.map((c) => ({ id: novoId(), nome: c.nome || 'Sem nome', telefone: c.telefone, veiculo: null, importado: true })),
+      marcaveis.map((c) => ({ id: novoId(), nome: c.nome || 'Sem nome', telefone: c.telefone, veiculo: null, importado: true })),
     );
     setSalvando(false);
-    if (ok) navigate('/clientes', { replace: true, state: { importados: escolhidos.length } });
+    if (ok) {
+      rascunho.limpar();
+      navigate('/clientes', { replace: true, state: { importados: marcaveis.length } });
+    }
   }
 
   const botoes = (
@@ -170,8 +191,26 @@ export function ImportarClientes() {
   return (
     <>
       <Cabecalho titulo="Importar contatos" voltarPara="/clientes" />
+      <AvisoRascunho visivel={rascunho.recuperado} onDescartar={limparLista} />
       <p className={styles.resumo}>{resumo}</p>
       <p className={styles.dica}>Marque só quem é cliente da loja.</p>
+
+      <div className={styles.mais}>
+        {temAgenda && (
+          <button type="button" className={styles.botaoMais} onClick={daAgenda}>
+            <Icon name="mais" size={18} /> Mais da agenda
+          </button>
+        )}
+        <label className={`${styles.botaoMais} ${styles.arquivo}`}>
+          <Icon name="mais" size={18} /> {temAgenda ? 'Outro arquivo' : 'Outro arquivo (.vcf)'}
+          <input type="file" accept=".vcf,text/vcard,text/x-vcard,text/directory" onChange={doArquivo} />
+        </label>
+      </div>
+      {adicionados && (
+        <p className={styles.adicionados} role="status">
+          ✓ {adicionados}
+        </p>
+      )}
 
       <label className={`${ui.busca} ${styles.busca}`}>
         <Icon name="busca" size={20} />
@@ -180,7 +219,7 @@ export function ImportarClientes() {
 
       <div className={styles.barraLista}>
         <span>
-          <b>{marcados.size}</b> {marcados.size === 1 ? 'marcado' : 'marcados'}
+          <b>{marcaveis.length}</b> {marcaveis.length === 1 ? 'marcado' : 'marcados'}
         </span>
         {novosVisiveis.length > 0 && (
           <button type="button" className={styles.link} onClick={alternarTodos}>
@@ -219,15 +258,15 @@ export function ImportarClientes() {
       )}
 
       <div className={styles.outra}>
-        <button type="button" className={styles.link} onClick={() => setLista(null)}>
-          Escolher outros contatos
+        <button type="button" className={styles.link} onClick={limparLista}>
+          Limpar lista e começar de novo
         </button>
       </div>
 
       <ErroFormulario erro={erro} onFechar={() => setErro('')} />
       <div className={ui.barraAcao}>
-        <button type="button" className={ui.botaoPrimario} onClick={importar} disabled={salvando || marcados.size === 0}>
-          {salvando ? 'Importando…' : marcados.size === 0 ? 'Marque os clientes' : `Importar ${marcados.size} ${marcados.size === 1 ? 'cliente' : 'clientes'}`}
+        <button type="button" className={ui.botaoPrimario} onClick={importar} disabled={salvando || marcaveis.length === 0}>
+          {salvando ? 'Importando…' : marcaveis.length === 0 ? 'Marque os clientes' : `Importar ${marcaveis.length} ${marcaveis.length === 1 ? 'cliente' : 'clientes'}`}
         </button>
       </div>
     </>
