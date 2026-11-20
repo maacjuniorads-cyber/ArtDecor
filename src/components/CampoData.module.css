@@ -1,0 +1,75 @@
+.caixa {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--borda-campo);
+  background: var(--superficie);
+  color: var(--texto);
+  overflow: hidden;
+}
+
+.caixa:focus-within {
+  outline: 3px solid var(--azul);
+  outline-offset: 1px;
+}
+
+.icone {
+  flex-shrink: 0;
+  color: var(--vinho);
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.dia {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 17px;
+  padding-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.semana {
+  font-size: 13px;
+  color: var(--texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* O campo do próprio celular, invisível, cobrindo a caixa inteira. */
+.nativo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0.011;
+  color: transparent;
+  font-size: 16px; /* evita o zoom automático do iPhone */
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nativo::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+}

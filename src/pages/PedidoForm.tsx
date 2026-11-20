@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { CampoData } from '@/components/CampoData';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Cabecalho } from '@/components/Cabecalho';
 import { novoId, useDados } from '@/data/store';
@@ -164,14 +165,8 @@ export function PedidoForm() {
         </label>
 
         <div className={ui.grade2}>
-          <label className={ui.campo}>
-            <span className={ui.rotulo}>Retira em</span>
-            <input className={ui.input} type="date" value={retirada} onChange={(e) => setRetirada(e.target.value)} />
-          </label>
-          <label className={ui.campo}>
-            <span className={ui.rotulo}>Devolve em</span>
-            <input className={ui.input} type="date" value={devolucao} min={retirada} onChange={(e) => setDevolucao(e.target.value)} />
-          </label>
+          <CampoData rotulo="Retira em" valor={retirada} onChange={setRetirada} />
+          <CampoData rotulo="Devolve em" valor={devolucao} min={retirada} onChange={setDevolucao} />
         </div>
 
         {temasComPecas.length > 0 && (
